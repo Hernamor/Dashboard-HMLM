@@ -3,51 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Modelos Predictivos</title>
+    <title>Dashboard de Modelos de Aprendizaje Automatico</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <header class="navbar">
-        <h1>⚙️ Dashboard Predictivo</h1>
-        <p>Evaluación de datos en tiempo real mediante Modelos de Machine Learning</p>
+    <header class="main-header">
+        <h1>Dashboard de Modelos Predictivos</h1>
+        <p>Analisis de datos, metricas de rendimiento y visualizaciones en tiempo real</p>
     </header>
 
-    <main class="dashboard-container">
-        <section class="card">
-            <h2>🌳 Modelo 2: Random Forest</h2>
-            <p>Ingresa los parámetros para tomar una decisión basada en el bosque aleatorio.</p>
+    <main class="dashboard-grid">
+        <section class="dashboard-card">
+            <h2>Modelo 1: Regresion Lineal</h2>
+            <p class="description">Prediccion de valores continuos. Modifica los datos de entrenamiento (separados por comas) para recalcular la linea de tendencia.</p>
             
-            <div class="input-group">
-                <label for="rf-var1">Variable Histórica 1 (Ej. Edad):</label>
-                <input type="number" id="rf-var1" placeholder="Ej: 25">
+            <div class="form-group">
+                <label for="reg-x">Datos de Entrada (X - Ejemplo: Inversion en Publicidad):</label>
+                <input type="text" id="reg-x" value="10, 20, 30, 40, 50, 60, 70">
                 
-                <label for="rf-var2">Variable Histórica 2 (Ej. Ingreso):</label>
-                <input type="number" id="rf-var2" placeholder="Ej: 1500">
+                <label for="reg-y">Datos de Salida (Y - Ejemplo: Ventas Obtenidas):</label>
+                <input type="text" id="reg-y" value="15, 25, 28, 45, 47, 63, 68">
             </div>
 
-            <button onclick="ejecutarRandomForest()">Calcular Predicción</button>
-            
-            <div class="result-box" id="rf-resultado">
-                El resultado aparecerá aquí...
+            <button onclick="calcularRegresion()">Entrenar y Graficar Regresion</button>
+
+            <div class="metrics-container">
+                <h3>Metricas del Modelo</h3>
+                <div class="metrics-grid">
+                    <div class="metric-item">Coeficiente R2: <span id="metric-r2">0.00</span></div>
+                    <div class="metric-item">Error Cuadratico Medio (MSE): <span id="metric-mse">0.00</span></div>
+                </div>
+                <p class="equation">Ecuacion: <span id="reg-equation">Y = mX + b</span></p>
+            </div>
+
+            <div class="chart-wrapper">
+                <canvas id="chartRegresion"></canvas>
             </div>
         </section>
 
-        <section class="card">
-            <h2>🧠 Modelo 3: Red Neuronal</h2>
-            <p>Procesamiento de datos a través de capas neuronales (simulación).</p>
+        <section class="dashboard-card">
+            <h2>Modelo 2: Arbol de Decision</h2>
+            <p class="description">Clasificacion automatica basada en reglas condicionales. Ajusta la profundidad maxima del arbol para observar el cambio en la precision y evitar el sobreajuste.</p>
             
-            <div class="input-group">
-                <label for="nn-var1">Dato de Entrada 1:</label>
-                <input type="number" id="nn-var1" placeholder="Ej: 8.5">
+            <div class="form-group">
+                <label for="tree-depth">Profundidad Maxima del Arbol:</label>
+                <div class="slider-container">
+                    <input type="range" id="tree-depth" min="1" max="5" value="3" oninput="actualizarProfundidadTexto(this.value)">
+                    <span id="depth-value">3</span>
+                </div>
                 
-                <label for="nn-var2">Dato de Entrada 2:</label>
-                <input type="number" id="nn-var2" placeholder="Ej: 3.2">
+                <label for="tree-dataset">Conjunto de Datos Predefinido:</label>
+                <select id="tree-dataset" onchange="seleccionarDatasetArbol()">
+                    <option value="clima">Aprobacion de Credito Financiero</option>
+                    <option value="riesgo">Clasificacion de Riesgo de Pacientes</option>
+                </select>
             </div>
 
-            <button onclick="ejecutarRedNeuronal()">Procesar Red</button>
-            
-            <div class="result-box" id="nn-resultado">
-                El resultado aparecerá aquí...
+            <button onclick="calcularArbol()">Generar Reglas y Metricas</button>
+
+            <div class="metrics-container">
+                <h3>Metricas de Clasificacion</h3>
+                <div class="metrics-grid">
+                    <div class="metric-item">Exactitud (Accuracy): <span id="metric-accuracy">0.00%</span></div>
+                    <div class="metric-item">Impureza de Gini Promedio: <span id="metric-gini">0.00</span></div>
+                </div>
+            </div>
+
+            <div class="tree-visualization">
+                <h3>Estructura Logica del Arbol Generado</h3>
+                <pre id="tree-structure">Haz clic en entrenar para visualizar los nodos del arbol...</pre>
             </div>
         </section>
     </main>
