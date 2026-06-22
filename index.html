@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Predictivo ML - Version Unificada</title>
+    <title>Dashboard Predictivo ML - Suite Unificada</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-dark: #0f172a;
             --card-dark: #1e293b;
+            --surface-inner: #0f1f35;
             --accent: #38bdf8;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: #334155;
             --danger: #ef4444;
             --success: #4ade80;
+            --warn: #fbbf24;
         }
 
         body {
@@ -26,7 +28,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
         }
 
@@ -36,9 +38,9 @@
             padding-bottom: 20px;
         }
 
-        h1 {
-            margin: 0 0 10px 0;
-            font-size: 2rem;
+        header h1 {
+            margin: 0 0 5px 0;
+            font-size: 2.2rem;
             font-weight: 600;
             color: var(--text-main);
         }
@@ -49,25 +51,43 @@
             font-size: 1rem;
         }
 
-        .grid {
+        /* Panel superior de control de datos */
+        .control-panel {
+            background-color: var(--card-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        .control-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-modelos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
             gap: 25px;
         }
 
         .card {
             background-color: var(--card-dark);
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 25px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
         }
 
         .card h2 {
             margin-top: 0;
             color: var(--accent);
-            font-size: 1.3rem;
-            margin-bottom: 20px;
+            font-size: 1.25rem;
+            margin-bottom: 15px;
             border-left: 4px solid var(--accent);
             padding-left: 10px;
         }
@@ -80,24 +100,26 @@
 
         label {
             color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-bottom: 8px;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        input[type="text"], select {
+        input[type="text"], input[type="number"] {
             background-color: var(--bg-dark);
             border: 1px solid var(--border);
             color: var(--text-main);
-            padding: 12px;
+            padding: 10px 12px;
             border-radius: 6px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-family: monospace;
             transition: border-color 0.3s;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        input[type="text"]:focus, select:focus {
+        input[type="text"]:focus, input[type="number"]:focus {
             outline: none;
             border-color: var(--accent);
         }
@@ -110,14 +132,15 @@
 
         input[type="range"] {
             flex: 1;
+            accent-color: var(--accent);
         }
 
         .depth-display {
             font-family: monospace;
             color: var(--accent);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            width: 30px;
+            width: 25px;
             text-align: center;
         }
 
@@ -128,10 +151,9 @@
             padding: 12px;
             border-radius: 6px;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer;
             width: 100%;
-            margin-top: 10px;
             transition: background-color 0.2s;
         }
 
@@ -140,315 +162,248 @@
         }
 
         .metrics-panel {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-            padding-top: 25px;
-            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
         }
 
         .metric-box {
-            background-color: var(--bg-dark);
+            background-color: var(--surface-inner);
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 15px;
-            flex: 1;
+            padding: 12px 8px;
             text-align: center;
         }
 
         .metric-value {
-            font-size: 1.6rem;
+            font-size: 1.3rem;
             color: var(--text-main);
             font-weight: bold;
             font-family: monospace;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .metric-label {
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             color: var(--text-muted);
             text-transform: uppercase;
         }
 
-        .equation-box {
-            background-color: var(--bg-dark);
+        .output-box {
+            background-color: var(--surface-inner);
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 10px;
+            padding: 12px;
             margin-top: 15px;
-            text-align: center;
             font-family: monospace;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--accent);
+            overflow-x: auto;
         }
 
         .chart-container {
-            margin-top: 25px;
-            height: 250px;
+            margin-top: 15px;
+            height: 200px;
             width: 100%;
             position: relative;
-        }
-
-        .tree-container {
-            background-color: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 15px;
-            margin-top: 25px;
-            overflow-x: auto;
         }
 
         pre {
             margin: 0;
             color: var(--text-main);
             font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9rem;
-            line-height: 1.5;
+            font-size: 0.85rem;
+            line-height: 1.4;
         }
 
         .tree-node { color: var(--accent); font-weight: bold; }
         .tree-leaf { color: var(--success); }
-        .tree-leaf-bad { color: var(--danger); }
+        .tw { color: var(--warn); }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Proyecto Final Fundamentos de Analitica de Datos:</h1>
-            <h1>Alumno: Hernández Morales Luis Manuel</h1>
-            <p class="subtitle">Análisis de algoritmos (Regresión, Árboles y Redes Neuronales)</p>
-        </div>
+        <header class="header">
+            <h1>Alumno: Hernandez Morales Luis Manuel</h1>
+            <p class="subtitle">Analisis de algoritmos sobre la misma base de datos de entrada</p>
+        </header>
 
-        <div class="grid">
-            <div class="card">
-                <h2>1. Análisis de Regresión Lineal</h2>
-                
+        <section class="control-panel">
+            <div class="control-grid">
                 <div class="form-group">
-                    <label>Eje X (Historial - Valores separados por coma)</label>
-                    <input type="text" id="reg-x" value="10, 20, 30, 40, 50, 60, 70, 80">
+                    <label>Variables de Entrada (X - Separadas por comas)</label>
+                    <input type="text" id="global-x" value="5, 10, 34">
                 </div>
-                
                 <div class="form-group">
-                    <label>Eje Y (Resultados - Valores separados por coma)</label>
-                    <input type="text" id="reg-y" value="15, 22, 35, 38, 45, 55, 75, 78">
+                    <label>Variables de Salida (Y - Separadas por comas)</label>
+                    <input type="text" id="global-y" value="120, 12, 34">
                 </div>
+                <div class="form-group">
+                    <label>Valor de X a Predecir</label>
+                    <input type="number" id="predict-val" value="23" step="any">
+                </div>
+            </div>
+            <button style="margin-top: 15px;" onclick="ejecutarTodo()">Procesar y Entrenar Modelos</button>
+        </section>
 
-                <button onclick="procesarRegresion()">Entrenar Modelo Lineal</button>
-
+        <div class="grid-modelos">
+            <article class="card">
+                <h2>1. Regresion Lineal (OLS)</h2>
                 <div class="metrics-panel">
                     <div class="metric-box">
-                        <div class="metric-value" id="val-r2">0.0000</div>
-                        <div class="metric-label">Coeficiente R2</div>
+                        <div class="metric-value" id="reg-r2">—</div>
+                        <div class="metric-label">R2 Score</div>
                     </div>
                     <div class="metric-box">
-                        <div class="metric-value" id="val-mse">0.00</div>
-                        <div class="metric-label">Error</div>
+                        <div class="metric-value" id="reg-mse">—</div>
+                        <div class="metric-label">MSE</div>
                     </div>
                 </div>
-
-                <div class="equation-box" id="reg-equation">
-                    Y = mX + b
-                </div>
-
+                <div class="output-box" id="reg-eq">Y = mX + b</div>
+                <div class="output-box" id="reg-pred" style="color: var(--success);">Prediccion individual: —</div>
                 <div class="chart-container">
                     <canvas id="canvasRegresion"></canvas>
                 </div>
-            </div>
+            </article>
 
-            <div class="card">
-                <h2>2. Clasificador: Árbol de Decisión</h2>
-                
+            <article class="card">
+                <h2>2. Arbol de Decision</h2>
                 <div class="form-group">
-                    <label>Profundidad del Árbol (Niveles de Decisión)</label>
+                    <label>Profundidad Maxima</label>
                     <div class="range-wrapper">
-                        <input type="range" id="tree-depth" min="1" max="3" value="2" oninput="actualizarDisplayArbol()">
+                        <input type="range" id="tree-depth" min="1" max="3" value="2" oninput="ajustarProfundidad(this.value)">
                         <div class="depth-display" id="depth-text">2</div>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label>Conjunto de Datos Objetivo</label>
-                    <select id="tree-dataset" onchange="procesarArbol()">
-                        <option value="credito">Aprobación de Crédito Financiero</option>
-                        <option value="medico">Diagnóstico de Riesgo Médico</option>
-                    </select>
-                </div>
-
                 <div class="metrics-panel">
                     <div class="metric-box">
-                        <div class="metric-value" id="val-acc">0.0%</div>
-                        <div class="metric-label">Exactitud</div>
+                        <div class="metric-value" id="tree-mse">—</div>
+                        <div class="metric-label">MSE Modelo</div>
                     </div>
                     <div class="metric-box">
-                        <div class="metric-value" id="val-gini">0.000</div>
-                        <div class="metric-label">Impureza Promedio</div>
+                        <div class="metric-value" id="tree-nodes">—</div>
+                        <div class="metric-label">Nodos / Hojas</div>
                     </div>
                 </div>
-
-                <div class="tree-container">
-                    <pre id="tree-render">Calculando nodos lógicos...</pre>
+                <div class="output-box" id="tree-pred" style="color: var(--success);">Prediccion individual: —</div>
+                <div class="tree-container" style="background-color: var(--surface-inner); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-top: 15px; overflow-x: auto; flex-grow: 1;">
+                    <pre id="tree-render">Estructura del arbol...</pre>
                 </div>
-            </div>
+            </article>
 
-            <div class="card">
+            <article class="card">
                 <h2>3. Red Neuronal</h2>
-                
                 <div class="form-group">
-                    <label>Variable Entrada 1 (Ej. Nivel de Ingresos)</label>
-                    <input type="text" id="nn-x1" value="8.5">
+                    <label>Iteraciones de Aprendizaje</label>
+                    <input type="number" id="nn-epochs" value="500">
                 </div>
-                
-                <div class="form-group">
-                    <label>Variable Entrada 2 (Ej. Historial Crediticio)</label>
-                    <input type="text" id="nn-x2" value="7.2">
-                </div>
-
-                <button onclick="procesarRedNeuronal()">Procesar Propagación</button>
-
                 <div class="metrics-panel">
                     <div class="metric-box">
-                        <div class="metric-value" id="val-nn-sum">0.00</div>
-                        <div class="metric-label">Suma Ponderada (Z)</div>
-                    </div>
-                    <div class="metric-box">
-                        <div class="metric-value" id="val-nn-out">0.0%</div>
-                        <div class="metric-label">Activación</div>
+                        <div class="metric-value" id="nn-mse">—</div>
+                        <div class="metric-label">MSE Final</div>
                     </div>
                 </div>
-
-                <div class="tree-container">
-                    <pre id="nn-render">Esperando procesamiento de la red...</pre>
+                <div class="output-box" id="nn-weights">W = — | B = —</div>
+                <div class="output-box" id="nn-pred" style="color: var(--success);">Prediccion individual: —</div>
+                <div class="tree-container" style="background-color: var(--surface-inner); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-top: 15px; overflow-x: auto; flex-grow: 1;">
+                    <pre id="nn-log">Log de entrenamiento...</pre>
                 </div>
-            </div>
+            </article>
         </div>
     </div>
 
     <script>
         let chartInstancia = null;
 
-        // DATASETS REALES PARA EL PROCESAMIENTO DEL ARBOL
-        const datasetCredito = [
-            { ingreso: 60000, deuda: 5000, historial: 1, clase: "Aprobar" },
-            { ingreso: 45000, deuda: 12000, historial: 1, clase: "Aprobar" },
-            { ingreso: 80000, deuda: 2000, historial: 1, clase: "Aprobar" },
-            { ingreso: 30000, deuda: 15000, historial: 0, clase: "Rechazar" },
-            { ingreso: 55000, deuda: 25000, historial: 0, clase: "Rechazar" },
-            { ingreso: 22000, deuda: 3000, historial: 1, clase: "Rechazar" },
-            { ingreso: 95000, deuda: 35000, historial: 1, clase: "Aprobar" },
-            { ingreso: 35000, deuda: 4000, historial: 0, clase: "Rechazar" }
-        ];
-
-        const datasetMedico = [
-            { edad: 65, presion: 145, fumador: 1, clase: "Riesgo Alto" },
-            { edad: 45, presion: 120, fumador: 0, clase: "Riesgo Bajo" },
-            { edad: 70, presion: 130, fumador: 0, clase: "Riesgo Alto" },
-            { edad: 35, presion: 135, fumador: 1, clase: "Riesgo Bajo" },
-            { edad: 62, presion: 150, fumador: 1, clase: "Riesgo Alto" },
-            { edad: 28, presion: 115, fumador: 0, clase: "Riesgo Bajo" },
-            { edad: 50, presion: 142, fumador: 1, clase: "Riesgo Alto" },
-            { edad: 55, presion: 125, fumador: 0, clase: "Riesgo Bajo" }
-        ];
-
         window.onload = function() {
-            procesarRegresion();
-            procesarArbol();
-            procesarRedNeuronal();
+            ejecutarTodo();
         };
 
-        // --- MOTOR MATEMATICO DE LA RED NEURONAL BÁSICA ---
-        function procesarRedNeuronal() {
-            const x1 = parseFloat(document.getElementById('nn-x1').value);
-            const x2 = parseFloat(document.getElementById('nn-x2').value);
-
-            if(isNaN(x1) || isNaN(x2)) {
-                alert("Por favor, ingresa solo valores numéricos para la red neuronal.");
-                return;
-            }
-
-            // Parámetros básicos de un perceptrón enseñado en clase
-            const peso1 = 0.65;
-            const peso2 = 0.80;
-            const sesgo = -1.5;
-
-            // 1. Suma Ponderada
-            const sumaZ = (x1 * peso1) + (x2 * peso2) + sesgo;
-
-            // 2. Función de Activación (Sigmoide para convertir a probabilidad 0-1)
-            const activacion = 1 / (1 + Math.exp(-sumaZ));
-            const porcentaje = (activacion * 100).toFixed(1);
-
-            document.getElementById('val-nn-sum').innerText = sumaZ.toFixed(2);
-            document.getElementById('val-nn-out').innerText = porcentaje + "%";
-
-            let diag = "Estructura del Perceptrón:\n\n";
-            diag += `[Entrada 1: ${x1}] --(peso: ${peso1})--> |\n`;
-            diag += `[Entrada 2: ${x2}] --(peso: ${peso2})--> |--> ( ∑ Z = ${sumaZ.toFixed(2)} )\n`;
-            diag += `[Sesgo (Bias): ${sesgo}] ---------> |\n\n`;
-            diag += `Aplicando Función Sigmoide: f(z) = 1 / (1 + e^-z)\n`;
-            diag += activacion >= 0.5 ? `\nResultado Final: <span class="tree-leaf">CLASE POSITIVA (${porcentaje}%)</span>` : `\nResultado Final: <span class="tree-leaf-bad">CLASE NEGATIVA (${porcentaje}%)</span>`;
-
-            document.getElementById('nn-render').innerHTML = diag;
+        function ajustarProfundidad(val) {
+            document.getElementById('depth-text').innerText = val;
+            ejecutarTodo();
         }
 
-        // --- PROCESAMIENTO DE REGRESION LINEAL ---
-        function procesarRegresion() {
-            const strX = document.getElementById('reg-x').value.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
-            const strY = document.getElementById('reg-y').value.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+        function obtenerDatosGlobales() {
+            const xs = document.getElementById('global-x').value.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+            const ys = document.getElementById('global-y').value.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+            const xPred = parseFloat(document.getElementById('predict-val').value);
+            return { xs, ys, xPred };
+        }
 
-            if (strX.length < 2 || strX.length !== strY.length) {
-                alert("Error de validacion: Ingresa la misma cantidad de datos en X y en Y.");
+        function ejecutarTodo() {
+            const { xs, ys, xPred } = obtenerDatosGlobales();
+
+            if (xs.length < 2 || xs.length !== ys.length) {
+                alert("Error: Las listas X e Y deben tener el mismo numero de elementos (minimo 2).");
                 return;
             }
 
-            const n = strX.length;
-            let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+            // 1. EJECUCIÓN REGRESIÓN LINEAL
+            const regresion = calcRegresion(xs, ys, xPred);
             
+            // 2. EJECUCIÓN ÁRBOL DE DECISIÓN DE REGRESIÓN (CART)
+            const profundidadMax = parseInt(document.getElementById('tree-depth').value);
+            calcArbolRegresion(xs, ys, xPred, profundidadMax);
+
+            // 3. EJECUCIÓN RED NEURONAL
+            calcRedNeuronal(xs, ys, xPred);
+        }
+
+        // ==========================================
+        // 1. LÓGICA MATEMÁTICA: REGRESIÓN LINEAL
+        // ==========================================
+        function calcRegresion(xs, ys, xPred) {
+            const n = xs.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
             for (let i = 0; i < n; i++) {
-                sumX += strX[i];
-                sumY += strY[i];
-                sumXY += strX[i] * strY[i];
-                sumXX += strX[i] * strX[i];
+                sumX += xs[i];
+                sumY += ys[i];
+                sumXY += xs[i] * ys[i];
+                sumXX += xs[i] * xs[i];
             }
 
-            const pendiente = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-            const interseccion = (sumY - pendiente * sumX) / n;
+            const m = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            const b = (sumY - m * sumX) / n;
 
-            let yPredichos = [];
-            let sumaErroresCuadrados = 0;
-            let sumaTotalCuadrados = 0;
+            let yHat = [];
+            let sse = 0, sst = 0;
             const mediaY = sumY / n;
 
             for (let i = 0; i < n; i++) {
-                const pred = pendiente * strX[i] + interseccion;
-                yPredichos.push(pred);
-                
-                sumaErroresCuadrados += Math.pow(strY[i] - pred, 2);
-                sumaTotalCuadrados += Math.pow(strY[i] - mediaY, 2);
+                const p = m * xs[i] + b;
+                yHat.push(p);
+                sse += Math.pow(ys[i] - p, 2);
+                sst += Math.pow(ys[i] - mediaY, 2);
             }
 
-            const mse = sumaErroresCuadrados / n;
-            const r2 = sumaTotalCuadrados === 0 ? 1 : 1 - (sumaErroresCuadrados / sumaTotalCuadrados);
+            const mse = sse / n;
+            const r2 = sst === 0 ? 1 : 1 - (sse / sst);
+            const prediccionIndividual = m * xPred + b;
 
-            document.getElementById('val-r2').innerText = r2.toFixed(4);
-            document.getElementById('val-mse').innerText = mse.toFixed(2);
-            document.getElementById('reg-equation').innerText = `Ecuacion: Y = ${pendiente.toFixed(2)}X + (${interseccion.toFixed(2)})`;
+            document.getElementById('reg-r2').innerText = r2.toFixed(4);
+            document.getElementById('reg-mse').innerText = mse.toFixed(2);
+            document.getElementById('reg-eq').innerText = `Ecuacion: Y = ${m.toFixed(3)}X + (${b.toFixed(3)})`;
+            document.getElementById('reg-pred').innerText = `Prediccion para X=${xPred}: ${prediccionIndividual.toFixed(3)}`;
 
-            dibujarGrafica(strX, strY, yPredichos);
+            renderizarGrafica(xs, ys, yHat);
+            return { m, b };
         }
 
-        function dibujarGrafica(xDatos, yDatos, predichos) {
+        function renderizarGrafica(xs, ys, yHat) {
             const ctx = document.getElementById('canvasRegresion').getContext('2d');
             if (chartInstancia) { chartInstancia.destroy(); }
 
-            const scatterData = xDatos.map((val, index) => ({ x: val, y: yDatos[index] }));
-            const lineData = xDatos.map((val, index) => ({ x: val, y: predichos[index] }));
+            const scatterData = xs.map((val, idx) => ({ x: val, y: ys[idx] }));
+            const lineData = xs.map((val, idx) => ({ x: val, y: yHat[idx] }));
 
             chartInstancia = new Chart(ctx, {
                 type: 'scatter',
                 data: {
                     datasets: [
                         { label: 'Datos Reales', data: scatterData, backgroundColor: '#94a3b8', pointRadius: 5 },
-                        { label: 'Linea Proyectada', data: lineData, type: 'line', borderColor: '#38bdf8', borderWidth: 2, fill: false, pointRadius: 0 }
+                        { label: 'Linea Lineal', data: lineData, type: 'line', borderColor: '#38bdf8', borderWidth: 2, fill: false, pointRadius: 0 }
                     ]
                 },
                 options: {
@@ -463,129 +418,170 @@
             });
         }
 
-        // --- MOTOR LOGICO DEL ARBOL DE DECISION ---
-        function actualizarDisplayArbol() {
-            document.getElementById('depth-text').innerText = document.getElementById('tree-depth').value;
-            procesarArbol();
-        }
-
-        function calcularGiniSubconjunto(elementos, campoClase) {
-            if (elementos.length === 0) return 0;
-            const conteo = {};
-            elementos.forEach(x => { conteo[x[campoClase]] = (conteo[x[campoClase]] || 0) + 1; });
-            let sumaCuadrados = 0;
-            for (let clase in conteo) {
-                let p = conteo[clase] / elementos.length;
-                sumaCuadrados += p * p;
-            }
-            return 1 - sumaCuadrados;
-        }
-
-        function procesarArbol() {
-            const profundidad = parseInt(document.getElementById('tree-depth').value);
-            const datasetTipo = document.getElementById('tree-dataset').value;
+        // ==========================================
+        // 2. LÓGICA MATEMÁTICA: ÁRBOL DE REGRESIÓN CART REAL
+        // ==========================================
+        function calcArbolRegresion(xs, ys, xPred, maxDepth) {
+            // Combinar datos en un array estructurado
+            let registros = xs.map((x, i) => ({ x, y: ys[i] }));
             
-            let datos = datasetTipo === "credito" ? datasetCredito : datasetMedico;
-            let campoClase = "clase";
-            let renderHtml = "";
-            let aciertos = 0;
-            let giniPromedio = 0;
+            // Función recursiva para construir las divisiones optimizando la varianza (MSE)
+            function construirNodo(datos, de) {
+                const nNode = datos.length;
+                if (nNode === 0) return null;
 
-            if (datasetTipo === "credito") {
-                datos.forEach(p => {
-                    let prediccion = "";
-                    if (profundidad === 1) {
-                        prediccion = p.ingreso > 50000 ? "Aprobar" : "Rechazar";
-                    } else if (profundidad === 2) {
-                        if (p.ingreso > 50000) {
-                            prediccion = p.deuda < 20000 ? "Aprobar" : "Rechazar";
-                        } else {
-                            prediccion = "Rechazar";
-                        }
-                    } else {
-                        if (p.ingreso > 50000) {
-                            prediccion = p.deuda < 20000 ? "Aprobar" : "Rechazar";
-                        } else {
-                            prediccion = p.historial === 1 ? "Aprobar" : "Rechazar";
-                        }
-                    }
-                    if (prediccion === p.clase) aciertos++;
-                });
-
-                const nTotal = datos.length;
-                if (profundidad === 1) {
-                    const nodoIzq = datos.filter(d => d.ingreso > 50000);
-                    const nodoDer = datos.filter(d => d.ingreso <= 50000);
-                    giniPromedio = ((nodoIzq.length / nTotal) * calcularGiniSubconjunto(nodoIzq, campoClase)) + ((nodoDer.length / nTotal) * calcularGiniSubconjunto(nodoDer, campoClase));
-
-                    renderHtml = `<span class="tree-node">[Ingreso Anual > $50,000]</span>\n   |-- SI: <span class="tree-leaf">Aprobar</span>\n   |-- NO: <span class="tree-leaf-bad">Rechazar</span>`;
-                } else if (profundidad === 2) {
-                    const n1 = datos.filter(d => d.ingreso > 50000 && d.deuda < 20000);
-                    const n2 = datos.filter(d => d.ingreso > 50000 && d.deuda >= 20000);
-                    const n3 = datos.filter(d => d.ingreso <= 50000);
-                    giniPromedio = ((n1.length/nTotal)*calcularGiniSubconjunto(n1, campoClase)) + ((n2.length/nTotal)*calcularGiniSubconjunto(n2, campoClase)) + ((n3.length/nTotal)*calcularGiniSubconjunto(n3, campoClase));
-
-                    renderHtml = `<span class="tree-node">[Ingreso Anual > $50,000]</span>\n   |-- SI: <span class="tree-node">[Deuda < $20,000]</span>\n   |     |-- SI: <span class="tree-leaf">Aprobar</span>\n   |     |-- NO: <span class="tree-leaf-bad">Rechazar</span>\n   |-- NO: <span class="tree-leaf-bad">Rechazar</span>`;
-                } else {
-                    const n1 = datos.filter(d => d.ingreso > 50000 && d.deuda < 20000);
-                    const n2 = datos.filter(d => d.ingreso > 50000 && d.deuda >= 20000);
-                    const n3 = datos.filter(d => d.ingreso <= 50000 && d.historial === 1);
-                    const n4 = datos.filter(d => d.ingreso <= 50000 && d.historial !== 1);
-                    giniPromedio = ((n1.length/nTotal)*calcularGiniSubconjunto(n1, campoClase)) + ((n2.length/nTotal)*calcularGiniSubconjunto(n2, campoClase)) + ((n3.length/nTotal)*calcularGiniSubconjunto(n3, campoClase)) + ((n4.length/nTotal)*calcularGiniSubconjunto(n4, campoClase));
-
-                    renderHtml = `<span class="tree-node">[Ingreso Anual > $50,000]</span>\n   |-- SI: <span class="tree-node">[Deuda < $20,000]</span>\n   |     |-- SI: <span class="tree-leaf">Aprobar</span>\n   |     |-- NO: <span class="tree-leaf-bad">Rechazar</span>\n   |-- NO: <span class="tree-node">[Historial es Bueno]</span>\n         |-- SI: <span class="tree-leaf">Aprobar</span>\n         |-- NO: <span class="tree-leaf-bad">Rechazar</span>`;
+                const promedioY = datos.reduce((sum, d) => sum + d.y, 0) / nNode;
+                
+                // Si llegamos al limite de profundidad o los datos son homogeneos en X
+                const valoresXUnicos = [...new Set(datos.map(d => d.x))];
+                if (de >= maxDepth || valoresXUnicos.length === 1 || nNode < 2) {
+                    return { isLeaf: true, pred: promedioY, n: nNode };
                 }
-            } else {
-                datos.forEach(p => {
-                    let prediccion = "";
-                    if (profundidad === 1) {
-                        prediccion = p.edad > 60 ? "Riesgo Alto" : "Riesgo Bajo";
-                    } else if (profundidad === 2) {
-                        if (p.edad > 60) {
-                            prediccion = p.presion > 140 ? "Riesgo Alto" : "Riesgo Bajo";
-                        } else {
-                            prediccion = "Riesgo Bajo";
-                        }
-                    } else {
-                        if (p.edad > 60) {
-                            prediccion = p.presion > 140 ? "Riesgo Alto" : "Riesgo Bajo";
-                        } else {
-                            prediccion = p.fumador === 1 ? "Riesgo Alto" : "Riesgo Bajo";
-                        }
+
+                // Encontrar el mejor punto de corte (Split) evaluando puntos medios
+                valoresXUnicos.sort((a, b) => a - b);
+                let mejorCorte = null;
+                let menorSse = Infinity;
+
+                for (let i = 0; i < valoresXUnicos.length - 1; i++) {
+                    let corteEvaluado = (valoresXUnicos[i] + valoresXUnicos[i+1]) / 2;
+                    let izq = datos.filter(d => d.x <= corteEvaluado);
+                    let der = datos.filter(d => d.x > corteEvaluado);
+
+                    if (izq.length === 0 || der.length === 0) continue;
+
+                    let promIzq = izq.reduce((s, d) => s + d.y, 0) / izq.length;
+                    let promDer = der.reduce((s, d) => s + d.y, 0) / der.length;
+
+                    let sseCorte = izq.reduce((s, d) => s + Math.pow(d.y - promIzq, 2), 0) +
+                                   der.reduce((s, d) => s + Math.pow(d.y - promDer, 2), 0);
+
+                    if (sseCorte < menorSse) {
+                        menorSse = sseCorte;
+                        mejorCorte = { threshold: corteEvaluado, izq, der };
                     }
-                    if (prediccion === p.clase) aciertos++;
-                });
+                }
 
-                const nTotal = datos.length;
-                if (profundidad === 1) {
-                    const nodoIzq = datos.filter(d => d.edad > 60);
-                    const nodoDer = datos.filter(d => d.edad <= 60);
-                    giniPromedio = ((nodoIzq.length / nTotal) * calcularGiniSubconjunto(nodoIzq, campoClase)) + ((nodoDer.length / nTotal) * calcularGiniSubconjunto(nodoDer, campoClase));
+                if (!mejorCorte) {
+                    return { isLeaf: true, pred: promedioY, n: nNode };
+                }
 
-                    renderHtml = `<span class="tree-node">[Edad Paciente > 60]</span>\n   |-- SI: <span class="tree-leaf-bad">Riesgo Alto</span>\n   |-- NO: <span class="tree-leaf">Riesgo Bajo</span>`;
-                } else if (profundidad === 2) {
-                    const n1 = datos.filter(d => d.edad > 60 && d.presion > 140);
-                    const n2 = datos.filter(d => d.edad > 60 && d.presion <= 140);
-                    const n3 = datos.filter(d => d.edad <= 60);
-                    giniPromedio = ((n1.length/nTotal)*calcularGiniSubconjunto(n1, campoClase)) + ((n2.length/nTotal)*calcularGiniSubconjunto(n2, campoClase)) + ((n3.length/nTotal)*calcularGiniSubconjunto(n3, campoClase));
+                return {
+                    isLeaf: false,
+                    threshold: mejorCorte.threshold,
+                    n: nNode,
+                    left: construirNodo(mejorCorte.izq, de + 1),
+                    right: construirNodo(mejorCorte.der, de + 1)
+                };
+            }
 
-                    renderHtml = `<span class="tree-node">[Edad Paciente > 60]</span>\n   |-- SI: <span class="tree-node">[Presion > 140]</span>\n   |     |-- SI: <span class="tree-leaf-bad">Riesgo Alto</span>\n   |     |-- NO: <span class="tree-leaf">Riesgo Bajo</span>\n   |-- NO: <span class="tree-leaf">Riesgo Bajo</span>`;
-                } else {
-                    const n1 = datos.filter(d => d.edad > 60 && d.presion > 140);
-                    const n2 = datos.filter(d => d.edad > 60 && d.presion <= 140);
-                    const n3 = datos.filter(d => d.edad <= 60 && d.fumador === 1);
-                    const n4 = datos.filter(d => d.edad <= 60 && d.fumador !== 1);
-                    giniPromedio = ((n1.length/nTotal)*calcularGiniSubconjunto(n1, campoClase)) + ((n2.length/nTotal)*calcularGiniSubconjunto(n2, campoClase)) + ((n3.length/nTotal)*calcularGiniSubconjunto(n3, campoClase)) + ((n4.length/nTotal)*calcularGiniSubconjunto(n4, campoClase));
+            const raiz = construirNodo(registros, 0);
 
-                    renderHtml = `<span class="tree-node">[Edad Paciente > 60]</span>\n   |-- SI: <span class="tree-node">[Presion > 140]</span>\n   |     |-- SI: <span class="tree-leaf-bad">Riesgo Alto</span>\n   |     |-- NO: <span class="tree-leaf">Riesgo Bajo</span>\n   |-- NO: <span class="tree-node">[Fumador Activo]</span>\n         |-- SI: <span class="tree-leaf-bad">Riesgo Alto</span>\n         |-- NO: <span class="tree-leaf">Riesgo Bajo</span>`;
+            // Evaluacion de prediccion individual recorriendo nodos
+            function evaluarArbol(nodo, xVal) {
+                if (nodo.isLeaf) return nodo.pred;
+                if (xVal <= nodo.threshold) return evaluarArbol(nodo.left, xVal);
+                return evaluarArbol(nodo.right, xVal);
+            }
+
+            // Calculo de metricas globales reales del arbol
+            let sseTotal = 0;
+            let contadorNodos = 0, contadorHojas = 0;
+
+            registros.forEach(r => {
+                let p = evaluarArbol(raiz, r.x);
+                sseTotal += Math.pow(r.y - p, 2);
+            });
+            const mseTree = sseTotal / registros.length;
+
+            function contarEstructura(nodo) {
+                if (!nodo) return;
+                contadorNodos++;
+                if (nodo.isLeaf) { contadorHojas++; }
+                else {
+                    contarEstructura(nodo.left);
+                    contarEstructura(nodo.right);
+                }
+            }
+            contarEstructura(raiz);
+
+            // Renderizado visual jerarquico en formato texto plano pre
+            function stringifyArbol(nodo, pfx = "") {
+                if (!nodo) return "";
+                if (nodo.isLeaf) {
+                    return `${pfx}└── <span class="tree-leaf">Resultado Y = ${nodo.pred.toFixed(2)}</span> (n=${nodo.n})\n`;
+                }
+                let res = `${pfx}<span class="tree-node">[X &le; ${nodo.threshold.toFixed(2)}]</span> (n=${nodo.n})\n`;
+                res += `${pfx}├── <span class="tw">SI</span>\n` + stringifyArbol(nodo.left, pfx + "│   ");
+                res += `${pfx}└── <span class="tw">NO</span>\n` + stringifyArbol(nodo.right, pfx + "│   ");
+                return res;
+            }
+
+            const pIndiv = evaluarArbol(raiz, xPred);
+            document.getElementById('tree-mse').innerText = mseTree.toFixed(2);
+            document.getElementById('tree-nodes').innerText = `${contadorNodos} / ${contadorHojas}`;
+            document.getElementById('tree-pred').innerText = `Prediccion para X=${xPred}: ${pIndiv.toFixed(3)}`;
+            document.getElementById('tree-render').innerHTML = stringifyArbol(raiz);
+        }
+
+        // ==========================================
+        // 3. LÓGICA MATEMÁTICA: RED NEURONAL (PERCEPTRÓN LINEAL CON DELTA RULE)
+        // ==========================================
+        function calcRedNeuronal(xs, ys, xPred) {
+            const n = xs.length;
+            const epocas = parseInt(document.getElementById('nn-epochs').value) || 100;
+
+            // Para evitar desbordamientos u oscilaciones (NaN), normalizamos los vectores de entrada internamente
+            const minX = Math.min(...xs), maxX = Math.max(...xs);
+            const minY = Math.min(...ys), maxY = Math.max(...ys);
+
+            const normX = xs.map(x => (maxX - minX === 0) ? 0.5 : (x - minX) / (maxX - minX));
+            const normY = ys.map(y => (maxY - minY === 0) ? 0.5 : (y - minY) / (maxY - minY));
+
+            // Inicializacion de pesos y sesgo
+            let w = 0.5;
+            let b = 0.1;
+            let tasaAprendizaje = 0.1; 
+            let logTexto = "Iniciando entrenamiento del Perceptron...\n\n";
+
+            // Bucle de entrenamiento por descenso de gradiente estocastico (Regla Delta)
+            for (let epoch = 1; epoch <= epocas; epoch++) {
+                let errorCuadraticoEpoca = 0;
+                for (let i = 0; i < n; i++) {
+                    let prediccionLineal = normX[i] * w + b;
+                    let error = prediccionLineal - normY[i];
+                    errorCuadraticoEpoca += Math.pow(error, 2);
+
+                    // Ajuste de parametros basico f(z)
+                    w -= tasaAprendizaje * error * normX[i];
+                    b -= tasaAprendizaje * error;
+                }
+                let mseEpoca = errorCuadraticoEpoca / n;
+                if (epoch === 1 || epoch === Math.floor(epocas/2) || epoch === epocas) {
+                    logTexto += `Epoca ${epoch}/${epocas} -> MSE Norm: ${mseEpoca.toFixed(5)}\n`;
                 }
             }
 
-            let exactitudFinal = (aciertos / datos.length) * 100;
+            // Calculo final del MSE global de la red en escala original para reporte directo
+            let sumaErroresOriginales = 0;
+            for (let i = 0; i < n; i++) {
+                let pNorm = normX[i] * w + b;
+                let pOrig = pNorm * (maxY - minY) + minY;
+                sumaErroresOriginales += Math.pow(ys[i] - pOrig, 2);
+            }
+            const mseFinalRed = sumaErroresOriginales / n;
 
-            document.getElementById('val-acc').innerText = exactitudFinal.toFixed(1) + "%";
-            document.getElementById('val-gini').innerText = giniPromedio.toFixed(3);
-            document.getElementById('tree-render').innerHTML = renderHtml;
+            // Inferencia para el valor individual solicitado
+            const xPredNorm = (maxX - minX === 0) ? 0.5 : (xPred - minX) / (maxX - minX);
+            const yPredNorm = xPredNorm * w + b;
+            const yPredOriginal = yPredNorm * (maxY - minY) + minY;
+
+            document.getElementById('nn-mse').innerText = mseFinalRed.toFixed(2);
+            document.getElementById('nn-weights').innerText = `Peso W (Norm): ${w.toFixed(4)} | Bias B (Norm): ${b.toFixed(4)}`;
+            document.getElementById('nn-pred').innerText = `Prediccion para X=${xPred}: ${yPredOriginal.toFixed(3)}`;
+            
+            logTexto += `\nEntrenamiento finalizado exitosamente.\nEcuacion de red escalar: f(X_norm) = W*X_norm + B`;
+            document.getElementById('nn-log').innerHTML = logTexto;
         }
     </script>
 </body>
