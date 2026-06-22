@@ -1,584 +1,530 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Predictivo ML</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-:root {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --surface2: #0f1f35;
-  --border: #334155;
-  --accent: #38bdf8;
-  --accent2: #7dd3fc;
-  --text: #f1f5f9;
-  --muted: #94a3b8;
-  --success: #4ade80;
-  --danger: #f87171;
-  --warn: #fbbf24;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  padding: 32px 20px 48px;
-  font-size: 15px;
-  line-height: 1.5;
-}
-.container { max-width: 1200px; margin: 0 auto; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Predictivo ML - Version Unificada</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --accent: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --success: #4ade80;
+        }
 
-.header {
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 20px;
-  margin-bottom: 32px;
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.header h1 { font-size: 1.6rem; font-weight: 600; color: var(--text); }
-.header .tag {
-  font-size: 0.7rem;
-  background: var(--accent);
-  color: #020617;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-.header p { color: var(--muted); font-size: 0.9rem; width: 100%; margin-top: 4px; }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 30px 20px;
+        }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
-  gap: 24px;
-}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 28px;
-}
-.card-title {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 20px;
-  padding-left: 12px;
-  border-left: 3px solid var(--accent);
-}
+        .header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
 
-.form-group { margin-bottom: 14px; }
-.form-group label {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  margin-bottom: 7px;
-}
-input[type="text"], select {
-  width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-family: 'Courier New', monospace;
-  transition: border-color 0.2s;
-}
-input[type="text"]:focus, select:focus { outline: none; border-color: var(--accent); }
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
 
-.range-row { display: flex; align-items: center; gap: 12px; }
-input[type="range"] { flex: 1; accent-color: var(--accent); }
-.range-val {
-  font-family: monospace;
-  color: var(--accent);
-  font-size: 1.1rem;
-  font-weight: 700;
-  width: 24px;
-  text-align: center;
-}
+        .subtitle {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 1rem;
+        }
 
-button {
-  width: 100%;
-  margin-top: 12px;
-  padding: 11px;
-  background: var(--accent);
-  color: #020617;
-  border: none;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-button:hover { background: var(--accent2); }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+        }
 
-.divider { border-top: 1px solid var(--border); margin: 22px 0; }
+        .card {
+            background-color: var(--card-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
 
-.metrics-row { display: flex; gap: 12px; }
-.metric-box {
-  flex: 1;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px;
-  text-align: center;
-}
-.metric-val {
-  font-size: 1.5rem;
-  font-weight: 700;
-  font-family: monospace;
-  color: var(--text);
-  margin-bottom: 4px;
-}
-.metric-lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .card h2 {
+            margin-top: 0;
+            color: var(--accent);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+        }
 
-.equation-box {
-  margin-top: 12px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px;
-  text-align: center;
-  font-family: monospace;
-  color: var(--accent);
-  font-size: 0.95rem;
-}
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
 
-.chart-wrap { margin-top: 22px; height: 240px; position: relative; }
+        label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-.tree-box {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 16px;
-  overflow-x: auto;
-}
-.tree-box pre {
-  margin: 0;
-  font-family: 'Courier New', monospace;
-  font-size: 0.82rem;
-  line-height: 1.7;
-  white-space: pre;
-}
-.tn { color: var(--accent); font-weight: bold; }
-.tl { color: var(--success); }
-.tlb { color: var(--danger); }
-.tm { color: var(--muted); font-size: 0.78rem; }
-.tw { color: var(--warn); }
+        input[type="text"], select {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: monospace;
+            transition: border-color 0.3s;
+        }
 
-.log-box {
-  margin-top: 12px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 14px;
-  font-family: monospace;
-  font-size: 0.78rem;
-  color: var(--muted);
-  line-height: 1.6;
-}
-.log-box .log-title { color: var(--accent2); font-weight: bold; margin-bottom: 4px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
-.log-hl { color: var(--warn); }
-</style>
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .range-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+        }
+
+        .depth-display {
+            font-family: monospace;
+            color: var(--accent);
+            font-size: 1.2rem;
+            font-weight: bold;
+            width: 30px;
+            text-align: center;
+        }
+
+        button {
+            background-color: var(--accent);
+            color: #020617;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #7dd3fc;
+        }
+
+        .metrics-panel {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+
+        .metric-box {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 15px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.6rem;
+            color: var(--text-main);
+            font-weight: bold;
+            font-family: monospace;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .equation-box {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 15px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 1rem;
+            color: var(--accent);
+        }
+
+        .chart-container {
+            margin-top: 25px;
+            height: 250px;
+            width: 100%;
+            position: relative;
+        }
+
+        .tree-container {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 25px;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .tree-node { color: var(--accent); font-weight: bold; }
+        .tree-leaf { color: var(--success); }
+        .tree-leaf-bad { color: var(--danger); }
+    </style>
 </head>
 <body>
-<div class="container">
-
-  <div class="header">
-    <h1>Dashboard Predictivo ML</h1>
-    <span class="tag">CART Real</span>
-    <p>Algoritmos de Machine Learning con cálculo matemático real — los splits del árbol se descubren automáticamente</p>
-  </div>
-
-  <div class="grid">
-
-    <!-- REGRESION LINEAL -->
-    <div class="card">
-      <div class="card-title">Regresión Lineal (Mínimos Cuadrados)</div>
-
-      <div class="form-group">
-        <label>Variable X — valores separados por coma</label>
-        <input type="text" id="reg-x" value="10, 20, 30, 40, 50, 60, 70, 80, 90, 100">
-      </div>
-      <div class="form-group">
-        <label>Variable Y — valores separados por coma</label>
-        <input type="text" id="reg-y" value="14, 25, 31, 42, 48, 57, 69, 74, 85, 96">
-      </div>
-
-      <button onclick="calcRegresion()">Entrenar modelo lineal</button>
-
-      <div class="divider"></div>
-
-      <div class="metrics-row">
-        <div class="metric-box">
-          <div class="metric-val" id="val-r2">—</div>
-          <div class="metric-lbl">Coef. R²</div>
+    <div class="container">
+        <div class="header">
+            <h1>Suite de Inteligencia Predictiva</h1>
+            <p class="subtitle">Analisis de algoritmos de Machine Learning y metricas de rendimiento en tiempo real</p>
         </div>
-        <div class="metric-box">
-          <div class="metric-val" id="val-mse">—</div>
-          <div class="metric-lbl">MSE</div>
-        </div>
-        <div class="metric-box">
-          <div class="metric-val" id="val-rmse">—</div>
-          <div class="metric-lbl">RMSE</div>
-        </div>
-      </div>
 
-      <div class="equation-box" id="reg-eq">Y = m·X + b</div>
+        <div class="grid">
+            <div class="card">
+                <h2>Analisis de Regresion Lineal</h2>
+                
+                <div class="form-group">
+                    <label>Eje X (Historial - Valores separados por coma)</label>
+                    <input type="text" id="reg-x" value="10, 20, 30, 40, 50, 60, 70, 80">
+                </div>
+                
+                <div class="form-group">
+                    <label>Eje Y (Resultados - Valores separados por coma)</label>
+                    <input type="text" id="reg-y" value="15, 22, 35, 38, 45, 55, 75, 78">
+                </div>
 
-      <div class="chart-wrap">
-        <canvas id="canvasReg"></canvas>
-      </div>
+                <button onclick="procesarRegresion()">Entrenar Modelo Lineal</button>
+
+                <div class="metrics-panel">
+                    <div class="metric-box">
+                        <div class="metric-value" id="val-r2">0.0000</div>
+                        <div class="metric-label">Coeficiente R2</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="val-mse">0.00</div>
+                        <div class="metric-label">MSE (Error)</div>
+                    </div>
+                </div>
+
+                <div class="equation-box" id="reg-equation">
+                    Y = mX + b
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="canvasRegresion"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Clasificador: Arbol de Decision</h2>
+                
+                <div class="form-group">
+                    <label>Profundidad del Arbol (Niveles de Decision)</label>
+                    <div class="range-wrapper">
+                        <input type="range" id="tree-depth" min="1" max="3" value="2" oninput="actualizarDisplayArbol()">
+                        <div class="depth-display" id="depth-text">2</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Conjunto de Datos Objetivo</label>
+                    <select id="tree-dataset" onchange="procesarArbol()">
+                        <option value="credito">Aprobacion de Credito Financiero</option>
+                        <option value="medico">Diagnostico de Riesgo Medico</option>
+                    </select>
+                </div>
+
+                <div class="metrics-panel">
+                    <div class="metric-box">
+                        <div class="metric-value" id="val-acc">0.0%</div>
+                        <div class="metric-label">Exactitud (Accuracy)</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="val-gini">0.000</div>
+                        <div class="metric-label">Impureza Gini Promedio</div>
+                    </div>
+                </div>
+
+                <div class="tree-container">
+                    <pre id="tree-render">Calculando nodos matematicos...</pre>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- ARBOL DE DECISION CART -->
-    <div class="card">
-      <div class="card-title">Árbol de Decisión (CART — splits reales)</div>
+    <script>
+        let chartInstancia = null;
 
-      <div class="form-group">
-        <label>Profundidad máxima del árbol</label>
-        <div class="range-row">
-          <input type="range" id="tree-depth" min="1" max="4" value="2" oninput="onDepthChange()">
-          <div class="range-val" id="depth-disp">2</div>
-        </div>
-      </div>
+        // DATASETS REALES PARA EL PROCESAMIENTO DEL ARBOL
+        const datasetCredito = [
+            { ingreso: 60000, deuda: 5000, historial: 1, clase: "Aprobar" },
+            { ingreso: 45000, deuda: 12000, historial: 1, clase: "Aprobar" },
+            { ingreso: 80000, deuda: 2000, historial: 1, clase: "Aprobar" },
+            { ingreso: 30000, deuda: 15000, historial: 0, clase: "Rechazar" },
+            { ingreso: 55000, deuda: 25000, historial: 0, clase: "Rechazar" },
+            { ingreso: 22000, deuda: 3000, historial: 1, clase: "Rechazar" },
+            { ingreso: 95000, deuda: 35000, historial: 1, clase: "Aprobar" },
+            { ingreso: 35000, deuda: 4000, historial: 0, clase: "Rechazar" }
+        ];
 
-      <div class="form-group">
-        <label>Dataset de entrenamiento</label>
-        <select id="tree-ds" onchange="calcArbol()">
-          <option value="credito">Aprobación de crédito financiero (16 registros)</option>
-          <option value="medico">Diagnóstico de riesgo médico (16 registros)</option>
-        </select>
-      </div>
+        const datasetMedico = [
+            { edad: 65, presion: 145, fumador: 1, clase: "Riesgo Alto" },
+            { edad: 45, presion: 120, fumador: 0, clase: "Riesgo Bajo" },
+            { edad: 70, presion: 130, fumador: 0, clase: "Riesgo Alto" },
+            { edad: 35, presion: 135, fumador: 1, clase: "Riesgo Bajo" },
+            { edad: 62, presion: 150, fumador: 1, clase: "Riesgo Alto" },
+            { edad: 28, presion: 115, fumador: 0, clase: "Riesgo Bajo" },
+            { edad: 50, presion: 142, fumador: 1, clase: "Riesgo Alto" },
+            { edad: 55, presion: 125, fumador: 0, clase: "Riesgo Bajo" }
+        ];
 
-      <div class="divider"></div>
+        window.onload = function() {
+            procesarRegresion();
+            procesarArbol();
+        };
 
-      <div class="metrics-row">
-        <div class="metric-box">
-          <div class="metric-val" id="val-acc">—</div>
-          <div class="metric-lbl">Accuracy</div>
-        </div>
-        <div class="metric-box">
-          <div class="metric-val" id="val-gini">—</div>
-          <div class="metric-lbl">Gini raíz</div>
-        </div>
-        <div class="metric-box">
-          <div class="metric-val" id="val-nodes">—</div>
-          <div class="metric-lbl">Nodos / Hojas</div>
-        </div>
-      </div>
+        // --- PROCESAMIENTO DE REGRESION LINEAL ---
+        function procesarRegresion() {
+            const strX = document.getElementById('reg-x').value.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+            const strY = document.getElementById('reg-y').value.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
 
-      <div class="log-box" id="split-log">
-        <div class="log-title">Selección de splits</div>
-        <div id="log-content">El algoritmo mostrará aquí qué feature y umbral eligió en cada nodo.</div>
-      </div>
+            if (strX.length < 2 || strX.length !== strY.length) {
+                alert("Error de validacion: Ingresa la misma cantidad de datos en X y en Y.");
+                return;
+            }
 
-      <div class="tree-box">
-        <pre id="tree-render">Presiona "Entrenar" o cambia el dataset para construir el árbol.</pre>
-      </div>
+            const n = strX.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+            
+            for (let i = 0; i < n; i++) {
+                sumX += strX[i];
+                sumY += strY[i];
+                sumXY += strX[i] * strY[i];
+                sumXX += strX[i] * strX[i];
+            }
 
-    </div>
-  </div>
-</div>
+            const pendiente = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            const interseccion = (sumY - pendiente * sumX) / n;
 
-<script>
-let chartInst = null;
+            let yPredichos = [];
+            let sumaErroresCuadrados = 0;
+            let sumaTotalCuadrados = 0;
+            const mediaY = sumY / n;
 
-// ─── DATASETS ───────────────────────────────────────────────────────────────
+            for (let i = 0; i < n; i++) {
+                const pred = pendiente * strX[i] + interseccion;
+                yPredichos.push(pred);
+                
+                sumaErroresCuadrados += Math.pow(strY[i] - pred, 2);
+                sumaTotalCuadrados += Math.pow(strY[i] - mediaY, 2);
+            }
 
-const DS_CREDITO = [
-  { ingreso:60000, deuda: 5000, historial:1, edad:35, clase:"Aprobar" },
-  { ingreso:45000, deuda:12000, historial:1, edad:28, clase:"Aprobar" },
-  { ingreso:80000, deuda: 2000, historial:1, edad:42, clase:"Aprobar" },
-  { ingreso:30000, deuda:15000, historial:0, edad:55, clase:"Rechazar" },
-  { ingreso:55000, deuda:25000, historial:0, edad:38, clase:"Rechazar" },
-  { ingreso:22000, deuda: 3000, historial:1, edad:23, clase:"Rechazar" },
-  { ingreso:95000, deuda:35000, historial:1, edad:50, clase:"Aprobar" },
-  { ingreso:35000, deuda: 4000, historial:0, edad:31, clase:"Rechazar" },
-  { ingreso:72000, deuda: 8000, historial:1, edad:45, clase:"Aprobar" },
-  { ingreso:48000, deuda:18000, historial:0, edad:29, clase:"Rechazar" },
-  { ingreso:66000, deuda: 6500, historial:1, edad:37, clase:"Aprobar" },
-  { ingreso:27000, deuda: 2200, historial:0, edad:26, clase:"Rechazar" },
-  { ingreso:91000, deuda:11000, historial:1, edad:48, clase:"Aprobar" },
-  { ingreso:41000, deuda:29000, historial:0, edad:33, clase:"Rechazar" },
-  { ingreso:53000, deuda: 7000, historial:1, edad:40, clase:"Aprobar" },
-  { ingreso:38000, deuda: 9500, historial:0, edad:27, clase:"Rechazar" },
-];
+            const mse = sumaErroresCuadrados / n;
+            const r2 = sumaTotalCuadrados === 0 ? 1 : 1 - (sumaErroresCuadrados / sumaTotalCuadrados);
 
-const FEAT_CREDITO = ["ingreso","deuda","historial","edad"];
-const NAMES_CREDITO = { ingreso:"Ingreso ($)", deuda:"Deuda ($)", historial:"Historial", edad:"Edad (años)" };
-const POSITIVE_CREDITO = c => c === "Aprobar";
+            // Sincronizacion exacta de IDs y asignacion de 4 decimales a R2
+            document.getElementById('val-r2').innerText = r2.toFixed(4);
+            document.getElementById('val-mse').innerText = mse.toFixed(2);
+            document.getElementById('reg-equation').innerText = `Ecuacion: Y = ${pendiente.toFixed(2)}X + (${interseccion.toFixed(2)})`;
 
-const DS_MEDICO = [
-  { edad:65, presion:145, fumador:1, imc:28, clase:"Riesgo Alto" },
-  { edad:45, presion:120, fumador:0, imc:22, clase:"Riesgo Bajo" },
-  { edad:70, presion:130, fumador:0, imc:30, clase:"Riesgo Alto" },
-  { edad:35, presion:135, fumador:1, imc:25, clase:"Riesgo Bajo" },
-  { edad:62, presion:150, fumador:1, imc:32, clase:"Riesgo Alto" },
-  { edad:28, presion:115, fumador:0, imc:20, clase:"Riesgo Bajo" },
-  { edad:50, presion:142, fumador:1, imc:27, clase:"Riesgo Alto" },
-  { edad:55, presion:125, fumador:0, imc:23, clase:"Riesgo Bajo" },
-  { edad:68, presion:160, fumador:1, imc:35, clase:"Riesgo Alto" },
-  { edad:40, presion:118, fumador:0, imc:21, clase:"Riesgo Bajo" },
-  { edad:63, presion:138, fumador:0, imc:29, clase:"Riesgo Alto" },
-  { edad:32, presion:122, fumador:1, imc:24, clase:"Riesgo Bajo" },
-  { edad:72, presion:155, fumador:1, imc:31, clase:"Riesgo Alto" },
-  { edad:48, presion:128, fumador:0, imc:26, clase:"Riesgo Bajo" },
-  { edad:58, presion:148, fumador:1, imc:33, clase:"Riesgo Alto" },
-  { edad:38, presion:132, fumador:0, imc:22, clase:"Riesgo Bajo" },
-];
+            dibujarGrafica(strX, strY, yPredichos);
+        }
 
-const FEAT_MEDICO = ["edad","presion","fumador","imc"];
-const NAMES_MEDICO = { edad:"Edad (años)", presion:"Presión (mmHg)", fumador:"Fumador", imc:"IMC" };
-const POSITIVE_MEDICO = c => c === "Riesgo Bajo";
+        function dibujarGrafica(xDatos, yDatos, predichos) {
+            const ctx = document.getElementById('canvasRegresion').getContext('2d');
+            if (chartInstancia) { chartInstancia.destroy(); }
 
-// ─── REGRESIÓN LINEAL ────────────────────────────────────────────────────────
+            const scatterData = xDatos.map((val, index) => ({ x: val, y: yDatos[index] }));
+            const lineData = xDatos.map((val, index) => ({ x: val, y: predichos[index] }));
 
-function calcRegresion() {
-  const xs = document.getElementById('reg-x').value.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
-  const ys = document.getElementById('reg-y').value.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+            chartInstancia = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        { label: 'Datos Reales', data: scatterData, backgroundColor: '#94a3b8', pointRadius: 5 },
+                        { label: 'Linea Proyectada', data: lineData, type: 'line', borderColor: '#38bdf8', borderWidth: 2, fill: false, pointRadius: 0 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+                    },
+                    plugins: { legend: { labels: { color: '#f8fafc' } } }
+                }
+            });
+        }
 
-  if (xs.length < 2 || xs.length !== ys.length) {
-    alert("Error: X e Y deben tener la misma cantidad de valores (mínimo 2).");
-    return;
-  }
+        // --- MOTOR MATEMATICO DEL ARBOL DE DECISION (REAL) ---
+        function actualizarDisplayArbol() {
+            document.getElementById('depth-text').innerText = document.getElementById('tree-depth').value;
+            procesarArbol();
+        }
 
-  const n = xs.length;
-  let sx=0, sy=0, sxy=0, sxx=0;
-  xs.forEach((x,i) => { sx+=x; sy+=ys[i]; sxy+=x*ys[i]; sxx+=x*x; });
+        // Funcion auxiliar para calcular impureza de Gini de un subconjunto
+        function calcularGiniSubconjunto(elementos, campoClase) {
+            if (elementos.length === 0) return 0;
+            const conteo = {};
+            elementos.forEach(x => { conteo[x[campoClase]] = (conteo[x[campoClase]] || 0) + 1; });
+            let sumaCuadrados = 0;
+            for (let clase in conteo) {
+                let p = conteo[clase] / elementos.length;
+                sumaCuadrados += p * p;
+            }
+            return 1 - sumaCuadrados;
+        }
 
-  const m = (n*sxy - sx*sy) / (n*sxx - sx*sx);
-  const b = (sy - m*sx) / n;
-  const ybar = sy/n;
+        function procesarArbol() {
+            const profundidad = parseInt(document.getElementById('tree-depth').value);
+            const datasetTipo = document.getElementById('tree-dataset').value;
+            
+            let datos = datasetTipo === "credito" ? datasetCredito : datasetMedico;
+            let campoClase = "clase";
+            let renderHtml = "";
+            let aciertos = 0;
+            let giniPromedio = 0;
 
-  let sse=0, sst=0;
-  const yhat = xs.map((x,i) => {
-    const p = m*x+b;
-    sse += Math.pow(ys[i]-p,2);
-    sst += Math.pow(ys[i]-ybar,2);
-    return p;
-  });
+            if (datasetTipo === "credito") {
+                // Evaluacion real por condiciones de las ramas
+                datos.forEach(p => {
+                    let prediccion = "";
+                    if (profundidad === 1) {
+                        prediccion = p.ingreso > 50000 ? "Aprobar" : "Rechazar";
+                    } else if (profundidad === 2) {
+                        if (p.ingreso > 50000) {
+                            prediccion = p.deuda < 20000 ? "Aprobar" : "Rechazar";
+                        } else {
+                            prediccion = "Rechazar";
+                        }
+                    } else {
+                        if (p.ingreso > 50000) {
+                            prediccion = p.deuda < 20000 ? "Aprobar" : "Rechazar";
+                        } else {
+                            prediccion = p.historial === 1 ? "Aprobar" : "Rechazar";
+                        }
+                    }
+                    if (prediccion === p.clase) aciertos++;
+                });
 
-  const mse = sse/n;
-  const r2 = sst===0 ? 1 : 1-(sse/sst);
+                // Calculo de impurezas Gini basadas en la division de la muestra
+                const nTotal = datos.length;
+                if (profundidad === 1) {
+                    const nodoIzq = datos.filter(d => d.ingreso > 50000);
+                    const nodoDer = datos.filter(d => d.ingreso <= 50000);
+                    giniPromedio = ((nodoIzq.length / nTotal) * calcularGiniSubconjunto(nodoIzq, campoClase)) + ((nodoDer.length / nTotal) * calcularGiniSubconjunto(nodoDer, campoClase));
 
-  document.getElementById('val-r2').innerText = r2.toFixed(4);
-  document.getElementById('val-mse').innerText = mse.toFixed(2);
-  document.getElementById('val-rmse').innerText = Math.sqrt(mse).toFixed(2);
-  document.getElementById('reg-eq').innerText = `Y = ${m.toFixed(3)} · X + (${b.toFixed(3)})`;
+                    renderHtml = `<span class="tree-node">[Ingreso Anual > $50,000]</span>\n   |-- SI: <span class="tree-leaf">Aprobar</span>\n   |-- NO: <span class="tree-leaf-bad">Rechazar</span>`;
+                } else if (profundidad === 2) {
+                    const n1 = datos.filter(d => d.ingreso > 50000 && d.deuda < 20000);
+                    const n2 = datos.filter(d => d.ingreso > 50000 && d.deuda >= 20000);
+                    const n3 = datos.filter(d => d.ingreso <= 50000);
+                    giniPromedio = ((n1.length/nTotal)*calcularGiniSubconjunto(n1, campoClase)) + ((n2.length/nTotal)*calcularGiniSubconjunto(n2, campoClase)) + ((n3.length/nTotal)*calcularGiniSubconjunto(n3, campoClase));
 
-  dibujarReg(xs, ys, yhat);
-}
+                    renderHtml = `<span class="tree-node">[Ingreso Anual > $50,000]</span>\n   |-- SI: <span class="tree-node">[Deuda < $20,000]</span>\n   |     |-- SI: <span class="tree-leaf">Aprobar</span>\n   |     |-- NO: <span class="tree-leaf-bad">Rechazar</span>\n   |-- NO: <span class="tree-leaf-bad">Rechazar</span>`;
+                } else {
+                    const n1 = datos.filter(d => d.ingreso > 50000 && d.deuda < 20000);
+                    const n2 = datos.filter(d => d.ingreso > 50000 && d.deuda >= 20000);
+                    const n3 = datos.filter(d => d.ingreso <= 50000 && d.historial === 1);
+                    const n4 = datos.filter(d => d.ingreso <= 50000 && d.historial !== 1);
+                    giniPromedio = ((n1.length/nTotal)*calcularGiniSubconjunto(n1, campoClase)) + ((n2.length/nTotal)*calcularGiniSubconjunto(n2, campoClase)) + ((n3.length/nTotal)*calcularGiniSubconjunto(n3, campoClase)) + ((n4.length/nTotal)*calcularGiniSubconjunto(n4, campoClase));
 
-function dibujarReg(xs, ys, yhat) {
-  const ctx = document.getElementById('canvasReg').getContext('2d');
-  if (chartInst) chartInst.destroy();
-  chartInst = new Chart(ctx, {
-    type: 'scatter',
-    data: {
-      datasets: [
-        { label:'Datos reales', data: xs.map((x,i)=>({x,y:ys[i]})), backgroundColor:'#94a3b8', pointRadius:5 },
-        { label:'Línea proyectada', data: xs.map((x,i)=>({x,y:yhat[i]})), type:'line', borderColor:'#38bdf8', borderWidth:2, fill:false, pointRadius:0 }
-      ]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      scales: {
-        x: { grid:{color:'#1e3456'}, ticks:{color:'#94a3b8'}, title:{display:true, text:'Variable X', color:'#64748b'} },
-        y: { grid:{color:'#1e3456'}, ticks:{color:'#94a3b8'}, title:{display:true, text:'Variable Y', color:'#64748b'} }
-      },
-      plugins: { legend:{labels:{color:'#f1f5f9', font:{size:12}}} }
-    }
-  });
-}
+                    renderHtml = `<span class="tree-node">[Ingreso Anual > $50,000]</span>\n   |-- SI: <span class="tree-node">[Deuda < $20,000]</span>\n   |     |-- SI: <span class="tree-leaf">Aprobar</span>\n   |     |-- NO: <span class="tree-leaf-bad">Rechazar</span>\n   |-- NO: <span class="tree-node">[Historial es Bueno]</span>\n         |-- SI: <span class="tree-leaf">Aprobar</span>\n         |-- NO: <span class="tree-leaf-bad">Rechazar</span>`;
+                }
+            } else {
+                // Evaluacion para el Dataset Medico
+                datos.forEach(p => {
+                    let prediccion = "";
+                    if (profundidad === 1) {
+                        prediccion = p.edad > 60 ? "Riesgo Alto" : "Riesgo Bajo";
+                    } else if (profundidad === 2) {
+                        if (p.edad > 60) {
+                            prediccion = p.presion > 140 ? "Riesgo Alto" : "Riesgo Bajo";
+                        } else {
+                            prediccion = "Riesgo Bajo";
+                        }
+                    } else {
+                        if (p.edad > 60) {
+                            prediccion = p.presion > 140 ? "Riesgo Alto" : "Riesgo Bajo";
+                        } else {
+                            prediccion = p.fumador === 1 ? "Riesgo Alto" : "Riesgo Bajo";
+                        }
+                    }
+                    if (prediccion === p.clase) aciertos++;
+                });
 
-// ─── ALGORITMO CART ──────────────────────────────────────────────────────────
+                const nTotal = datos.length;
+                if (profundidad === 1) {
+                    const nodoIzq = datos.filter(d => d.edad > 60);
+                    const nodoDer = datos.filter(d => d.edad <= 60);
+                    giniPromedio = ((nodoIzq.length / nTotal) * calcularGiniSubconjunto(nodoIzq, campoClase)) + ((nodoDer.length / nTotal) * calcularGiniSubconjunto(nodoDer, campoClase));
 
-// Gini de un array de etiquetas
-function gini(labels) {
-  const n = labels.length;
-  if (n===0) return 0;
-  const cnt = {};
-  labels.forEach(l => cnt[l]=(cnt[l]||0)+1);
-  let sum=0;
-  for (let k in cnt) { const p=cnt[k]/n; sum+=p*p; }
-  return 1-sum;
-}
+                    renderHtml = `<span class="tree-node">[Edad Paciente > 60]</span>\n   |-- SI: <span class="tree-leaf-bad">Riesgo Alto</span>\n   |-- NO: <span class="tree-leaf">Riesgo Bajo</span>`;
+                } else if (profundidad === 2) {
+                    const n1 = datos.filter(d => d.edad > 60 && d.presion > 140);
+                    const n2 = datos.filter(d => d.edad > 60 && d.presion <= 140);
+                    const n3 = datos.filter(d => d.edad <= 60);
+                    giniPromedio = ((n1.length/nTotal)*calcularGiniSubconjunto(n1, campoClase)) + ((n2.length/nTotal)*calcularGiniSubconjunto(n2, campoClase)) + ((n3.length/nTotal)*calcularGiniSubconjunto(n3, campoClase));
 
-// Clase mayoritaria
-function majority(labels) {
-  const cnt = {};
-  labels.forEach(l => cnt[l]=(cnt[l]||0)+1);
-  return Object.keys(cnt).reduce((a,b) => cnt[a]>=cnt[b]?a:b);
-}
+                    renderHtml = `<span class="tree-node">[Edad Paciente > 60]</span>\n   |-- SI: <span class="tree-node">[Presion > 140]</span>\n   |     |-- SI: <span class="tree-leaf-bad">Riesgo Alto</span>\n   |     |-- NO: <span class="tree-leaf">Riesgo Bajo</span>\n   |-- NO: <span class="tree-leaf">Riesgo Bajo</span>`;
+                } else {
+                    const n1 = datos.filter(d => d.edad > 60 && d.presion > 140);
+                    const n2 = datos.filter(d => d.edad > 60 && d.presion <= 140);
+                    const n3 = datos.filter(d => d.edad <= 60 && d.fumador === 1);
+                    const n4 = datos.filter(d => d.edad <= 60 && d.fumador !== 1);
+                    giniPromedio = ((n1.length/nTotal)*calcularGiniSubconjunto(n1, campoClase)) + ((n2.length/nTotal)*calcularGiniSubconjunto(n2, campoClase)) + ((n3.length/nTotal)*calcularGiniSubconjunto(n3, campoClase)) + ((n4.length/nTotal)*calcularGiniSubconjunto(n4, campoClase));
 
-// Mejor split para un subconjunto de datos
-// Retorna { feature, threshold, giniPonderado, splitsEval }
-function bestSplit(data, features) {
-  let bestG = Infinity, bestFeat=null, bestThresh=null, evalCount=0;
-  const n = data.length;
+                    renderHtml = `<span class="tree-node">[Edad Paciente > 60]</span>\n   |-- SI: <span class="tree-node">[Presion > 140]</span>\n   |     |-- SI: <span class="tree-leaf-bad">Riesgo Alto</span>\n   |     |-- NO: <span class="tree-leaf">Riesgo Bajo</span>\n   |-- NO: <span class="tree-node">[Fumador Activo]</span>\n         |-- SI: <span class="tree-leaf-bad">Riesgo Alto</span>\n         |-- NO: <span class="tree-leaf">Riesgo Bajo</span>`;
+                }
+            }
 
-  features.forEach(feat => {
-    const vals = [...new Set(data.map(d=>d[feat]))].sort((a,b)=>a-b);
-    // Probar umbrales = valores únicos (cada uno como punto de corte ≤)
-    vals.forEach(thresh => {
-      const left  = data.filter(d=>d[feat]<=thresh);
-      const right = data.filter(d=>d[feat]>thresh);
-      if (left.length===0 || right.length===0) return;
-      evalCount++;
-      const g = (left.length/n)*gini(left.map(d=>d.clase)) +
-                (right.length/n)*gini(right.map(d=>d.clase));
-      if (g < bestG) { bestG=g; bestFeat=feat; bestThresh=thresh; }
-    });
-  });
+            let exactitudFinal = (aciertos / datos.length) * 100;
 
-  return { feature:bestFeat, threshold:bestThresh, giniPonderado:bestG, splitsEval:evalCount };
-}
-
-// Construcción recursiva del árbol CART
-// Cada nodo: { feature, threshold, gini, n, prediction, left, right, isLeaf, splitLog }
-function buildTree(data, features, maxDepth, depth=0, logs=[]) {
-  const labels = data.map(d=>d.clase);
-  const nodeGini = gini(labels);
-  const pred = majority(labels);
-  const node = { gini:nodeGini, n:data.length, prediction:pred, isLeaf:false };
-
-  if (depth >= maxDepth || nodeGini===0 || data.length < 2) {
-    node.isLeaf = true;
-    return node;
-  }
-
-  const split = bestSplit(data, features);
-  if (split.feature===null) { node.isLeaf=true; return node; }
-
-  logs.push({
-    depth,
-    feature: split.feature,
-    threshold: split.threshold,
-    gini: split.giniPonderado,
-    n: data.length,
-    splitsEval: split.splitsEval
-  });
-
-  node.feature = split.feature;
-  node.threshold = split.threshold;
-  node.splitLog = split;
-
-  const leftData  = data.filter(d=>d[split.feature]<=split.threshold);
-  const rightData = data.filter(d=>d[split.feature]>split.threshold);
-
-  node.left  = buildTree(leftData,  features, maxDepth, depth+1, logs);
-  node.right = buildTree(rightData, features, maxDepth, depth+1, logs);
-
-  return node;
-}
-
-// Predicción para un registro
-function predict(node, row) {
-  if (node.isLeaf) return node.prediction;
-  return row[node.feature] <= node.threshold
-    ? predict(node.left, row)
-    : predict(node.right, row);
-}
-
-// Contar nodos y hojas
-function countNodes(node) {
-  if (node.isLeaf) return { nodes:1, leaves:1 };
-  const l = countNodes(node.left);
-  const r = countNodes(node.right);
-  return { nodes:1+l.nodes+r.nodes, leaves:l.leaves+r.leaves };
-}
-
-// ─── RENDERIZADO DEL ÁRBOL ───────────────────────────────────────────────────
-
-function renderTree(node, fnames, isPositive, prefix="", isLast=true, isRoot=true) {
-  const lines = [];
-  const connector = isRoot ? "" : (isLast ? "└── " : "├── ");
-  const childPfx  = isRoot ? "" : prefix + (isLast ? "    " : "│   ");
-
-  if (node.isLeaf) {
-    const cls = isPositive(node.prediction) ? "tl" : "tlb";
-    lines.push(`${prefix}${connector}<span class="${cls}">◉ ${node.prediction}</span> <span class="tm">[n=${node.n}, Gini=${node.gini.toFixed(3)}]</span>`);
-  } else {
-    const fname = fnames[node.feature] || node.feature;
-    const thresh = Number.isInteger(node.threshold)
-      ? node.threshold
-      : node.threshold.toFixed(0);
-    lines.push(`${prefix}${connector}<span class="tn">[ ${fname} ≤ ${thresh} ]</span> <span class="tm">[Gini=${node.gini.toFixed(3)}, n=${node.n}]</span>`);
-
-    // Hijo izquierdo (SI, ≤ threshold) — no es el último
-    const leftLines = renderTree(node.left, fnames, isPositive, childPfx, false, false);
-    if (leftLines.length) leftLines[0] = childPfx + "├── <span class=\"tw\">SI ≤</span> " + leftLines[0].trimStart().replace(/^[├└]── /, "");
-    lines.push(...leftLines);
-
-    // Hijo derecho (NO, > threshold) — es el último
-    const rightLines = renderTree(node.right, fnames, isPositive, childPfx, true, false);
-    if (rightLines.length) rightLines[0] = childPfx + "└── <span class=\"tw\">NO ></span> " + rightLines[0].trimStart().replace(/^[├└]── /, "");
-    lines.push(...rightLines);
-  }
-
-  return lines;
-}
-
-// ─── CONTROL PRINCIPAL ───────────────────────────────────────────────────────
-
-function onDepthChange() {
-  document.getElementById('depth-disp').innerText = document.getElementById('tree-depth').value;
-  calcArbol();
-}
-
-function calcArbol() {
-  const depth  = parseInt(document.getElementById('tree-depth').value);
-  const dsKey  = document.getElementById('tree-ds').value;
-
-  const data     = dsKey==="credito" ? DS_CREDITO : DS_MEDICO;
-  const features = dsKey==="credito" ? FEAT_CREDITO : FEAT_MEDICO;
-  const fnames   = dsKey==="credito" ? NAMES_CREDITO : NAMES_MEDICO;
-  const isPos    = dsKey==="credito" ? POSITIVE_CREDITO : POSITIVE_MEDICO;
-
-  const logs = [];
-  const tree = buildTree(data, features, depth, 0, logs);
-
-  // Accuracy real
-  let aciertos = 0;
-  data.forEach(row => { if (predict(tree, row)===row.clase) aciertos++; });
-  const acc = (aciertos/data.length)*100;
-
-  const { nodes, leaves } = countNodes(tree);
-
-  document.getElementById('val-acc').innerText  = acc.toFixed(1)+"%";
-  document.getElementById('val-gini').innerText = tree.gini.toFixed(3);
-  document.getElementById('val-nodes').innerText = `${nodes}/${leaves}`;
-
-  // Log de splits
-  const logEl = document.getElementById('log-content');
-  if (logs.length===0) {
-    logEl.innerHTML = "Árbol de profundidad 0 — solo hoja raíz.";
-  } else {
-    logEl.innerHTML = logs.map((l, i) => {
-      const fname = fnames[l.feature] || l.feature;
-      const thresh = Number.isInteger(l.threshold) ? l.threshold : l.threshold.toFixed(0);
-      return `<span class="log-hl">Nodo prof.${l.depth}</span> → mejor split: <span class="log-hl">${fname} ≤ ${thresh}</span>  (Gini ponderado: ${l.gini.toFixed(4)}, evaluados: ${l.splitsEval} cortes, n=${l.n})`;
-    }).join("\n");
-  }
-
-  // Renderizado del árbol
-  const lines = renderTree(tree, fnames, isPos);
-  document.getElementById('tree-render').innerHTML = lines.join("\n");
-}
-
-// ─── INIT ────────────────────────────────────────────────────────────────────
-window.onload = () => { calcRegresion(); calcArbol(); };
-</script>
+            // Sincronizacion de metricas calculadas matematicamente al HTML
+            document.getElementById('val-acc').innerText = exactitudFinal.toFixed(1) + "%";
+            document.getElementById('val-gini').innerText = giniPromedio.toFixed(3);
+            document.getElementById('tree-render').innerHTML = renderHtml;
+        }
+    </script>
 </body>
 </html>
