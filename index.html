@@ -391,7 +391,7 @@
             return { m, b };
         }
 
-        function renderizarGrafica(xs, ys, yHat) {
+function renderizarGrafica(xs, ys, yHat) {
             const ctx = document.getElementById('canvasRegresion').getContext('2d');
             if (chartInstancia) { chartInstancia.destroy(); }
 
@@ -402,8 +402,23 @@
                 type: 'scatter',
                 data: {
                     datasets: [
-                        { label: 'Datos Reales', data: scatterData, backgroundColor: '#94a3b8', pointRadius: 5 },
-                        { label: 'Linea Lineal', data: lineData, type: 'line', borderColor: '#38bdf8', borderWidth: 2, fill: false, pointRadius: 0 }
+                        { 
+                            label: 'Datos Reales', 
+                            data: scatterData, 
+                            backgroundColor: '#94a3b8', 
+                            pointRadius: 5,
+                            pointStyle: 'circle'
+                        },
+                        { 
+                            label: 'Línea Proyectada',
+                            data: lineData, 
+                            type: 'line', 
+                            borderColor: '#38bdf8', 
+                            borderWidth: 2, 
+                            fill: false, 
+                            pointRadius: 0,
+                            pointStyle: 'line' 
+                        }
                     ]
                 },
                 options: {
@@ -413,7 +428,15 @@
                         x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
                         y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
                     },
-                    plugins: { legend: { labels: { color: '#f8fafc' } } }
+                    plugins: { 
+                        legend: { 
+                            labels: { 
+                                color: '#f8fafc',
+                                usePointStyle: true, 
+                                boxWidth: 15
+                            } 
+                        } 
+                    }
                 }
             });
         }
