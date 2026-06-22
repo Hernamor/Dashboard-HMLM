@@ -214,13 +214,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Proyecto Fundamentos de Analitica de Datos</h1>
-            <p class="subtitle">Analisis de algoritmos</p>
+            <h1>Suite de Inteligencia Predictiva</h1>
+            <p class="subtitle">Análisis de algoritmos de Machine Learning Clásicos (Regresión, Árboles y Redes Neuronales)</p>
         </div>
 
         <div class="grid">
             <div class="card">
-                <h2>Analisis de Regresion Lineal</h2>
+                <h2>1. Análisis de Regresión Lineal</h2>
                 
                 <div class="form-group">
                     <label>Eje X (Historial - Valores separados por coma)</label>
@@ -241,7 +241,7 @@
                     </div>
                     <div class="metric-box">
                         <div class="metric-value" id="val-mse">0.00</div>
-                        <div class="metric-label">Error</div>
+                        <div class="metric-label">MSE (Error)</div>
                     </div>
                 </div>
 
@@ -255,10 +255,10 @@
             </div>
 
             <div class="card">
-                <h2>Clasificador: Arbol de Decision</h2>
+                <h2>2. Clasificador: Árbol de Decisión</h2>
                 
                 <div class="form-group">
-                    <label>Profundidad del Arbol (Niveles de Decision)</label>
+                    <label>Profundidad del Árbol (Niveles de Decisión)</label>
                     <div class="range-wrapper">
                         <input type="range" id="tree-depth" min="1" max="3" value="2" oninput="actualizarDisplayArbol()">
                         <div class="depth-display" id="depth-text">2</div>
@@ -268,24 +268,55 @@
                 <div class="form-group">
                     <label>Conjunto de Datos Objetivo</label>
                     <select id="tree-dataset" onchange="procesarArbol()">
-                        <option value="credito">Aprobacion de Credito Financiero</option>
-                        <option value="medico">Diagnostico de Riesgo Medico</option>
+                        <option value="credito">Aprobación de Crédito Financiero</option>
+                        <option value="medico">Diagnóstico de Riesgo Médico</option>
                     </select>
                 </div>
 
                 <div class="metrics-panel">
                     <div class="metric-box">
                         <div class="metric-value" id="val-acc">0.0%</div>
-                        <div class="metric-label">Exactitud</div>
+                        <div class="metric-label">Exactitud (Accuracy)</div>
                     </div>
                     <div class="metric-box">
                         <div class="metric-value" id="val-gini">0.000</div>
-                        <div class="metric-label">Impureza Promedio</div>
+                        <div class="metric-label">Impureza Gini Promedio</div>
                     </div>
                 </div>
 
                 <div class="tree-container">
-                    <pre id="tree-render">Calculando nodos matematicos...</pre>
+                    <pre id="tree-render">Calculando nodos lógicos...</pre>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>3. Red Neuronal (Perceptrón Básico)</h2>
+                
+                <div class="form-group">
+                    <label>Variable Entrada 1 (Ej. Nivel de Ingresos)</label>
+                    <input type="text" id="nn-x1" value="8.5">
+                </div>
+                
+                <div class="form-group">
+                    <label>Variable Entrada 2 (Ej. Historial Crediticio)</label>
+                    <input type="text" id="nn-x2" value="7.2">
+                </div>
+
+                <button onclick="procesarRedNeuronal()">Procesar Propagación (Forward)</button>
+
+                <div class="metrics-panel">
+                    <div class="metric-box">
+                        <div class="metric-value" id="val-nn-sum">0.00</div>
+                        <div class="metric-label">Suma Ponderada (Z)</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="val-nn-out">0.0%</div>
+                        <div class="metric-label">Activación (Sigmoide)</div>
+                    </div>
+                </div>
+
+                <div class="tree-container">
+                    <pre id="nn-render">Esperando procesamiento de la red...</pre>
                 </div>
             </div>
         </div>
@@ -320,7 +351,43 @@
         window.onload = function() {
             procesarRegresion();
             procesarArbol();
+            procesarRedNeuronal();
         };
+
+        // --- MOTOR MATEMATICO DE LA RED NEURONAL BÁSICA ---
+        function procesarRedNeuronal() {
+            const x1 = parseFloat(document.getElementById('nn-x1').value);
+            const x2 = parseFloat(document.getElementById('nn-x2').value);
+
+            if(isNaN(x1) || isNaN(x2)) {
+                alert("Por favor, ingresa solo valores numéricos para la red neuronal.");
+                return;
+            }
+
+            // Parámetros básicos de un perceptrón enseñado en clase
+            const peso1 = 0.65;
+            const peso2 = 0.80;
+            const sesgo = -1.5;
+
+            // 1. Suma Ponderada
+            const sumaZ = (x1 * peso1) + (x2 * peso2) + sesgo;
+
+            // 2. Función de Activación (Sigmoide para convertir a probabilidad 0-1)
+            const activacion = 1 / (1 + Math.exp(-sumaZ));
+            const porcentaje = (activacion * 100).toFixed(1);
+
+            document.getElementById('val-nn-sum').innerText = sumaZ.toFixed(2);
+            document.getElementById('val-nn-out').innerText = porcentaje + "%";
+
+            let diag = "Estructura del Perceptrón:\n\n";
+            diag += `[Entrada 1: ${x1}] --(peso: ${peso1})--> |\n`;
+            diag += `[Entrada 2: ${x2}] --(peso: ${peso2})--> |--> ( ∑ Z = ${sumaZ.toFixed(2)} )\n`;
+            diag += `[Sesgo (Bias): ${sesgo}] ---------> |\n\n`;
+            diag += `Aplicando Función Sigmoide: f(z) = 1 / (1 + e^-z)\n`;
+            diag += activacion >= 0.5 ? `\nResultado Final: <span class="tree-leaf">CLASE POSITIVA (${porcentaje}%)</span>` : `\nResultado Final: <span class="tree-leaf-bad">CLASE NEGATIVA (${porcentaje}%)</span>`;
+
+            document.getElementById('nn-render').innerHTML = diag;
+        }
 
         // --- PROCESAMIENTO DE REGRESION LINEAL ---
         function procesarRegresion() {
@@ -361,7 +428,6 @@
             const mse = sumaErroresCuadrados / n;
             const r2 = sumaTotalCuadrados === 0 ? 1 : 1 - (sumaErroresCuadrados / sumaTotalCuadrados);
 
-            // Sincronizacion exacta de IDs y asignacion de 4 decimales a R2
             document.getElementById('val-r2').innerText = r2.toFixed(4);
             document.getElementById('val-mse').innerText = mse.toFixed(2);
             document.getElementById('reg-equation').innerText = `Ecuacion: Y = ${pendiente.toFixed(2)}X + (${interseccion.toFixed(2)})`;
@@ -396,13 +462,12 @@
             });
         }
 
-        // --- MOTOR MATEMATICO DEL ARBOL DE DECISION (REAL) ---
+        // --- MOTOR LOGICO DEL ARBOL DE DECISION ---
         function actualizarDisplayArbol() {
             document.getElementById('depth-text').innerText = document.getElementById('tree-depth').value;
             procesarArbol();
         }
 
-        // Funcion auxiliar para calcular impureza de Gini de un subconjunto
         function calcularGiniSubconjunto(elementos, campoClase) {
             if (elementos.length === 0) return 0;
             const conteo = {};
@@ -426,7 +491,6 @@
             let giniPromedio = 0;
 
             if (datasetTipo === "credito") {
-                // Evaluacion real por condiciones de las ramas
                 datos.forEach(p => {
                     let prediccion = "";
                     if (profundidad === 1) {
@@ -447,7 +511,6 @@
                     if (prediccion === p.clase) aciertos++;
                 });
 
-                // Calculo de impurezas Gini basadas en la division de la muestra
                 const nTotal = datos.length;
                 if (profundidad === 1) {
                     const nodoIzq = datos.filter(d => d.ingreso > 50000);
@@ -472,7 +535,6 @@
                     renderHtml = `<span class="tree-node">[Ingreso Anual > $50,000]</span>\n   |-- SI: <span class="tree-node">[Deuda < $20,000]</span>\n   |     |-- SI: <span class="tree-leaf">Aprobar</span>\n   |     |-- NO: <span class="tree-leaf-bad">Rechazar</span>\n   |-- NO: <span class="tree-node">[Historial es Bueno]</span>\n         |-- SI: <span class="tree-leaf">Aprobar</span>\n         |-- NO: <span class="tree-leaf-bad">Rechazar</span>`;
                 }
             } else {
-                // Evaluacion para el Dataset Medico
                 datos.forEach(p => {
                     let prediccion = "";
                     if (profundidad === 1) {
@@ -520,7 +582,6 @@
 
             let exactitudFinal = (aciertos / datos.length) * 100;
 
-            // Sincronizacion de metricas calculadas matematicamente al HTML
             document.getElementById('val-acc').innerText = exactitudFinal.toFixed(1) + "%";
             document.getElementById('val-gini').innerText = giniPromedio.toFixed(3);
             document.getElementById('tree-render').innerHTML = renderHtml;
