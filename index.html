@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Modelos Predictivos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="navbar">
+        <h1>⚙️ Dashboard Predictivo</h1>
+        <p>Evaluación de datos en tiempo real mediante Modelos de Machine Learning</p>
+    </header>
+
+    <main class="dashboard-container">
+        <section class="card">
+            <h2>🌳 Modelo 2: Random Forest</h2>
+            <p>Ingresa los parámetros para tomar una decisión basada en el bosque aleatorio.</p>
+            
+            <div class="input-group">
+                <label for="rf-var1">Variable Histórica 1 (Ej. Edad):</label>
+                <input type="number" id="rf-var1" placeholder="Ej: 25">
+                
+                <label for="rf-var2">Variable Histórica 2 (Ej. Ingreso):</label>
+                <input type="number" id="rf-var2" placeholder="Ej: 1500">
+            </div>
+
+            <button onclick="ejecutarRandomForest()">Calcular Predicción</button>
+            
+            <div class="result-box" id="rf-resultado">
+                El resultado aparecerá aquí...
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>🧠 Modelo 3: Red Neuronal</h2>
+            <p>Procesamiento de datos a través de capas neuronales (simulación).</p>
+            
+            <div class="input-group">
+                <label for="nn-var1">Dato de Entrada 1:</label>
+                <input type="number" id="nn-var1" placeholder="Ej: 8.5">
+                
+                <label for="nn-var2">Dato de Entrada 2:</label>
+                <input type="number" id="nn-var2" placeholder="Ej: 3.2">
+            </div>
+
+            <button onclick="ejecutarRedNeuronal()">Procesar Red</button>
+            
+            <div class="result-box" id="nn-resultado">
+                El resultado aparecerá aquí...
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
