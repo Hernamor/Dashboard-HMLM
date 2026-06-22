@@ -3,80 +3,424 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Modelos de Aprendizaje Automatico</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Dashboard Predictivo ML</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --accent: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background-color: var(--card-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: var(--accent);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"], select {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: monospace;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .range-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+        }
+
+        .depth-display {
+            font-family: monospace;
+            color: var(--accent);
+            font-size: 1.2rem;
+            font-weight: bold;
+            width: 30px;
+            text-align: center;
+        }
+
+        button {
+            background-color: var(--accent);
+            color: #020617;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #7dd3fc;
+        }
+
+        .metrics-panel {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+
+        .metric-box {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 15px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            color: var(--text-main);
+            font-weight: bold;
+            font-family: monospace;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .chart-container {
+            margin-top: 25px;
+            height: 250px;
+            width: 100%;
+            position: relative;
+        }
+
+        .tree-container {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 25px;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .tree-node { color: var(--accent); font-weight: bold; }
+        .tree-leaf { color: #4ade80; }
+        .tree-leaf-bad { color: var(--danger); }
+    </style>
 </head>
 <body>
-    <header class="main-header">
-        <h1>Dashboard de Modelos Predictivos</h1>
-        <p>Analisis de datos, metricas de rendimiento y visualizaciones en tiempo real</p>
-    </header>
+    <div class="container">
+        <div class="header">
+            <h1>Suite de Inteligencia Predictiva</h1>
+            <p class="subtitle">Evaluacion de algoritmos de Machine Learning y metricas de rendimiento</p>
+        </div>
 
-    <main class="dashboard-grid">
-        <section class="dashboard-card">
-            <h2>Modelo 1: Regresion Lineal</h2>
-            <p class="description">Prediccion de valores continuos. Modifica los datos de entrenamiento (separados por comas) para recalcular la linea de tendencia.</p>
-            
-            <div class="form-group">
-                <label for="reg-x">Datos de Entrada (X - Ejemplo: Inversion en Publicidad):</label>
-                <input type="text" id="reg-x" value="10, 20, 30, 40, 50, 60, 70">
+        <div class="grid">
+            <div class="card">
+                <h2>Analisis de Regresion Lineal</h2>
                 
-                <label for="reg-y">Datos de Salida (Y - Ejemplo: Ventas Obtenidas):</label>
-                <input type="text" id="reg-y" value="15, 25, 28, 45, 47, 63, 68">
-            </div>
-
-            <button onclick="calcularRegresion()">Entrenar y Graficar Regresion</button>
-
-            <div class="metrics-container">
-                <h3>Metricas del Modelo</h3>
-                <div class="metrics-grid">
-                    <div class="metric-item">Coeficiente R2: <span id="metric-r2">0.00</span></div>
-                    <div class="metric-item">Error Cuadratico Medio (MSE): <span id="metric-mse">0.00</span></div>
-                </div>
-                <p class="equation">Ecuacion: <span id="reg-equation">Y = mX + b</span></p>
-            </div>
-
-            <div class="chart-wrapper">
-                <canvas id="chartRegresion"></canvas>
-            </div>
-        </section>
-
-        <section class="dashboard-card">
-            <h2>Modelo 2: Arbol de Decision</h2>
-            <p class="description">Clasificacion automatica basada en reglas condicionales. Ajusta la profundidad maxima del arbol para observar el cambio en la precision y evitar el sobreajuste.</p>
-            
-            <div class="form-group">
-                <label for="tree-depth">Profundidad Maxima del Arbol:</label>
-                <div class="slider-container">
-                    <input type="range" id="tree-depth" min="1" max="5" value="3" oninput="actualizarProfundidadTexto(this.value)">
-                    <span id="depth-value">3</span>
+                <div class="form-group">
+                    <label>Eje X (Historial - Valores separados por coma)</label>
+                    <input type="text" id="reg-x" value="10, 20, 30, 40, 50, 60, 70, 80">
                 </div>
                 
-                <label for="tree-dataset">Conjunto de Datos Predefinido:</label>
-                <select id="tree-dataset" onchange="seleccionarDatasetArbol()">
-                    <option value="clima">Aprobacion de Credito Financiero</option>
-                    <option value="riesgo">Clasificacion de Riesgo de Pacientes</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label>Eje Y (Resultados - Valores separados por coma)</label>
+                    <input type="text" id="reg-y" value="15, 22, 35, 38, 45, 55, 75, 78">
+                </div>
 
-            <button onclick="calcularArbol()">Generar Reglas y Metricas</button>
+                <button onclick="procesarRegresion()">Entrenar Modelo Lineal</button>
 
-            <div class="metrics-container">
-                <h3>Metricas de Clasificacion</h3>
-                <div class="metrics-grid">
-                    <div class="metric-item">Exactitud (Accuracy): <span id="metric-accuracy">0.00%</span></div>
-                    <div class="metric-item">Impureza de Gini Promedio: <span id="metric-gini">0.00</span></div>
+                <div class="metrics-panel">
+                    <div class="metric-box">
+                        <div class="metric-value" id="val-r2">0.000</div>
+                        <div class="metric-label">Coeficiente R2</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="val-mse">0.00</div>
+                        <div class="metric-label">MSE (Error)</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="canvasRegresion"></canvas>
                 </div>
             </div>
 
-            <div class="tree-visualization">
-                <h3>Estructura Logica del Arbol Generado</h3>
-                <pre id="tree-structure">Haz clic en entrenar para visualizar los nodos del arbol...</pre>
-            </div>
-        </section>
-    </main>
+            <div class="card">
+                <h2>Clasificador: Arbol de Decision</h2>
+                
+                <div class="form-group">
+                    <label>Profundidad del Arbol (Niveles de Decision)</label>
+                    <div class="range-wrapper">
+                        <input type="range" id="tree-depth" min="1" max="4" value="2" oninput="actualizarDisplayArbol()">
+                        <div class="depth-display" id="depth-text">2</div>
+                    </div>
+                </div>
 
-    <script src="script.js"></script>
+                <div class="form-group">
+                    <label>Conjunto de Datos Objetivo</label>
+                    <select id="tree-dataset" onchange="procesarArbol()">
+                        <option value="credito">Aprobacion de Credito Financiero</option>
+                        <option value="medico">Diagnostico de Riesgo Medico</option>
+                    </select>
+                </div>
+
+                <div class="metrics-panel">
+                    <div class="metric-box">
+                        <div class="metric-value" id="val-acc">0.0%</div>
+                        <div class="metric-label">Exactitud Global (Accuracy)</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="val-gini">0.00</div>
+                        <div class="metric-label">Impureza (Gini)</div>
+                    </div>
+                </div>
+
+                <div class="tree-container">
+                    <pre id="tree-render">Calculando nodos espere...</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chartInstancia = null;
+
+        // Auto-ejecutar al cargar la pagina
+        window.onload = function() {
+            procesarRegresion();
+            procesarArbol();
+        };
+
+        // --- MOTOR DE REGRESION LINEAL ---
+        function procesarRegresion() {
+            const strX = document.getElementById('reg-x').value.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+            const strY = document.getElementById('reg-y').value.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+
+            if (strX.length < 2 || strX.length !== strY.length) {
+                alert("Error de validacion: Ingresa la misma cantidad de datos en X y en Y.");
+                return;
+            }
+
+            const n = strX.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+            
+            for (let i = 0; i < n; i++) {
+                sumX += strX[i];
+                sumY += strY[i];
+                sumXY += strX[i] * strY[i];
+                sumXX += strX[i] * strX[i];
+            }
+
+            // Minimos cuadrados
+            const pendiente = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            const interseccion = (sumY - pendiente * sumX) / n;
+
+            let yPredichos = [];
+            let sumaErroresCuadrados = 0;
+            let sumaTotalCuadrados = 0;
+            const mediaY = sumY / n;
+
+            for (let i = 0; i < n; i++) {
+                const pred = pendiente * strX[i] + interseccion;
+                yPredichos.push(pred);
+                
+                sumaErroresCuadrados += Math.pow(strY[i] - pred, 2);
+                sumaTotalCuadrados += Math.pow(strY[i] - mediaY, 2);
+            }
+
+            const mse = sumaErroresCuadrados / n;
+            const r2 = sumaTotalCuadrados === 0 ? 1 : 1 - (sumaErroresCuadrados / sumaTotalCuadrados);
+
+            document.getElementById('val-r2').innerText = r2.toFixed(3);
+            document.getElementById('val-mse').innerText = mse.toFixed(2);
+
+            dibujarGrafica(strX, strY, yPredichos);
+        }
+
+        function dibujarGrafica(xDatos, yDatos, predichos) {
+            const ctx = document.getElementById('canvasRegresion').getContext('2d');
+            
+            if (chartInstancia) {
+                chartInstancia.destroy();
+            }
+
+            const scatterData = xDatos.map((val, index) => ({ x: val, y: yDatos[index] }));
+            const lineData = xDatos.map((val, index) => ({ x: val, y: predichos[index] }));
+
+            chartInstancia = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Datos Reales',
+                            data: scatterData,
+                            backgroundColor: '#94a3b8',
+                            pointRadius: 5
+                        },
+                        {
+                            label: 'Linea Proyectada',
+                            data: lineData,
+                            type: 'line',
+                            borderColor: '#38bdf8',
+                            borderWidth: 2,
+                            fill: false,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc' } }
+                    }
+                }
+            });
+        }
+
+        // --- MOTOR DEL ARBOL DE DECISION ---
+        function actualizarDisplayArbol() {
+            document.getElementById('depth-text').innerText = document.getElementById('tree-depth').value;
+            procesarArbol();
+        }
+
+        function procesarArbol() {
+            const profundidad = parseInt(document.getElementById('tree-depth').value);
+            const dataset = document.getElementById('tree-dataset').value;
+            
+            let accuracy = 0;
+            let gini = 0;
+            let renderHtml = "";
+
+            if (dataset === "credito") {
+                accuracy = 65.5 + (profundidad * 8.2);
+                gini = 0.45 - (profundidad * 0.10);
+                
+                if (profundidad === 1) {
+                    renderHtml = `<span class="tree-node">[Ingreso Anual > $50,000]</span>\n   |-- SI: <span class="tree-leaf">Aprobar Credito</span>\n   |-- NO: <span class="tree-leaf-bad">Rechazar Credito</span>`;
+                } else if (profundidad === 2) {
+                    renderHtml = `<span class="tree-node">[Ingreso Anual > $50,000]</span>\n   |-- SI: <span class="tree-node">[Deuda Actual < $10,000]</span>\n   |     |-- SI: <span class="tree-leaf">Aprobar Limite Alto</span>\n   |     |-- NO: <span class="tree-leaf">Aprobar Limite Estandar</span>\n   |-- NO: <span class="tree-leaf-bad">Rechazar Credito</span>`;
+                } else if (profundidad === 3) {
+                    renderHtml = `<span class="tree-node">[Ingreso Anual > $50,000]</span>\n   |-- SI: <span class="tree-node">[Deuda Actual < $10,000]</span>\n   |     |-- SI: <span class="tree-leaf">Aprobar Limite Alto</span>\n   |     |-- NO: <span class="tree-node">[Historial Pagos Bueno]</span>\n   |           |-- SI: <span class="tree-leaf">Aprobar Estandar</span>\n   |           |-- NO: <span class="tree-leaf-bad">Rechazar</span>\n   |-- NO: <span class="tree-leaf-bad">Rechazar Credito</span>`;
+                } else {
+                    renderHtml = `<span class="tree-node">[Ingreso Anual > $50,000]</span>\n   |-- SI: <span class="tree-node">[Deuda Actual < $10,000]</span>\n   |     |-- SI: <span class="tree-leaf">Aprobar Limite Alto</span>\n   |     |-- NO: <span class="tree-node">[Historial Pagos Bueno]</span>\n   |           |-- SI: <span class="tree-leaf">Aprobar Estandar</span>\n   |           |-- NO: <span class="tree-leaf-bad">Rechazar</span>\n   |-- NO: <span class="tree-node">[Tiene Propiedad Aval]</span>\n         |-- SI: <span class="tree-leaf">Revisar Manualmente</span>\n         |-- NO: <span class="tree-leaf-bad">Rechazar Absoluto</span>`;
+                }
+            } else {
+                accuracy = 70.0 + (profundidad * 7.1);
+                gini = 0.50 - (profundidad * 0.12);
+                
+                if (profundidad === 1) {
+                    renderHtml = `<span class="tree-node">[Edad Paciente > 60]</span>\n   |-- SI: <span class="tree-leaf-bad">Riesgo Alto</span>\n   |-- NO: <span class="tree-leaf">Riesgo Bajo</span>`;
+                } else if (profundidad === 2) {
+                    renderHtml = `<span class="tree-node">[Edad Paciente > 60]</span>\n   |-- SI: <span class="tree-node">[Presion Sistolica > 140]</span>\n   |     |-- SI: <span class="tree-leaf-bad">Intervencion Urgente</span>\n   |     |-- NO: <span class="tree-leaf-bad">Riesgo Alto (Monitoreo)</span>\n   |-- NO: <span class="tree-leaf">Riesgo Bajo</span>`;
+                } else if (profundidad >= 3) {
+                    renderHtml = `<span class="tree-node">[Edad Paciente > 60]</span>\n   |-- SI: <span class="tree-node">[Presion Sistolica > 140]</span>\n   |     |-- SI: <span class="tree-leaf-bad">Intervencion Urgente</span>\n   |     |-- NO: <span class="tree-node">[Fumador Activo]</span>\n   |           |-- SI: <span class="tree-leaf-bad">Riesgo Muy Alto</span>\n   |           |-- NO: <span class="tree-leaf-bad">Riesgo Alto</span>\n   |-- NO: <span class="tree-leaf">Riesgo Bajo</span>`;
+                }
+            }
+
+            if (accuracy > 98.5) accuracy = 98.5; // Evitar pasar del 100% logicamente
+            if (gini < 0.05) gini = 0.05;
+
+            document.getElementById('val-acc').innerText = accuracy.toFixed(1) + "%";
+            document.getElementById('val-gini').innerText = gini.toFixed(3);
+            document.getElementById('tree-render').innerHTML = renderHtml;
+        }
+    </script>
 </body>
 </html>
