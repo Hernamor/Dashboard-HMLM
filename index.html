@@ -7,13 +7,18 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --card-dark: #1e293b;
-            --surface-inner: #0f1f35;
-            --accent: #38bdf8;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
+            /* NUEVA PALETA DE COLORES */
+            --bg-dark: #2a0000;          /* Fondo: Rojo oscuro */
+            --card-dark: #7a1b3f;        /* Rectángulos: Rosa oscuro */
+            --surface-inner: #5c142e;    /* Cajas internas: Rosa oscuro más profundo */
+            --accent: #8b0000;           /* Botones: Rojo oscuro */
+            --accent-hover: #5c0000;     /* Botones al pasar el cursor */
+            --text-main: #ff6b8b;        /* Letras: Rojo rosado */
+            --text-muted: #e65575;       /* Letras secundarias: Rojo rosado tenue */
+            --border: #99234e;           /* Bordes adaptados al rosa */
+            --result-color: #ffffff;     /* Resultado: Blanco puro */
+            
+            /* Colores de estado (para los bordes y fondos de alerta, pero el texto será blanco) */
             --danger: #ef4444;
             --success: #4ade80;
             --warn: #fbbf24;
@@ -75,7 +80,7 @@
 
         .card h2 {
             margin-top: 0;
-            color: var(--accent);
+            color: var(--text-main);
             font-size: 1.25rem;
             margin-bottom: 20px;
         }
@@ -95,7 +100,7 @@
         }
 
         input[type="text"], input[type="number"], select {
-            background-color: var(--bg-dark);
+            background-color: var(--surface-inner);
             border: 1px solid var(--border);
             color: var(--text-main);
             padding: 10px 12px;
@@ -109,13 +114,13 @@
 
         input:focus, select:focus {
             outline: none;
-            border-color: var(--accent);
+            border-color: var(--text-main);
         }
 
         button {
             background-color: var(--accent);
-            color: #020617;
-            border: none;
+            color: var(--text-main);
+            border: 1px solid var(--border);
             padding: 12px;
             border-radius: 6px;
             font-weight: 600;
@@ -127,7 +132,7 @@
         }
 
         button:hover {
-            background-color: #7dd3fc;
+            background-color: var(--accent-hover);
         }
 
         .metrics-panel {
@@ -147,7 +152,7 @@
 
         .metric-value {
             font-size: 1.5rem;
-            color: var(--text-main);
+            color: var(--result-color); /* Resultado en BLANCO */
             font-weight: bold;
             font-family: monospace;
             margin-bottom: 5px;
@@ -169,7 +174,7 @@
             font-size: 1rem;
             font-weight: bold;
             text-align: center;
-            color: var(--text-main);
+            color: var(--result-color); /* Resultado en BLANCO */
         }
     </style>
 </head>
@@ -285,7 +290,6 @@
     <script>
         // ==========================================
         // LÓGICA MATEMÁTICA: ÁRBOL DE ALUMNOS
-        // Basado en: Si (horas > 5) AND (asistencia > 60) AND (tarea == 1)
         // ==========================================
         function evaluarAlumno() {
             const horas = parseFloat(document.getElementById('alum-horas').value);
@@ -297,18 +301,20 @@
 
             if (horas > 5 && asistencia > 60 && tareas === 1) {
                 banner.innerText = "ESTADO PREDICHO: APROBADO";
-                banner.style.color = "var(--success)";
+                banner.style.backgroundColor = "rgba(74, 222, 128, 0.2)"; // Fondo tenue para resaltar el borde
                 banner.style.borderColor = "var(--success)";
             } else {
                 banner.innerText = "ESTADO PREDICHO: REPROBADO";
-                banner.style.color = "var(--danger)";
+                banner.style.backgroundColor = "rgba(239, 68, 68, 0.2)"; // Fondo tenue para resaltar el borde
                 banner.style.borderColor = "var(--danger)";
             }
+            
+            // Forzamos el color de letra a blanco puro como se solicitó
+            banner.style.color = "var(--result-color)";
         }
 
         // ==========================================
         // LÓGICA MATEMÁTICA: ÁRBOL CLÍNICO COVID-19
-        // Evaluaciones jerárquicas dinámicas
         // ==========================================
         function evaluarCovid() {
             const edad = parseInt(document.getElementById('cov-edad').value);
@@ -365,29 +371,29 @@
                 resPrinc = "NIVEL DE PELIGRO: BAJO";
             }
 
-            // Aplicar estilos y colores dinámicos al CSS
+            // Aplicar estilos dinámicos a los contenedores (Mantenemos el texto BLANCO)
             if (nivelRiesgo === "BAJO") {
-                domRiesgo.style.color = "var(--success)";
-                banner.style.color = "var(--success)";
+                banner.style.backgroundColor = "rgba(74, 222, 128, 0.2)";
                 banner.style.borderColor = "var(--success)";
             } else if (nivelRiesgo === "MODERADO") {
-                domRiesgo.style.color = "var(--warn)";
-                banner.style.color = "var(--warn)";
+                banner.style.backgroundColor = "rgba(251, 191, 36, 0.2)";
                 banner.style.borderColor = "var(--warn)";
             } else {
-                domRiesgo.style.color = "var(--danger)";
-                banner.style.color = "var(--danger)";
+                banner.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
                 banner.style.borderColor = "var(--danger)";
             }
 
-            domTubo.style.color = requiereTubo === "SÍ" ? "var(--danger)" : "var(--success)";
-            domEstancia.style.color = "var(--accent)";
-            
             // Inyectar resultados finales
             banner.innerText = resPrinc;
             domTubo.innerText = requiereTubo;
             domEstancia.innerText = diasEstancia.toFixed(1) + " DÍAS";
             domRiesgo.innerText = nivelRiesgo;
+
+            // Forzar colores de texto a blanco en todos los resultados
+            banner.style.color = "var(--result-color)";
+            domTubo.style.color = "var(--result-color)";
+            domEstancia.style.color = "var(--result-color)";
+            domRiesgo.style.color = "var(--result-color)";
         }
     </script>
 </body>
