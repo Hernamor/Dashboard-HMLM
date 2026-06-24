@@ -7,21 +7,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            /* PALETA DE COLORES - ESTILO ITACHI PIXEL ART */
-            --bg-dark: #0f0205;          /* Fondo: Casi negro con tinte rojizo */
-            --card-dark: #2d0a13;        /* Tarjetas: Vino/Burgundy muy oscuro */
-            --surface-inner: #4a101f;    /* Cajas internas: Carmesí oscuro */
-            --accent: #d91828;           /* Botones: Rojo intenso (nubes Akatsuki) */
-            --accent-hover: #ff4d6d;     /* Botones al pasar el cursor: Rosa vibrante del cielo */
-            --text-main: #ffccd5;        /* Letras: Rosa muy pálido (casi blanco) para contraste */
-            --text-muted: #c26e7e;       /* Letras secundarias: Rosa desaturado */
-            --border: #73172d;           /* Bordes: Rojo vino */
-            --result-color: #ffffff;     /* Resultado final: Blanco puro */
-            
-            /* Colores de estado (bordes de alerta) */
-            --danger: #ef4444;
-            --success: #4ade80;
-            --warn: #fbbf24;
+            /* PALETA BASE: GRIS, NEGRO Y VERDE */
+            --bg-dark: #0b0f19;          /* Fondo base: Negro grisáceo */
+            --card-dark: #1f2937;        /* Tarjetas: Gris oscuro */
+            --surface-inner: #111827;    /* Cajas internas: Gris muy oscuro */
+            --accent: #7f1d1d;           /* Botones: Rojo oscuro */
+            --accent-hover: #991b1b;     /* Botones al pasar el cursor */
+            --text-main: #4ade80;        /* Letras y cuadros de texto: Verde claro */
+            --text-muted: #22c55e;       /* Letras secundarias: Verde medio */
+            --border: #374151;           /* Bordes: Gris */
+            --result-color: #ffffff;     /* Resultados: Blanco */
         }
 
         body {
@@ -30,6 +25,7 @@
             font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             padding: 30px 20px;
+            transition: background-color 0.5s ease; /* Transición suave de cambio de color */
         }
 
         .container {
@@ -73,7 +69,7 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
         }
@@ -94,8 +90,7 @@
         label {
             color: var(--text-muted);
             font-size: 0.8rem;
-            margin-bottom: 6px;
-            text-transform: uppercase;
+            margin-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
@@ -107,20 +102,19 @@
             border-radius: 6px;
             font-size: 0.95rem;
             font-family: monospace;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: border-color 0.3s;
             width: 100%;
             box-sizing: border-box;
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: var(--accent-hover);
-            box-shadow: 0 0 5px var(--accent-hover);
+            border-color: var(--text-main);
         }
 
         button {
             background-color: var(--accent);
-            color: var(--result-color);
+            color: var(--text-main);
             border: 1px solid var(--border);
             padding: 12px;
             border-radius: 6px;
@@ -129,12 +123,11 @@
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
-            transition: background-color 0.2s, transform 0.1s;
+            transition: background-color 0.2s;
         }
 
         button:hover {
             background-color: var(--accent-hover);
-            transform: translateY(-1px);
         }
 
         .metrics-panel {
@@ -154,7 +147,7 @@
 
         .metric-value {
             font-size: 1.5rem;
-            color: var(--result-color); /* Resultado en BLANCO */
+            color: var(--result-color); /* Texto Blanco */
             font-weight: bold;
             font-family: monospace;
             margin-bottom: 5px;
@@ -173,10 +166,10 @@
             padding: 15px;
             margin-top: 15px;
             font-family: monospace;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
             text-align: center;
-            color: var(--result-color); /* Resultado en BLANCO */
+            color: var(--result-color); /* Texto Blanco */
         }
     </style>
 </head>
@@ -290,6 +283,30 @@
     </div>
 
     <script>
+        // Variables de estado globales para rastrear el resultado de ambos modelos
+        let estadoAlumno = null; // Guardará "APROBADO" o "REPROBADO"
+        let estadoPaciente = null; // Guardará "RIESGO" o "SEGURO"
+
+        // ==========================================
+        // CONTROL EVALUADOR DINÁMICO DEL FONDO (BODY)
+        // ==========================================
+        function actualizarFondoGlobal() {
+            const body = document.body;
+
+            // Condición 1: Ambos están en estado crítico -> Fondo rojo oscuro
+            if (estadoAlumno === "REPROBADO" && estadoPaciente === "RIESGO") {
+                body.style.backgroundColor = "#5c0d12"; 
+            } 
+            // Condición 2: Ambos están a salvo -> Fondo azul oscuro
+            else if (estadoAlumno === "APROBADO" && estadoPaciente === "SEGURO") {
+                body.style.backgroundColor = "#0f2d59"; 
+            } 
+            // Condición 3: Mismatch u estados contrarios -> Retorna a gris/negro inicial
+            else {
+                body.style.backgroundColor = "var(--bg-dark)"; 
+            }
+        }
+
         // ==========================================
         // LÓGICA MATEMÁTICA: ÁRBOL DE ALUMNOS
         // ==========================================
@@ -301,19 +318,16 @@
             const banner = document.getElementById('alum-banner');
             banner.style.display = "block";
 
-            // Se agregan los emojis solicitados 🏅 y 💀
             if (horas > 5 && asistencia > 60 && tareas === 1) {
                 banner.innerHTML = "🏅 ESTADO PREDICHO: APROBADO 🏅";
-                banner.style.backgroundColor = "rgba(74, 222, 128, 0.15)"; 
-                banner.style.borderColor = "var(--success)";
+                estadoAlumno = "APROBADO";
             } else {
                 banner.innerHTML = "💀 ESTADO PREDICHO: REPROBADO 💀";
-                banner.style.backgroundColor = "rgba(239, 68, 68, 0.15)"; 
-                banner.style.borderColor = "var(--danger)";
+                estadoAlumno = "REPROBADO";
             }
             
-            // Forzamos el color de letra a blanco puro
             banner.style.color = "var(--result-color)";
+            actualizarFondoGlobal(); // Disparar la comprobación del fondo
         }
 
         // ==========================================
@@ -326,7 +340,6 @@
             const numIntervenciones = parseInt(document.getElementById('cov-intervenciones').value);
             const dx = document.getElementById('cov-dx').value;
 
-            // Enlazar al DOM
             const banner = document.getElementById('cov-banner');
             const grid = document.getElementById('cov-grid');
             const domTubo = document.getElementById('res-tubo');
@@ -336,13 +349,12 @@
             banner.style.display = "block";
             grid.style.display = "grid";
 
-            // Variables de cálculo
             let requiereTubo = "NO";
             let diasEstancia = 1.5;
             let nivelRiesgo = "BAJO";
             let resPrinc = "";
 
-            // Lógica de Ramificación
+            // Procesamiento de ramas del árbol
             if (gravedad === 3) {
                 if (numIntervenciones >= 1 || edad > 60) {
                     requiereTubo = numIntervenciones > 1 ? "SÍ" : "NO";
@@ -374,29 +386,26 @@
                 resPrinc = "NIVEL DE PELIGRO: BAJO";
             }
 
-            // Aplicar estilos y bordes (El texto sigue siendo BLANCO)
-            if (nivelRiesgo === "BAJO") {
-                banner.style.backgroundColor = "rgba(74, 222, 128, 0.15)";
-                banner.style.borderColor = "var(--success)";
-            } else if (nivelRiesgo === "MODERADO") {
-                banner.style.backgroundColor = "rgba(251, 191, 36, 0.15)";
-                banner.style.borderColor = "var(--warn)";
+            // Mapeo lógico de estados clínicos para el fondo interactivo
+            if (nivelRiesgo === "ALTO") {
+                estadoPaciente = "RIESGO";
             } else {
-                banner.style.backgroundColor = "rgba(239, 68, 68, 0.15)";
-                banner.style.borderColor = "var(--danger)";
+                estadoPaciente = "SEGURO"; // Bajo y Moderado cuentan como fuera de peligro crítico
             }
 
-            // Inyectar resultados finales
+            // Inyectar textos (Manteniendo todo el contenido en blanco)
             banner.innerText = resPrinc;
             domTubo.innerText = requiereTubo;
             domEstancia.innerText = diasEstancia.toFixed(1) + " DÍAS";
             domRiesgo.innerText = nivelRiesgo;
 
-            // Forzar colores de texto a blanco en todos los resultados numéricos y de banner
+            // Garantizar consistencia de salida blanca
             banner.style.color = "var(--result-color)";
             domTubo.style.color = "var(--result-color)";
             domEstancia.style.color = "var(--result-color)";
             domRiesgo.style.color = "var(--result-color)";
+
+            actualizarFondoGlobal(); // Disparar la comprobación del fondo
         }
     </script>
 </body>
