@@ -7,18 +7,18 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            /* NUEVA PALETA DE COLORES */
-            --bg-dark: #2a0000;          /* Fondo: Rojo oscuro */
-            --card-dark: #7a1b3f;        /* Rectángulos: Rosa oscuro */
-            --surface-inner: #5c142e;    /* Cajas internas: Rosa oscuro más profundo */
-            --accent: #8b0000;           /* Botones: Rojo oscuro */
-            --accent-hover: #5c0000;     /* Botones al pasar el cursor */
-            --text-main: #ff6b8b;        /* Letras: Rojo rosado */
-            --text-muted: #e65575;       /* Letras secundarias: Rojo rosado tenue */
-            --border: #99234e;           /* Bordes adaptados al rosa */
-            --result-color: #ffffff;     /* Resultado: Blanco puro */
+            /* PALETA DE COLORES - ESTILO ITACHI PIXEL ART */
+            --bg-dark: #0f0205;          /* Fondo: Casi negro con tinte rojizo */
+            --card-dark: #2d0a13;        /* Tarjetas: Vino/Burgundy muy oscuro */
+            --surface-inner: #4a101f;    /* Cajas internas: Carmesí oscuro */
+            --accent: #d91828;           /* Botones: Rojo intenso (nubes Akatsuki) */
+            --accent-hover: #ff4d6d;     /* Botones al pasar el cursor: Rosa vibrante del cielo */
+            --text-main: #ffccd5;        /* Letras: Rosa muy pálido (casi blanco) para contraste */
+            --text-muted: #c26e7e;       /* Letras secundarias: Rosa desaturado */
+            --border: #73172d;           /* Bordes: Rojo vino */
+            --result-color: #ffffff;     /* Resultado final: Blanco puro */
             
-            /* Colores de estado (para los bordes y fondos de alerta, pero el texto será blanco) */
+            /* Colores de estado (bordes de alerta) */
             --danger: #ef4444;
             --success: #4ade80;
             --warn: #fbbf24;
@@ -73,7 +73,7 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
             display: flex;
             flex-direction: column;
         }
@@ -107,19 +107,20 @@
             border-radius: 6px;
             font-size: 0.95rem;
             font-family: monospace;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
             width: 100%;
             box-sizing: border-box;
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: var(--text-main);
+            border-color: var(--accent-hover);
+            box-shadow: 0 0 5px var(--accent-hover);
         }
 
         button {
             background-color: var(--accent);
-            color: var(--text-main);
+            color: var(--result-color);
             border: 1px solid var(--border);
             padding: 12px;
             border-radius: 6px;
@@ -128,11 +129,12 @@
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.1s;
         }
 
         button:hover {
             background-color: var(--accent-hover);
+            transform: translateY(-1px);
         }
 
         .metrics-panel {
@@ -171,7 +173,7 @@
             padding: 15px;
             margin-top: 15px;
             font-family: monospace;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: bold;
             text-align: center;
             color: var(--result-color); /* Resultado en BLANCO */
@@ -299,17 +301,18 @@
             const banner = document.getElementById('alum-banner');
             banner.style.display = "block";
 
+            // Se agregan los emojis solicitados 🏅 y 💀
             if (horas > 5 && asistencia > 60 && tareas === 1) {
-                banner.innerText = "ESTADO PREDICHO: APROBADO";
-                banner.style.backgroundColor = "rgba(74, 222, 128, 0.2)"; // Fondo tenue para resaltar el borde
+                banner.innerHTML = "🏅 ESTADO PREDICHO: APROBADO 🏅";
+                banner.style.backgroundColor = "rgba(74, 222, 128, 0.15)"; 
                 banner.style.borderColor = "var(--success)";
             } else {
-                banner.innerText = "ESTADO PREDICHO: REPROBADO";
-                banner.style.backgroundColor = "rgba(239, 68, 68, 0.2)"; // Fondo tenue para resaltar el borde
+                banner.innerHTML = "💀 ESTADO PREDICHO: REPROBADO 💀";
+                banner.style.backgroundColor = "rgba(239, 68, 68, 0.15)"; 
                 banner.style.borderColor = "var(--danger)";
             }
             
-            // Forzamos el color de letra a blanco puro como se solicitó
+            // Forzamos el color de letra a blanco puro
             banner.style.color = "var(--result-color)";
         }
 
@@ -371,15 +374,15 @@
                 resPrinc = "NIVEL DE PELIGRO: BAJO";
             }
 
-            // Aplicar estilos dinámicos a los contenedores (Mantenemos el texto BLANCO)
+            // Aplicar estilos y bordes (El texto sigue siendo BLANCO)
             if (nivelRiesgo === "BAJO") {
-                banner.style.backgroundColor = "rgba(74, 222, 128, 0.2)";
+                banner.style.backgroundColor = "rgba(74, 222, 128, 0.15)";
                 banner.style.borderColor = "var(--success)";
             } else if (nivelRiesgo === "MODERADO") {
-                banner.style.backgroundColor = "rgba(251, 191, 36, 0.2)";
+                banner.style.backgroundColor = "rgba(251, 191, 36, 0.15)";
                 banner.style.borderColor = "var(--warn)";
             } else {
-                banner.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
+                banner.style.backgroundColor = "rgba(239, 68, 68, 0.15)";
                 banner.style.borderColor = "var(--danger)";
             }
 
@@ -389,7 +392,7 @@
             domEstancia.innerText = diasEstancia.toFixed(1) + " DÍAS";
             domRiesgo.innerText = nivelRiesgo;
 
-            // Forzar colores de texto a blanco en todos los resultados
+            // Forzar colores de texto a blanco en todos los resultados numéricos y de banner
             banner.style.color = "var(--result-color)";
             domTubo.style.color = "var(--result-color)";
             domEstancia.style.color = "var(--result-color)";
