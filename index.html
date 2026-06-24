@@ -7,21 +7,21 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            /* PALETA BASE: GRIS, NEGRO Y BOTONES ROJOS */
-            --bg-dark: #0b0f19;          /* Fondo base: Negro grisáceo */
-            --card-dark: #1f2937;        /* Tarjetas: Gris oscuro */
-            --surface-inner: #111827;    /* Cajas internas: Gris muy oscuro */
-            --accent: #7f1d1d;           /* Botones: Rojo oscuro */
-            --accent-hover: #991b1b;     /* Botones al pasar el cursor */
+          
+            --bg-dark: #0b0f19;         
+            --card-dark: #1f2937;       
+            --surface-inner: #111827;    
+            --accent: #7f1d1d;           
+            --accent-hover: #991b1b;    
             
-            /* TODO EL TEXTO EN BLANCO COMO SE SOLICITÓ */
+       
             --text-main: #ffffff;        
             --text-muted: #ffffff;       
             --border: #374151;           
             --result-color: #ffffff;     
         }
 
-        /* Forzar que todos los elementos usen texto blanco */
+        
         * {
             color: #ffffff;
         }
@@ -31,7 +31,7 @@
             font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             padding: 30px 20px;
-            transition: background-color 0.5s ease; /* Transición suave de cambio de color */
+            transition: background-color 0.5s ease; 
         }
 
         .container {
@@ -107,10 +107,10 @@
             transition: border-color 0.3s;
             width: 100%;
             box-sizing: border-box;
-            color: #ffffff; /* Asegurar texto blanco en inputs */
+            color: #ffffff; 
         }
 
-        /* Color de las opciones del select */
+       
         select option {
             background-color: var(--surface-inner);
             color: #ffffff;
@@ -118,7 +118,7 @@
 
         input:focus, select:focus {
             outline: none;
-            border-color: #ffffff; /* Resalte blanco al seleccionar */
+            border-color: #ffffff; 
         }
 
         button {
@@ -165,7 +165,7 @@
             text-transform: uppercase;
         }
 
-        /* Banner de resultado adaptativo */
+  
         .output-box {
             border: 1px solid var(--border);
             border-radius: 6px;
@@ -175,7 +175,7 @@
             font-size: 1rem;
             font-weight: bold;
             text-align: center;
-            transition: background-color 0.5s ease; /* Transición igual que el body */
+            transition: background-color 0.5s ease; 
         }
     </style>
 </head>
@@ -183,7 +183,7 @@
     <div class="container">
         <header class="header">
             <h1>Alumno: Hernández Morales Luis Manuel</h1>
-            <p class="subtitle">Clasificadores de Árbol de Decisión: Rendimiento Escolar y Riesgo COVID-19</p>
+            <p class="subtitle">Sistema Clínico Predictivo: COVID-19</p>
         </header>
 
         <div class="grid-modelos">
@@ -289,30 +289,25 @@
     </div>
 
     <script>
-        // Variables de estado globales para rastrear el resultado de ambos modelos
-        let estadoAlumno = null;   // Guardará "APROBADO" o "REPROBADO"
-        let estadoPaciente = null; // Guardará "RIESGO" o "SEGURO"
+        
+        let estadoAlumno = null;   
+        let estadoPaciente = null; 
 
-        // ==========================================
-        // CONTROL EVALUADOR DINÁMICO DEL FONDO Y BANNERS
-        // ==========================================
         function actualizarFondoGlobal() {
             const body = document.body;
             const alumBanner = document.getElementById('alum-banner');
             const covBanner = document.getElementById('cov-banner');
             
-            let colorFondo = "var(--bg-dark)"; // Default: Gris oscuro/Negro
-
-            // Condición 1: Ambos están en estado crítico -> Fondo rojo oscuro
+            let colorFondo = "var(--bg-dark)"; 
             if (estadoAlumno === "REPROBADO" && estadoPaciente === "RIESGO") {
                 colorFondo = "#5c0d12"; 
             } 
-            // Condición 2: Ambos están a salvo -> Fondo azul oscuro
+            
             else if (estadoAlumno === "APROBADO" && estadoPaciente === "SEGURO") {
                 colorFondo = "#0f2d59"; 
             } 
 
-            // Aplicar el color elegido al body y a las cajas de resultado (banners)
+            
             body.style.backgroundColor = colorFondo;
             
             if(alumBanner.style.display !== "none") {
@@ -323,9 +318,7 @@
             }
         }
 
-        // ==========================================
-        // LÓGICA MATEMÁTICA: ÁRBOL DE ALUMNOS
-        // ==========================================
+        
         function evaluarAlumno() {
             const horas = parseFloat(document.getElementById('alum-horas').value);
             const asistencia = parseFloat(document.getElementById('alum-asist').value);
@@ -342,12 +335,9 @@
                 estadoAlumno = "REPROBADO";
             }
             
-            actualizarFondoGlobal(); // Comprobar y pintar fondo/banners
+            actualizarFondoGlobal(); 
         }
 
-        // ==========================================
-        // LÓGICA MATEMÁTICA: ÁRBOL CLÍNICO COVID-19
-        // ==========================================
         function evaluarCovid() {
             const edad = parseInt(document.getElementById('cov-edad').value);
             const tipoIngreso = document.getElementById('cov-ingreso').value;
@@ -368,7 +358,7 @@
             let diasEstancia = 1.5;
             let nivelRiesgo = "BAJO";
 
-            // Procesamiento de ramas del árbol
+     
             if (gravedad === 3) {
                 if (numIntervenciones >= 1 || edad > 60) {
                     requiereTubo = numIntervenciones > 1 ? "SÍ" : "NO";
@@ -395,20 +385,19 @@
                 }
             }
 
-            // Mapeo lógico de estados clínicos para el fondo interactivo
+            
             if (nivelRiesgo === "ALTO") {
                 estadoPaciente = "RIESGO";
             } else {
-                estadoPaciente = "SEGURO"; // Bajo y Moderado cuentan como fuera de peligro crítico
-            }
+                estadoPaciente = "SEGURO"; 
 
-            // Inyectar textos como se pidió
+   
             banner.innerText = "ESTADO DEL PACIENTE: " + nivelRiesgo;
             domTubo.innerText = requiereTubo;
             domEstancia.innerText = diasEstancia.toFixed(1) + " DÍAS";
             domRiesgo.innerText = nivelRiesgo;
 
-            actualizarFondoGlobal(); // Comprobar y pintar fondo/banners
+            actualizarFondoGlobal(); 
         }
     </script>
 </body>
