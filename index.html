@@ -7,21 +7,27 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            /* PALETA BASE: GRIS, NEGRO Y VERDE */
+            /* PALETA BASE: GRIS, NEGRO Y BOTONES ROJOS */
             --bg-dark: #0b0f19;          /* Fondo base: Negro grisáceo */
             --card-dark: #1f2937;        /* Tarjetas: Gris oscuro */
             --surface-inner: #111827;    /* Cajas internas: Gris muy oscuro */
             --accent: #7f1d1d;           /* Botones: Rojo oscuro */
             --accent-hover: #991b1b;     /* Botones al pasar el cursor */
-            --text-main: #4ade80;        /* Letras y cuadros de texto: Verde claro */
-            --text-muted: #22c55e;       /* Letras secundarias: Verde medio */
-            --border: #374151;           /* Bordes: Gris */
-            --result-color: #ffffff;     /* Resultados: Blanco */
+            
+            /* TODO EL TEXTO EN BLANCO COMO SE SOLICITÓ */
+            --text-main: #ffffff;        
+            --text-muted: #ffffff;       
+            --border: #374151;           
+            --result-color: #ffffff;     
+        }
+
+        /* Forzar que todos los elementos usen texto blanco */
+        * {
+            color: #ffffff;
         }
 
         body {
             background-color: var(--bg-dark);
-            color: var(--text-main);
             font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             padding: 30px 20px;
@@ -43,11 +49,9 @@
             margin: 0 0 5px 0;
             font-size: 2.2rem;
             font-weight: 600;
-            color: var(--text-main);
         }
 
         .subtitle {
-            color: var(--text-muted);
             margin: 0;
             font-size: 1rem;
         }
@@ -76,7 +80,6 @@
 
         .card h2 {
             margin-top: 0;
-            color: var(--text-main);
             font-size: 1.25rem;
             margin-bottom: 20px;
         }
@@ -88,16 +91,15 @@
         }
 
         label {
-            color: var(--text-muted);
             font-size: 0.8rem;
-            margin-transform: uppercase;
+            margin-bottom: 6px;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         input[type="text"], input[type="number"], select {
             background-color: var(--surface-inner);
             border: 1px solid var(--border);
-            color: var(--text-main);
             padding: 10px 12px;
             border-radius: 6px;
             font-size: 0.95rem;
@@ -105,16 +107,22 @@
             transition: border-color 0.3s;
             width: 100%;
             box-sizing: border-box;
+            color: #ffffff; /* Asegurar texto blanco en inputs */
+        }
+
+        /* Color de las opciones del select */
+        select option {
+            background-color: var(--surface-inner);
+            color: #ffffff;
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: var(--text-main);
+            border-color: #ffffff; /* Resalte blanco al seleccionar */
         }
 
         button {
             background-color: var(--accent);
-            color: var(--text-main);
             border: 1px solid var(--border);
             padding: 12px;
             border-radius: 6px;
@@ -147,7 +155,6 @@
 
         .metric-value {
             font-size: 1.5rem;
-            color: var(--result-color); /* Texto Blanco */
             font-weight: bold;
             font-family: monospace;
             margin-bottom: 5px;
@@ -155,12 +162,11 @@
 
         .metric-label {
             font-size: 0.70rem;
-            color: var(--text-muted);
             text-transform: uppercase;
         }
 
+        /* Banner de resultado adaptativo */
         .output-box {
-            background-color: var(--surface-inner);
             border: 1px solid var(--border);
             border-radius: 6px;
             padding: 15px;
@@ -169,7 +175,7 @@
             font-size: 1rem;
             font-weight: bold;
             text-align: center;
-            color: var(--result-color); /* Texto Blanco */
+            transition: background-color 0.5s ease; /* Transición igual que el body */
         }
     </style>
 </head>
@@ -192,7 +198,7 @@
                     </div>
                     <div class="form-group">
                         <label>Asistencia (%)</label>
-                        <input type="number" id="alum-asist" value="50" min="0" max="100">
+                        <input type="number" id="alum-asist" value="70" min="0" max="100">
                     </div>
                     <div class="form-group">
                         <label>Entregó Tareas</label>
@@ -216,28 +222,28 @@
                 <div class="control-grid">
                     <div class="form-group">
                         <label>Edad del paciente</label>
-                        <input type="number" id="cov-edad" value="45" min="0">
+                        <input type="number" id="cov-edad" value="20" min="0">
                     </div>
                     <div class="form-group">
                         <label>Tipo de Ingreso</label>
                         <select id="cov-ingreso">
                             <option value="Hospitalización">Hospitalización</option>
-                            <option value="Urgencias">Urgencias</option>
+                            <option value="Urgencias" selected>Urgencias</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Género</label>
                         <select id="cov-genero">
                             <option value="Hombre">Hombre</option>
-                            <option value="Mujer">Mujer</option>
+                            <option value="Mujer" selected>Mujer</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Nivel de gravedad</label>
                         <select id="cov-gravedad">
                             <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3" selected>3</option>
+                            <option value="2" selected>2</option>
+                            <option value="3">3</option>
                         </select>
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
@@ -250,7 +256,7 @@
                             <option value="COVID19">ENFERMEDAD POR COVID 19</option>
                             <option value="IRA">INSUFICIENCIA RESPIRATORIA AGUDA</option>
                             <option value="IRA_COMPLEJA">INSUFICIENCIA RESPIRATORIA AGUDA, NEUMONIA ATIPICA SARS-CoV-2...</option>
-                            <option value="J189">J189 - NEUMONIA, NO ESPECIFICADA</option>
+                            <option value="J189" selected>J189 - NEUMONIA, NO ESPECIFICADA</option>
                         </select>
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
@@ -284,26 +290,36 @@
 
     <script>
         // Variables de estado globales para rastrear el resultado de ambos modelos
-        let estadoAlumno = null; // Guardará "APROBADO" o "REPROBADO"
+        let estadoAlumno = null;   // Guardará "APROBADO" o "REPROBADO"
         let estadoPaciente = null; // Guardará "RIESGO" o "SEGURO"
 
         // ==========================================
-        // CONTROL EVALUADOR DINÁMICO DEL FONDO (BODY)
+        // CONTROL EVALUADOR DINÁMICO DEL FONDO Y BANNERS
         // ==========================================
         function actualizarFondoGlobal() {
             const body = document.body;
+            const alumBanner = document.getElementById('alum-banner');
+            const covBanner = document.getElementById('cov-banner');
+            
+            let colorFondo = "var(--bg-dark)"; // Default: Gris oscuro/Negro
 
             // Condición 1: Ambos están en estado crítico -> Fondo rojo oscuro
             if (estadoAlumno === "REPROBADO" && estadoPaciente === "RIESGO") {
-                body.style.backgroundColor = "#5c0d12"; 
+                colorFondo = "#5c0d12"; 
             } 
             // Condición 2: Ambos están a salvo -> Fondo azul oscuro
             else if (estadoAlumno === "APROBADO" && estadoPaciente === "SEGURO") {
-                body.style.backgroundColor = "#0f2d59"; 
+                colorFondo = "#0f2d59"; 
             } 
-            // Condición 3: Mismatch u estados contrarios -> Retorna a gris/negro inicial
-            else {
-                body.style.backgroundColor = "var(--bg-dark)"; 
+
+            // Aplicar el color elegido al body y a las cajas de resultado (banners)
+            body.style.backgroundColor = colorFondo;
+            
+            if(alumBanner.style.display !== "none") {
+                alumBanner.style.backgroundColor = colorFondo;
+            }
+            if(covBanner.style.display !== "none") {
+                covBanner.style.backgroundColor = colorFondo;
             }
         }
 
@@ -319,15 +335,14 @@
             banner.style.display = "block";
 
             if (horas > 5 && asistencia > 60 && tareas === 1) {
-                banner.innerHTML = "🏅 ESTADO PREDICHO: APROBADO 🏅";
+                banner.innerHTML = "🏅 ESTADO DEL ALUMNO: APROBADO 🏅";
                 estadoAlumno = "APROBADO";
             } else {
-                banner.innerHTML = "💀 ESTADO PREDICHO: REPROBADO 💀";
+                banner.innerHTML = "💀 ESTADO DEL ALUMNO: REPROBADO 💀";
                 estadoAlumno = "REPROBADO";
             }
             
-            banner.style.color = "var(--result-color)";
-            actualizarFondoGlobal(); // Disparar la comprobación del fondo
+            actualizarFondoGlobal(); // Comprobar y pintar fondo/banners
         }
 
         // ==========================================
@@ -352,7 +367,6 @@
             let requiereTubo = "NO";
             let diasEstancia = 1.5;
             let nivelRiesgo = "BAJO";
-            let resPrinc = "";
 
             // Procesamiento de ramas del árbol
             if (gravedad === 3) {
@@ -360,22 +374,18 @@
                     requiereTubo = numIntervenciones > 1 ? "SÍ" : "NO";
                     nivelRiesgo = "ALTO";
                     diasEstancia = 14.5 + (edad > 65 ? 5 : 0);
-                    resPrinc = "NIVEL DE PELIGRO: ALTO";
                 } else {
                     nivelRiesgo = "MODERADO";
                     diasEstancia = 8.0;
-                    resPrinc = "NIVEL DE PELIGRO: MODERADO";
                 }
             } else if (gravedad === 2) {
                 if (tipoIngreso === "Urgencias") {
                     nivelRiesgo = "MODERADO";
                     diasEstancia = 6.5;
                     requiereTubo = numIntervenciones > 0 ? "SÍ" : "NO";
-                    resPrinc = "NIVEL DE PELIGRO: MODERADO";
                 } else {
                     nivelRiesgo = "BAJO";
                     diasEstancia = 4.2;
-                    resPrinc = "NIVEL DE PELIGRO: MODERADO / BAJO";
                 }
             } else {
                 nivelRiesgo = "BAJO";
@@ -383,7 +393,6 @@
                 if (dx === "IRA_COMPLEJA" && edad > 50) {
                     diasEstancia = 5.5;
                 }
-                resPrinc = "NIVEL DE PELIGRO: BAJO";
             }
 
             // Mapeo lógico de estados clínicos para el fondo interactivo
@@ -393,19 +402,13 @@
                 estadoPaciente = "SEGURO"; // Bajo y Moderado cuentan como fuera de peligro crítico
             }
 
-            // Inyectar textos (Manteniendo todo el contenido en blanco)
-            banner.innerText = resPrinc;
+            // Inyectar textos como se pidió
+            banner.innerText = "ESTADO DEL PACIENTE: " + nivelRiesgo;
             domTubo.innerText = requiereTubo;
             domEstancia.innerText = diasEstancia.toFixed(1) + " DÍAS";
             domRiesgo.innerText = nivelRiesgo;
 
-            // Garantizar consistencia de salida blanca
-            banner.style.color = "var(--result-color)";
-            domTubo.style.color = "var(--result-color)";
-            domEstancia.style.color = "var(--result-color)";
-            domRiesgo.style.color = "var(--result-color)";
-
-            actualizarFondoGlobal(); // Disparar la comprobación del fondo
+            actualizarFondoGlobal(); // Comprobar y pintar fondo/banners
         }
     </script>
 </body>
