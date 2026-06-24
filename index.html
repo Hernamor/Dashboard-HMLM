@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -7,21 +7,17 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-          
-            --bg-dark: #0b0f19;         
-            --card-dark: #1f2937;       
-            --surface-inner: #111827;    
-            --accent: #7f1d1d;           
-            --accent-hover: #991b1b;    
-            
-       
-            --text-main: #ffffff;        
-            --text-muted: #ffffff;       
-            --border: #374151;           
-            --result-color: #ffffff;     
+            --bg-dark: #0b0f19;
+            --card-dark: #1f2937;
+            --surface-inner: #111827;
+            --accent: #7f1d1d;
+            --accent-hover: #991b1b;
+            --text-main: #ffffff;
+            --text-muted: #ffffff;
+            --border: #374151;
+            --result-color: #ffffff;
         }
 
-        
         * {
             color: #ffffff;
         }
@@ -31,7 +27,7 @@
             font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             padding: 30px 20px;
-            transition: background-color 0.5s ease; 
+            transition: background-color 0.5s ease;
         }
 
         .container {
@@ -107,10 +103,9 @@
             transition: border-color 0.3s;
             width: 100%;
             box-sizing: border-box;
-            color: #ffffff; 
+            color: #ffffff;
         }
 
-       
         select option {
             background-color: var(--surface-inner);
             color: #ffffff;
@@ -118,7 +113,7 @@
 
         input:focus, select:focus {
             outline: none;
-            border-color: #ffffff; 
+            border-color: #ffffff;
         }
 
         button {
@@ -165,7 +160,6 @@
             text-transform: uppercase;
         }
 
-  
         .output-box {
             border: 1px solid var(--border);
             border-radius: 6px;
@@ -175,7 +169,7 @@
             font-size: 1rem;
             font-weight: bold;
             text-align: center;
-            transition: background-color 0.5s ease; 
+            transition: background-color 0.5s ease;
         }
     </style>
 </head>
@@ -289,25 +283,22 @@
     </div>
 
     <script>
-        
-        let estadoAlumno = null;   
-        let estadoPaciente = null; 
+        let estadoAlumno = null;
+        let estadoPaciente = null;
 
         function actualizarFondoGlobal() {
             const body = document.body;
             const alumBanner = document.getElementById('alum-banner');
             const covBanner = document.getElementById('cov-banner');
             
-            let colorFondo = "var(--bg-dark)"; 
+            let colorFondo = "var(--bg-dark)";
+            
             if (estadoAlumno === "REPROBADO" && estadoPaciente === "RIESGO") {
-                colorFondo = "#5c0d12"; 
-            } 
-            
-            else if (estadoAlumno === "APROBADO" && estadoPaciente === "SEGURO") {
-                colorFondo = "#0f2d59"; 
-            } 
+                colorFondo = "#5c0d12";
+            } else if (estadoAlumno === "APROBADO" && estadoPaciente === "SEGURO") {
+                colorFondo = "#0f2d59";
+            }
 
-            
             body.style.backgroundColor = colorFondo;
             
             if(alumBanner.style.display !== "none") {
@@ -318,7 +309,6 @@
             }
         }
 
-        
         function evaluarAlumno() {
             const horas = parseFloat(document.getElementById('alum-horas').value);
             const asistencia = parseFloat(document.getElementById('alum-asist').value);
@@ -335,7 +325,7 @@
                 estadoAlumno = "REPROBADO";
             }
             
-            actualizarFondoGlobal(); 
+            actualizarFondoGlobal();
         }
 
         function evaluarCovid() {
@@ -358,7 +348,6 @@
             let diasEstancia = 1.5;
             let nivelRiesgo = "BAJO";
 
-     
             if (gravedad === 3) {
                 if (numIntervenciones >= 1 || edad > 60) {
                     requiereTubo = numIntervenciones > 1 ? "SÍ" : "NO";
@@ -385,19 +374,18 @@
                 }
             }
 
-            
             if (nivelRiesgo === "ALTO") {
                 estadoPaciente = "RIESGO";
             } else {
-                estadoPaciente = "SEGURO"; 
+                estadoPaciente = "SEGURO";
+            }
 
-   
             banner.innerText = "ESTADO DEL PACIENTE: " + nivelRiesgo;
             domTubo.innerText = requiereTubo;
             domEstancia.innerText = diasEstancia.toFixed(1) + " DÍAS";
             domRiesgo.innerText = nivelRiesgo;
 
-            actualizarFondoGlobal(); 
+            actualizarFondoGlobal();
         }
     </script>
 </body>
