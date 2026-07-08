@@ -1,60 +1,74 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Estadísticas de Fútbol</title>
-    <!-- Cargamos Chart.js desde su CDN -->
+    <title>Dashboard Predictivo y de Convergencia Futbolística</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --secondary: #10b981;
-            --bg-color: #f1f5f9;
+            --primary: #1e3a8a;
+            --secondary: #0d9488;
+            --accent: #f59e0b;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-main: #1e293b;
+            --text-main: #0f172a;
+            --border-color: #e2e8f0;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
             padding: 20px;
         }
 
-        .dashboard-header {
+        .header {
             text-align: center;
             margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
 
-        .container {
+        .grid-layout {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 20px;
-            max-width: 1200px;
+            gap: 25px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
-        @media (min-width: 900px) {
-            .container {
-                grid-template-columns: 350px 1fr;
+        @media (min-width: 1024px) {
+            .grid-layout {
+                grid-template-columns: 380px 1fr;
+            }
+            .full-width {
+                grid-column: span 2;
             }
         }
 
         .card {
-            background-color: var(--card-bg);
+            background: var(--card-bg);
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
         }
 
         h2 {
             margin-top: 0;
-            font-size: 1.2rem;
-            border-bottom: 2px solid #e2e8f0;
+            font-size: 1.25rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
             margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .form-group {
@@ -63,18 +77,23 @@
 
         label {
             display: block;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             margin-bottom: 5px;
-            font-weight: 500;
+            font-weight: 600;
+            color: #475569;
         }
 
-        input[type="number"] {
+        input, select {
             width: 100%;
             padding: 10px;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
             box-sizing: border-box;
-            font-size: 1rem;
+            font-size: 0.95rem;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid #3b82f6;
         }
 
         button {
@@ -82,235 +101,494 @@
             padding: 12px;
             border: none;
             border-radius: 6px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s;
-            margin-bottom: 10px;
+            transition: all 0.2s;
             color: white;
+            margin-top: 10px;
         }
 
-        .btn-add { background-color: var(--primary); }
-        .btn-add:hover { background-color: #1d4ed8; }
-        
-        .btn-load { background-color: var(--secondary); }
-        .btn-load:hover { background-color: #059669; }
+        .btn-primary { background-color: var(--primary); }
+        .btn-primary:hover { background-color: #172554; }
+        .btn-secondary { background-color: var(--secondary); }
+        .btn-secondary:hover { background-color: #115e59; }
+        .btn-accent { background-color: var(--accent); color: #0f172a; }
+        .btn-accent:hover { background-color: #d97706; }
 
-        .counter-badge {
-            text-align: center;
-            font-size: 0.9rem;
-            color: #64748b;
-            margin-bottom: 15px;
+        .badge {
+            background-color: #e2e8f0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: normal;
+            color: #334155;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
+            font-size: 0.9rem;
         }
 
         th, td {
             padding: 12px;
             text-align: center;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--border-color);
         }
 
         th {
             background-color: #f8fafc;
+            color: #475569;
             font-weight: 600;
-            color: var(--text-main);
+        }
+
+        .prediction-row {
+            background-color: #f0fdf4;
+            font-weight: bold;
+            color: #166534;
         }
 
         .chart-container {
             position: relative;
-            height: 400px;
+            height: 320px;
             width: 100%;
+            margin-top: 15px;
+        }
+
+        .flex-selects {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .alert-info {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
 
-    <div class="dashboard-header">
-        <h1>Dashboard Estadístico de Partidos</h1>
+    <div class="header">
+        <h1>Dashboard Analítico Predictivo (Regresión Lineal & Convergencia)</h1>
+        <p>Análisis estadístico avanzado basado en mínimos cuadrados secuenciales</p>
     </div>
 
-    <div class="container">
-        <!-- Panel Izquierdo: Formulario de Entrada -->
+    <div class="grid-layout">
+        
         <div class="card">
             <h2>Ingreso de Datos</h2>
-            <div class="counter-badge" id="registroContador">Registros actuales: 0</div>
-            
-            <form id="dataForm">
+            <form id="partidoForm">
                 <div class="form-group">
-                    <label>Corners / Tiros de Esquina</label>
-                    <input type="number" id="corners" min="0" required>
+                    <label>Identificador / Equipo</label>
+                    <input type="text" id="equipoId" placeholder="Ej. FRANCIA, MARRUECOS" required style="text-transform: uppercase;">
                 </div>
-                <div class="form-group">
-                    <label>Tarjetas Amarillas</label>
-                    <input type="number" id="amarillas" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label>Tarjetas Rojas</label>
-                    <input type="number" id="rojas" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label>Remates a Puerta</label>
-                    <input type="number" id="remates" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label>Total de Goles</label>
-                    <input type="number" id="goles" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label>Faltas Cometidas</label>
-                    <input type="number" id="faltas" min="0" required>
-                </div>
+                <div id="infoPartidosEquipo" style="font-size: 0.85rem; color:#64748b; margin-bottom: 15px; font-weight: 500;"></div>
+                
+                <div class="form-group"><label>Corners</label><input type="number" id="corners" min="0" required></div>
+                <div class="form-group"><label>Tarjetas Amarillas</label><input type="number" id="amarillas" min="0" required></div>
+                <div class="form-group"><label>Tarjetas Rojas</label><input type="number" id="rojas" min="0" required></div>
+                <div class="form-group"><label>Remates a Puerta</label><input type="number" id="remates" min="0" required></div>
+                <div class="form-group"><label>Total de Goles</label><input type="number" id="goles" min="0" required></div>
+                <div class="form-group"><label>Faltas Cometidas</label><input type="number" id="faltas" min="0" required></div>
 
-                <button type="button" class="btn-add" onclick="agregarRegistro()">Guardar Registro</button>
-                <button type="button" class="btn-load" onclick="cargarGraficaYTabla()">Cargar Resultados</button>
+                <button type="submit" class="btn-primary">Guardar Registro bajo este ID</button>
             </form>
         </div>
 
-        <!-- Panel Derecho: Gráfica y Tabla -->
         <div class="card">
-            <h2>Análisis de Tendencias</h2>
-            <div class="chart-container">
-                <canvas id="miGrafica"></canvas>
+            <h2>
+                Análisis Individual e Histórico
+                <div style="width: 200px;">
+                    <select id="selectEquipoAnalisis" onchange="analizarEquipoIndividual()"></select>
+                </div>
+            </h2>
+            
+            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                <label style="margin: 0; white-space: nowrap;">Métrica para Gráfica:</label>
+                <select id="selectMetricaGrafica" onchange="analizarEquipoIndividual()" style="width: auto;">
+                    <option value="corners">Corners</option>
+                    <option value="amarillas">Tarjetas Amarillas</option>
+                    <option value="rojas">Tarjetas Rojas</option>
+                    <option value="remates">Remates a Puerta</option>
+                    <option value="goles">Total de Goles</option>
+                    <option value="faltas">Faltas Cometidas</option>
+                </select>
             </div>
 
-            <h2 style="margin-top: 40px;">Promedios Estadísticos</h2>
+            <div class="chart-container">
+                <canvas id="graficaAnalisis"></canvas>
+            </div>
+
+            <h3 style="font-size: 1rem; color: var(--primary); margin-top: 25px; margin-bottom: 10px;">Estadísticas Proyectadas</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
-                            <th>Corners</th>
-                            <th>T. Amarillas</th>
-                            <th>T. Rojas</th>
-                            <th>Remates</th>
-                            <th>Goles</th>
-                            <th>Faltas</th>
+                            <th>Métrica</th>
+                            <th>Promedio Histórico</th>
+                            <th>Predicción Regresión (Partido N+1)</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td id="avg-corners">0.00</td>
-                            <td id="avg-amarillas">0.00</td>
-                            <td id="avg-rojas">0.00</td>
-                            <td id="avg-remates">0.00</td>
-                            <td id="avg-goles">0.00</td>
-                            <td id="avg-faltas">0.00</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="tablaIndividualBody">
+                        </tbody>
                 </table>
             </div>
         </div>
+
+        <div class="card full-width">
+            <h2>Módulo de Convergencia (Comparativo de Trayectorias)</h2>
+            <div class="flex-selects" style="max-width: 600px;">
+                <div>
+                    <label>Selección / Equipo 1</label>
+                    <select id="convEquipo1"></select>
+                </div>
+                <div>
+                    <label>Selección / Equipo 2</label>
+                    <select id="convEquipo2"></select>
+                </div>
+            </div>
+            <button class="btn-accent" onclick="calcularConvergencia()" style="max-width: 300px;">Calcular Punto de Convergencia</button>
+
+            <div id="convergenciaResultado">
+                </div>
+        </div>
+
     </div>
 
     <script>
-        // Arreglo para almacenar la data en memoria
-        let registros = [];
+        // Estructura de Datos Base estructurada por ID de equipo
+        // Precargamos datos de ejemplo reales (5 partidos cada uno) para simular tendencias
+        let BD_EQUIPOS = {
+            "FRANCIA": [
+                { corners: 6, amarillas: 1, rojas: 0, remates: 8, goles: 2, faltas: 11 },
+                { corners: 5, amarillas: 2, rojas: 0, remates: 7, goles: 1, faltas: 13 },
+                { corners: 7, amarillas: 1, rojas: 1, remates: 9, goles: 3, faltas: 10 },
+                { corners: 8, amarillas: 3, rojas: 0, remates: 11, goles: 2, faltas: 12 },
+                { corners: 9, amarillas: 2, rojas: 0, remates: 12, goles: 4, faltas: 9 }
+            ],
+            "MARRUECOS": [
+                { corners: 3, amarillas: 3, rojas: 0, remates: 4, goles: 1, faltas: 16 },
+                { corners: 4, amarillas: 2, rojas: 0, remates: 5, goles: 0, faltas: 18 },
+                { corners: 3, amarillas: 4, rojas: 1, remates: 3, goles: 1, faltas: 15 },
+                { corners: 5, amarillas: 2, rojas: 0, remates: 6, goles: 2, faltas: 14 },
+                { corners: 4, amarillas: 3, rojas: 0, remates: 5, goles: 1, faltas: 17 }
+            ]
+        };
+
         let chartInstance = null;
+        const metricasLista = ['corners', 'amarillas', 'rojas', 'remates', 'goles', 'faltas'];
+        const nombresMetricas = {
+            corners: 'Corners', amarillas: 'Tarjetas Amarillas', rojas: 'Tarjetas Rojas',
+            remates: 'Remates a Puerta', goles: 'Total de Goles', faltas: 'Faltas Cometidas'
+        };
 
-        function agregarRegistro() {
-            // Obtenemos los valores de los inputs
-            const corners = parseInt(document.getElementById('corners').value) || 0;
-            const amarillas = parseInt(document.getElementById('amarillas').value) || 0;
-            const rojas = parseInt(document.getElementById('rojas').value) || 0;
-            const remates = parseInt(document.getElementById('remates').value) || 0;
-            const goles = parseInt(document.getElementById('goles').value) || 0;
-            const faltas = parseInt(document.getElementById('faltas').value) || 0;
+        // Al iniciar la página
+        window.onload = function() {
+            actualizarSelectores();
+            configurarMonitoreoEquipo();
+            analizarEquipoIndividual();
+            calcularConvergencia();
+        };
 
-            // Guardamos el objeto en nuestro arreglo
-            registros.push({ corners, amarillas, rojas, remates, goles, faltas });
-            
-            // Actualizamos la UI y limpiamos el formulario
-            document.getElementById('registroContador').innerText = `Registros actuales: ${registros.length}`;
-            document.getElementById('dataForm').reset();
-            
-            // Foco de nuevo al primer input para captura rápida
-            document.getElementById('corners').focus();
+        // Monitorear lo que escribe el usuario para decirle cuántos partidos lleva ese ID
+        function configurarMonitoreoEquipo() {
+            const input = document.getElementById('equipoId');
+            input.addEventListener('input', () => {
+                const id = input.value.trim().toUpperCase();
+                const info = document.getElementById('infoPartidosEquipo');
+                if(id && BD_EQUIPOS[id]) {
+                    info.innerText = `Este equipo ya existe. Tiene ${BD_EQUIPOS[id].length} partidos registrados.`;
+                } else if(id) {
+                    info.innerText = `Nuevo equipo. Se creará el registro N° 1.`;
+                } else {
+                    info.innerText = '';
+                }
+            });
         }
 
-        function cargarGraficaYTabla() {
-            if (registros.length === 0) {
-                alert('Por favor, ingresa al menos un registro antes de cargar los resultados.');
-                return;
+        // Actualiza las listas desplegables del sistema
+        function actualizarSelectores() {
+            const equipos = Object.keys(BD_EQUIPOS);
+            
+            const sel1 = document.getElementById('selectEquipoAnalisis');
+            const sel2 = document.getElementById('convEquipo1');
+            const sel3 = document.getElementById('convEquipo2');
+
+            // Guardar valores seleccionados previamente si existen
+            const v1 = sel1.value;
+            const v2 = sel2.value;
+            const v3 = sel3.value;
+
+            sel1.innerHTML = ''; sel2.innerHTML = ''; sel3.innerHTML = '';
+
+            equipos.forEach(eq => {
+                sel1.options.add(new Option(eq, eq));
+                sel2.options.add(new Option(eq, eq));
+                sel3.options.add(new Option(eq, eq));
+            });
+
+            // Recuperar selección o poner por defecto
+            if(equipos.includes(v1)) sel1.value = v1;
+            if(equipos.includes(v2)) sel2.value = v2; else if (equipos[0]) sel2.value = equipos[0];
+            if(equipos.includes(v3)) sel3.value = v3; else if (equipos[1]) sel3.value = equipos[1] || equipos[0];
+        }
+
+        // Formulario de envío
+        document.getElementById('partidoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('equipoId').value.trim().toUpperCase();
+            
+            const partido = {
+                corners: parseInt(document.getElementById('corners').value) || 0,
+                amarillas: parseInt(document.getElementById('amarillas').value) || 0,
+                rojas: parseInt(document.getElementById('rojas').value) || 0,
+                remates: parseInt(document.getElementById('remates').value) || 0,
+                goles: parseInt(document.getElementById('goles').value) || 0,
+                faltas: parseInt(document.getElementById('faltas').value) || 0
+            };
+
+            if(!BD_EQUIPOS[id]) {
+                BD_EQUIPOS[id] = [];
             }
-            actualizarTabla();
-            actualizarGrafica();
-        }
+            BD_EQUIPOS[id].push(partido);
 
-        function actualizarTabla() {
-            const total = registros.length;
+            document.getElementById('partidoForm').reset();
+            document.getElementById('infoPartidosEquipo').innerText = '';
             
-            // Sumamos todos los valores usando reduce
-            const sumas = registros.reduce((acc, curr) => {
-                acc.corners += curr.corners;
-                acc.amarillas += curr.amarillas;
-                acc.rojas += curr.rojas;
-                acc.remates += curr.remates;
-                acc.goles += curr.goles;
-                acc.faltas += curr.faltas;
-                return acc;
-            }, { corners: 0, amarillas: 0, rojas: 0, remates: 0, goles: 0, faltas: 0 });
+            actualizarSelectores();
+            // Cambiar el visualizador al equipo recién alterado para feedback inmediato
+            document.getElementById('selectEquipoAnalisis').value = id;
+            analizarEquipoIndividual();
+            calcularConvergencia();
+        });
 
-            // Calculamos el promedio e inyectamos al HTML
-            document.getElementById('avg-corners').innerText = (sumas.corners / total).toFixed(2);
-            document.getElementById('avg-amarillas').innerText = (sumas.amarillas / total).toFixed(2);
-            document.getElementById('avg-rojas').innerText = (sumas.rojas / total).toFixed(2);
-            document.getElementById('avg-remates').innerText = (sumas.remates / total).toFixed(2);
-            document.getElementById('avg-goles').innerText = (sumas.goles / total).toFixed(2);
-            document.getElementById('avg-faltas').innerText = (sumas.faltas / total).toFixed(2);
-        }
-
-        function actualizarGrafica() {
-            const ctx = document.getElementById('miGrafica').getContext('2d');
+        // ==========================================
+        // NÚCLEO MATEMÁTICO: REGRESIÓN LINEAL
+        // ==========================================
+        // Retorna { m: pendiente, b: intersección, r2: opcional }
+        function ejecutarRegresionLineal(arregloDatos, propiedad) {
+            const n = arregloDatos.length;
+            if (n === 0) return { m: 0, b: 0 };
             
-            // Destruir la gráfica anterior si existe para evitar superposiciones
-            if (chartInstance) {
-                chartInstance.destroy();
+            // Si hay un solo dato, asumimos trayectoria plana (pendiente 0)
+            if (n === 1) {
+                return { m: 0, b: arregloDatos[0][propiedad] };
             }
 
-            // Etiquetas dinámicas para el Eje X (Partido 1, Partido 2, etc.)
-            const labels = registros.map((_, index) => `Registro ${index + 1}`);
+            let sumaX = 0, sumaY = 0, sumaXY = 0, sumaX2 = 0;
 
-            // Extracción de datos para las líneas
-            const dataCorners = registros.map(r => r.corners);
-            const dataAmarillas = registros.map(r => r.amarillas);
-            const dataRojas = registros.map(r => r.rojas);
-            const dataRemates = registros.map(r => r.remates);
-            const dataGoles = registros.map(r => r.goles);
-            const dataFaltas = registros.map(r => r.faltas);
+            for (let i = 0; i < n; i++) {
+                const x = i + 1; // El eje X es el partido correlativo (1, 2, 3...)
+                const y = arregloDatos[i][propiedad];
+                
+                sumaX += x;
+                sumaY += y;
+                sumaXY += (x * y);
+                sumaX2 += (x * x);
+            }
 
-            // Configuración de Chart.js
+            // Fórmula de Mínimos Cuadrados para la pendiente (m)
+            const m = (n * sumaXY - sumaX * sumaY) / (n * sumaX2 - sumaX * sumaX);
+            // Fórmula para el intercepto (b)
+            const b = (sumaY - m * sumaX) / n;
+
+            return { m, b };
+        }
+
+        // ==========================================
+        // RENDER DE ANALISIS INDIVIDUAL
+        // ==========================================
+        function analizarEquipoIndividual() {
+            const equipo = document.getElementById('selectEquipoAnalisis').value;
+            if(!equipo || !BD_EQUIPOS[equipo]) return;
+
+            const datos = BD_EQUIPOS[equipo];
+            const metricaActiva = document.getElementById('selectMetricaGrafica').value;
+            const tbody = document.getElementById('tablaIndividualBody');
+            tbody.innerHTML = '';
+
+            let regresionesEquipo = {};
+
+            // 1. Calcular promedios y regresiones para la tabla
+            metricasLista.forEach(m => {
+                const totalSuma = datos.reduce((acc, curr) => acc + curr[m], 0);
+                const promedio = totalSuma / datos.length;
+                
+                const regresion = ejecutarRegresionLineal(datos, m);
+                regresionesEquipo[m] = regresion;
+
+                // Predicción para el siguiente partido (N + 1)
+                const siguientePartidoX = datos.length + 1;
+                let prediccion = regresion.m * siguientePartidoX + regresion.b;
+                if(prediccion < 0) prediccion = 0; // Control físico (no hay goles ni corners negativos)
+
+                const fila = `<tr>
+                    <td><strong>${nombresMetricas[m]}</strong></td>
+                    <td>${promedio.toFixed(2)}</td>
+                    <td class="prediction-row">${prediccion.toFixed(2)} (P. ${siguientePartidoX})</td>
+                </tr>`;
+                tbody.innerHTML += fila;
+            });
+
+            // 2. Renderizar la Gráfica con su Línea de Tendencia
+            const ctx = document.getElementById('graficaAnalisis').getContext('2d');
+            if(chartInstance) chartInstance.destroy();
+
+            // Configurar Eje X incluyendo el partido futuro proyectado
+            const labels = datos.map((_, i) => `Partido ${i+1}`);
+            labels.push(`Predicción P.${datos.length + 1}`);
+
+            // Datos reales del eje Y
+            const valoresReales = datos.map(d => d[metricaActiva]);
+            
+            // Datos de la línea de regresión (calculados para todos los puntos)
+            const lineaRegresion = [];
+            const reg = regresionesEquipo[metricaActiva];
+            for(let i = 1; i <= datos.length + 1; i++) {
+                let val = reg.m * i + reg.b;
+                lineaRegresion.push(val < 0 ? 0 : val);
+            }
+
             chartInstance = new Chart(ctx, {
-                type: 'line', // Tipo de gráfica (líneas con puntos marcados)
+                type: 'bar', // Combinamos barras (real) con línea (regresión)
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Corners', data: dataCorners, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3 },
-                        { label: 'T. Amarillas', data: dataAmarillas, borderColor: '#eab308', backgroundColor: '#eab308', tension: 0.3 },
-                        { label: 'T. Rojas', data: dataRojas, borderColor: '#ef4444', backgroundColor: '#ef4444', tension: 0.3 },
-                        { label: 'Remates', data: dataRemates, borderColor: '#8b5cf6', backgroundColor: '#8b5cf6', tension: 0.3 },
-                        { label: 'Goles', data: dataGoles, borderColor: '#22c55e', backgroundColor: '#22c55e', tension: 0.3 },
-                        { label: 'Faltas', data: dataFaltas, borderColor: '#f97316', backgroundColor: '#f97316', tension: 0.3 }
+                        {
+                            label: 'Datos Históricos Reales',
+                            data: valoresReales, // Termina un elemento antes del final
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 4,
+                            type: 'bar'
+                        },
+                        {
+                            label: 'Línea de Tendencia (Regresión)',
+                            data: lineaRegresion,
+                            borderColor: '#ef4444',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#b91c1c',
+                            type: 'line',
+                            tension: 0.1
+                        }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    }
+                    scales: { y: { beginAtZero: true } }
                 }
             });
+        }
+
+        // ==========================================
+        // CÁLCULO DE CONVERGENCIA (HEAD TO HEAD)
+        // ==========================================
+        function calcularConvergencia() {
+            const eq1 = document.getElementById('convEquipo1').value;
+            const eq2 = document.getElementById('convEquipo2').value;
+            const contenedor = document.getElementById('convergenciaResultado');
+
+            if(!eq1 || !eq2) {
+                contenedor.innerHTML = '<div class="alert-info">Selecciona dos equipos para cruzar trayectorias.</div>';
+                return;
+            }
+
+            if(eq1 === eq2) {
+                contenedor.innerHTML = '<div class="alert-info">Por favor, selecciona dos equipos diferentes para evaluar la convergencia.</div>';
+                return;
+            }
+
+            const datos1 = BD_EQUIPOS[eq1];
+            const datos2 = BD_EQUIPOS[eq2];
+
+            let htmlTabla = `
+                <div class="alert-info" style="background-color: #fffbeb; border-left-color: #d97706;">
+                    <strong>Interpretación del Punto de Convergencia:</strong> El modelo calcula mediante ecuaciones simultáneas en qué número de partido futuro (Eje X) las líneas de tendencia de ambos equipos se cruzarán, mostrando el valor teórico esperado (Eje Y).
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Variable Analizada</th>
+                            <th>Tendencia ${eq1}</th>
+                            <th>Tendencia ${eq2}</th>
+                            <th>¿Cuándo Convergen? (Partido X)</th>
+                            <th>Valor de Intersección (Métrica Y)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            metricasLista.forEach(m => {
+                const reg1 = ejecutarRegresionLineal(datos1, m);
+                const reg2 = ejecutarRegresionLineal(datos2, m);
+
+                // Ecuaciones: 
+                // Y = m1*X + b1
+                // Y = m2*X + b2
+                // m1*X + b1 = m2*X + b2 -> X(m1 - m2) = b2 - b1 -> X = (b2 - b1) / (m1 - m2)
+
+                const difPendiente = reg1.m - reg2.m;
+                
+                let celdaPartido = "";
+                let celdaValor = "";
+
+                if (Math.abs(difPendiente) < 0.0001) {
+                    // Pendientes idénticas o casi idénticas: Líneas paralelas
+                    if (Math.abs(reg1.b - reg2.b) < 0.1) {
+                        celdaPartido = "<span style='color: #2563eb;'>Ya convergen (Trayectorias idénticas)</span>";
+                        celdaValor = `${reg1.b.toFixed(2)}`;
+                    } else {
+                        celdaPartido = "<span style='color: #64748b;'>Nunca (Paralelas perfectas)</span>";
+                        celdaValor = "Brecha Constante";
+                    }
+                } else {
+                    const xConvergencia = (reg2.b - reg1.b) / difPendiente;
+                    
+                    // Determinar el valor de Y sustituyendo X en cualquiera de las ecuaciones
+                    let yConvergencia = reg1.m * xConvergencia + reg1.b;
+                    if(yConvergencia < 0) yConvergencia = 0;
+
+                    // Evaluamos si el partido de convergencia es en el futuro o pasado
+                    // Tomamos como referencia el máximo de partidos jugados entre ambos
+                    const maxPartidosActuales = Math.max(datos1.length, datos2.length);
+
+                    if (xConvergencia >= 0 && xConvergencia <= maxPartidosActuales) {
+                        celdaPartido = `Ya convergieron (En el Partido ${xConvergencia.toFixed(1)})`;
+                        celdaValor = `${yConvergencia.toFixed(2)}`;
+                    } else if (xConvergencia > maxPartidosActuales) {
+                        celdaPartido = `<span style="color: #0d9488; font-weight:bold;">Partido futuro ${xConvergencia.toFixed(1)}</span>`;
+                        celdaValor = `<span style="color: #0d9488; font-weight:bold;">${yConvergencia.toFixed(2)}</span>`;
+                    } else {
+                        celdaPartido = `<span style="color: #b91c1c;">Divergentes (Intersección matemática negativa: ${xConvergencia.toFixed(1)})</span>`;
+                        celdaValor = "No aplica en el tiempo real";
+                    }
+                }
+
+                // Generar cadenas visuales amigables de las ecuaciones de la recta
+                const eq1Texto = `Y = ${reg1.m.toFixed(2)}X + ${reg1.b.toFixed(2)}`;
+                const eq2Texto = `Y = ${reg2.m.toFixed(2)}X + ${reg2.b.toFixed(2)}`;
+
+                htmlTabla += `
+                    <tr>
+                        <td><strong>${nombresMetricas[m]}</strong></td>
+                        <td style="font-family: monospace; font-size:0.8rem; color:#475569;">${eq1Texto}</td>
+                        <td style="font-family: monospace; font-size:0.8rem; color:#475569;">${eq2Texto}</td>
+                        <td>${celdaPartido}</td>
+                        <td>${celdaValor}</td>
+                    </tr>
+                `;
+            });
+
+            htmlTabla += `</tbody></table>`;
+            contenedor.innerHTML = htmlTabla;
         }
     </script>
 </body>
