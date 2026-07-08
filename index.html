@@ -1,391 +1,316 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Predictivo HMLM </title>
+    <title>Dashboard Estadísticas de Fútbol</title>
+    <!-- Cargamos Chart.js desde su CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-dark: #0b0f19;
-            --card-dark: #1f2937;
-            --surface-inner: #111827;
-            --accent: #7f1d1d;
-            --accent-hover: #991b1b;
-            --text-main: #ffffff;
-            --text-muted: #ffffff;
-            --border: #374151;
-            --result-color: #ffffff;
-        }
-
-        * {
-            color: #ffffff;
+            --primary: #2563eb;
+            --secondary: #10b981;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
         }
 
         body {
-            background-color: var(--bg-dark);
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
-            padding: 30px 20px;
-            transition: background-color 0.5s ease;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
         }
 
         .container {
-            max-width: 1300px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        .header {
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 20px;
-        }
-
-        header h1 {
-            margin: 0 0 5px 0;
-            font-size: 2.2rem;
-            font-weight: 600;
-        }
-
-        .subtitle {
-            margin: 0;
-            font-size: 1rem;
-        }
-
-        .control-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .grid-modelos {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 25px;
+        @media (min-width: 900px) {
+            .container {
+                grid-template-columns: 350px 1fr;
+            }
         }
 
         .card {
-            background-color: var(--card-dark);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            background-color: var(--card-bg);
             padding: 25px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .card h2 {
+        h2 {
             margin-top: 0;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
             margin-bottom: 20px;
         }
 
         .form-group {
-            display: flex;
-            flex-direction: column;
             margin-bottom: 15px;
         }
 
         label {
-            font-size: 0.8rem;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            font-weight: 500;
         }
 
-        input[type="text"], input[type="number"], select {
-            background-color: var(--surface-inner);
-            border: 1px solid var(--border);
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            font-family: monospace;
-            transition: border-color 0.3s;
+        input[type="number"] {
             width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
             box-sizing: border-box;
-            color: #ffffff;
-        }
-
-        select option {
-            background-color: var(--surface-inner);
-            color: #ffffff;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #ffffff;
+            font-size: 1rem;
         }
 
         button {
-            background-color: var(--accent);
-            border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
             width: 100%;
-            margin-top: 10px;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: var(--accent-hover);
-        }
-
-        .metrics-panel {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .metric-box {
-            background-color: var(--surface-inner);
-            border: 1px solid var(--border);
+            padding: 12px;
+            border: none;
             border-radius: 6px;
-            padding: 15px 10px;
-            text-align: center;
-        }
-
-        .metric-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            font-family: monospace;
-            margin-bottom: 5px;
-        }
-
-        .metric-label {
-            font-size: 0.70rem;
-            text-transform: uppercase;
-        }
-
-        .output-box {
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 15px;
-            margin-top: 15px;
-            font-family: monospace;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .btn-add { background-color: var(--primary); }
+        .btn-add:hover { background-color: #1d4ed8; }
+        
+        .btn-load { background-color: var(--secondary); }
+        .btn-load:hover { background-color: #059669; }
+
+        .counter-badge {
             text-align: center;
-            transition: background-color 0.5s ease;
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
         }
     </style>
 </head>
 <body>
+
+    <div class="dashboard-header">
+        <h1>Dashboard Estadístico de Partidos</h1>
+    </div>
+
     <div class="container">
-        <header class="header">
-            <h1>Alumno: Hernández Morales Luis Manuel</h1>
-            <p class="subtitle">Sistema Clínico Predictivo: COVID-19</p>
-        </header>
-
-        <div class="grid-modelos">
+        <!-- Panel Izquierdo: Formulario de Entrada -->
+        <div class="card">
+            <h2>Ingreso de Datos</h2>
+            <div class="counter-badge" id="registroContador">Registros actuales: 0</div>
             
-            <article class="card">
-                <h2>1. Clasificador: Rendimiento Escolar</h2>
-                
-                <div class="control-grid">
-                    <div class="form-group">
-                        <label>Horas de Estudio</label>
-                        <input type="number" id="alum-horas" value="14" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Asistencia (%)</label>
-                        <input type="number" id="alum-asist" value="70" min="0" max="100">
-                    </div>
-                    <div class="form-group">
-                        <label>Entregó Tareas</label>
-                        <select id="alum-tareas">
-                            <option value="1">Sí (1)</option>
-                            <option value="0">No (0)</option>
-                        </select>
-                    </div>
+            <form id="dataForm">
+                <div class="form-group">
+                    <label>Corners / Tiros de Esquina</label>
+                    <input type="number" id="corners" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Tarjetas Amarillas</label>
+                    <input type="number" id="amarillas" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Tarjetas Rojas</label>
+                    <input type="number" id="rojas" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Remates a Puerta</label>
+                    <input type="number" id="remates" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Total de Goles</label>
+                    <input type="number" id="goles" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Faltas Cometidas</label>
+                    <input type="number" id="faltas" min="0" required>
                 </div>
 
-                <button onclick="evaluarAlumno()">Evaluar Rendimiento del Alumno</button>
+                <button type="button" class="btn-add" onclick="agregarRegistro()">Guardar Registro</button>
+                <button type="button" class="btn-load" onclick="cargarGraficaYTabla()">Cargar Resultados</button>
+            </form>
+        </div>
 
-                <div class="output-box" id="alum-banner" style="display: none;">
-                    RESULTADO: ESPERANDO EVALUACIÓN...
-                </div>
-            </article>
+        <!-- Panel Derecho: Gráfica y Tabla -->
+        <div class="card">
+            <h2>Análisis de Tendencias</h2>
+            <div class="chart-container">
+                <canvas id="miGrafica"></canvas>
+            </div>
 
-            <article class="card">
-                <h2>2. Clasificador: Riesgo de Mortalidad COVID-19</h2>
-                
-                <div class="control-grid">
-                    <div class="form-group">
-                        <label>Edad del paciente</label>
-                        <input type="number" id="cov-edad" value="20" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Tipo de Ingreso</label>
-                        <select id="cov-ingreso">
-                            <option value="Hospitalización">Hospitalización</option>
-                            <option value="Urgencias" selected>Urgencias</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Género</label>
-                        <select id="cov-genero">
-                            <option value="Hombre">Hombre</option>
-                            <option value="Mujer" selected>Mujer</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Nivel de gravedad</label>
-                        <select id="cov-gravedad">
-                            <option value="1">1</option>
-                            <option value="2" selected>2</option>
-                            <option value="3">3</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Diagnóstico (DX)</label>
-                        <select id="cov-dx">
-                            <option value="J168">- J168 - NEUMONIA DEBIDA A OTROS MICROORGANISMOS INFECCIOSOS...</option>
-                            <option value="B342">B342 - INFECCION DEBIDA A CORONAVIRUS</option>
-                            <option value="SARS">DX: SARS-CoV-2</option>
-                            <option value="E875">E875 - HIPERPOTASEMIA</option>
-                            <option value="COVID19">ENFERMEDAD POR COVID 19</option>
-                            <option value="IRA">INSUFICIENCIA RESPIRATORIA AGUDA</option>
-                            <option value="IRA_COMPLEJA">INSUFICIENCIA RESPIRATORIA AGUDA, NEUMONIA ATIPICA SARS-CoV-2...</option>
-                            <option value="J189" selected>J189 - NEUMONIA, NO ESPECIFICADA</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Cantidad de Intervenciones</label>
-                        <input type="number" id="cov-intervenciones" value="1" min="0">
-                    </div>
-                </div>
-
-                <button onclick="evaluarCovid()">Evaluar Paciente Clínico</button>
-
-                <div class="output-box" id="cov-banner" style="display: none;"></div>
-
-                <div class="metrics-panel" id="cov-grid" style="display: none;">
-                    <div class="metric-box">
-                        <div class="metric-value" id="res-tubo">—</div>
-                        <div class="metric-label">Req. de Tubo</div>
-                    </div>
-                    <div class="metric-box">
-                        <div class="metric-value" id="res-estancia">—</div>
-                        <div class="metric-label">Estancia Estimada</div>
-                    </div>
-                    <div class="metric-box">
-                        <div class="metric-value" id="res-riesgo">—</div>
-                        <div class="metric-label">Riesgo Proyectado</div>
-                    </div>
-                </div>
-            </article>
-
+            <h2 style="margin-top: 40px;">Promedios Estadísticos</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Corners</th>
+                            <th>T. Amarillas</th>
+                            <th>T. Rojas</th>
+                            <th>Remates</th>
+                            <th>Goles</th>
+                            <th>Faltas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="avg-corners">0.00</td>
+                            <td id="avg-amarillas">0.00</td>
+                            <td id="avg-rojas">0.00</td>
+                            <td id="avg-remates">0.00</td>
+                            <td id="avg-goles">0.00</td>
+                            <td id="avg-faltas">0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <script>
-        let estadoAlumno = null;
-        let estadoPaciente = null;
+        // Arreglo para almacenar la data en memoria
+        let registros = [];
+        let chartInstance = null;
 
-        function actualizarFondoGlobal() {
-            const body = document.body;
-            const alumBanner = document.getElementById('alum-banner');
-            const covBanner = document.getElementById('cov-banner');
-            
-            let colorFondo = "var(--bg-dark)";
-            
-            if (estadoAlumno === "REPROBADO" && estadoPaciente === "RIESGO") {
-                colorFondo = "#5c0d12";
-            } else if (estadoAlumno === "APROBADO" && estadoPaciente === "SEGURO") {
-                colorFondo = "#0f2d59";
-            }
+        function agregarRegistro() {
+            // Obtenemos los valores de los inputs
+            const corners = parseInt(document.getElementById('corners').value) || 0;
+            const amarillas = parseInt(document.getElementById('amarillas').value) || 0;
+            const rojas = parseInt(document.getElementById('rojas').value) || 0;
+            const remates = parseInt(document.getElementById('remates').value) || 0;
+            const goles = parseInt(document.getElementById('goles').value) || 0;
+            const faltas = parseInt(document.getElementById('faltas').value) || 0;
 
-            body.style.backgroundColor = colorFondo;
+            // Guardamos el objeto en nuestro arreglo
+            registros.push({ corners, amarillas, rojas, remates, goles, faltas });
             
-            if(alumBanner.style.display !== "none") {
-                alumBanner.style.backgroundColor = colorFondo;
-            }
-            if(covBanner.style.display !== "none") {
-                covBanner.style.backgroundColor = colorFondo;
-            }
+            // Actualizamos la UI y limpiamos el formulario
+            document.getElementById('registroContador').innerText = `Registros actuales: ${registros.length}`;
+            document.getElementById('dataForm').reset();
+            
+            // Foco de nuevo al primer input para captura rápida
+            document.getElementById('corners').focus();
         }
 
-        function evaluarAlumno() {
-            const horas = parseFloat(document.getElementById('alum-horas').value);
-            const asistencia = parseFloat(document.getElementById('alum-asist').value);
-            const tareas = parseInt(document.getElementById('alum-tareas').value);
-            
-            const banner = document.getElementById('alum-banner');
-            banner.style.display = "block";
-
-            if (horas > 5 && asistencia > 60 && tareas === 1) {
-                banner.innerHTML = " ESTADO DEL ALUMNO: APROBADO :')";
-                estadoAlumno = "APROBADO";
-            } else {
-                banner.innerHTML = " ESTADO DEL ALUMNO: REPROBADO :'(";
-                estadoAlumno = "REPROBADO";
+        function cargarGraficaYTabla() {
+            if (registros.length === 0) {
+                alert('Por favor, ingresa al menos un registro antes de cargar los resultados.');
+                return;
             }
-            
-            actualizarFondoGlobal();
+            actualizarTabla();
+            actualizarGrafica();
         }
 
-        function evaluarCovid() {
-            const edad = parseInt(document.getElementById('cov-edad').value);
-            const tipoIngreso = document.getElementById('cov-ingreso').value;
-            const gravedad = parseInt(document.getElementById('cov-gravedad').value);
-            const numIntervenciones = parseInt(document.getElementById('cov-intervenciones').value);
-            const dx = document.getElementById('cov-dx').value;
+        function actualizarTabla() {
+            const total = registros.length;
+            
+            // Sumamos todos los valores usando reduce
+            const sumas = registros.reduce((acc, curr) => {
+                acc.corners += curr.corners;
+                acc.amarillas += curr.amarillas;
+                acc.rojas += curr.rojas;
+                acc.remates += curr.remates;
+                acc.goles += curr.goles;
+                acc.faltas += curr.faltas;
+                return acc;
+            }, { corners: 0, amarillas: 0, rojas: 0, remates: 0, goles: 0, faltas: 0 });
 
-            const banner = document.getElementById('cov-banner');
-            const grid = document.getElementById('cov-grid');
-            const domTubo = document.getElementById('res-tubo');
-            const domEstancia = document.getElementById('res-estancia');
-            const domRiesgo = document.getElementById('res-riesgo');
+            // Calculamos el promedio e inyectamos al HTML
+            document.getElementById('avg-corners').innerText = (sumas.corners / total).toFixed(2);
+            document.getElementById('avg-amarillas').innerText = (sumas.amarillas / total).toFixed(2);
+            document.getElementById('avg-rojas').innerText = (sumas.rojas / total).toFixed(2);
+            document.getElementById('avg-remates').innerText = (sumas.remates / total).toFixed(2);
+            document.getElementById('avg-goles').innerText = (sumas.goles / total).toFixed(2);
+            document.getElementById('avg-faltas').innerText = (sumas.faltas / total).toFixed(2);
+        }
 
-            banner.style.display = "block";
-            grid.style.display = "grid";
-
-            let requiereTubo = "NO";
-            let diasEstancia = 1.5;
-            let nivelRiesgo = "BAJO";
-
-            if (gravedad === 3) {
-                if (numIntervenciones >= 1 || edad > 60) {
-                    requiereTubo = numIntervenciones > 1 ? "SÍ" : "NO";
-                    nivelRiesgo = "ALTO";
-                    diasEstancia = 14.5 + (edad > 65 ? 5 : 0);
-                } else {
-                    nivelRiesgo = "MODERADO";
-                    diasEstancia = 8.0;
-                }
-            } else if (gravedad === 2) {
-                if (tipoIngreso === "Urgencias") {
-                    nivelRiesgo = "MODERADO";
-                    diasEstancia = 6.5;
-                    requiereTubo = numIntervenciones > 0 ? "SÍ" : "NO";
-                } else {
-                    nivelRiesgo = "BAJO";
-                    diasEstancia = 4.2;
-                }
-            } else {
-                nivelRiesgo = "BAJO";
-                diasEstancia = 2.5;
-                if (dx === "IRA_COMPLEJA" && edad > 50) {
-                    diasEstancia = 5.5;
-                }
+        function actualizarGrafica() {
+            const ctx = document.getElementById('miGrafica').getContext('2d');
+            
+            // Destruir la gráfica anterior si existe para evitar superposiciones
+            if (chartInstance) {
+                chartInstance.destroy();
             }
 
-            if (nivelRiesgo === "ALTO") {
-                estadoPaciente = "RIESGO";
-            } else {
-                estadoPaciente = "SEGURO";
-            }
+            // Etiquetas dinámicas para el Eje X (Partido 1, Partido 2, etc.)
+            const labels = registros.map((_, index) => `Registro ${index + 1}`);
 
-            banner.innerText = "ESTADO DEL PACIENTE: " + nivelRiesgo;
-            domTubo.innerText = requiereTubo;
-            domEstancia.innerText = diasEstancia.toFixed(1) + " DÍAS";
-            domRiesgo.innerText = nivelRiesgo;
+            // Extracción de datos para las líneas
+            const dataCorners = registros.map(r => r.corners);
+            const dataAmarillas = registros.map(r => r.amarillas);
+            const dataRojas = registros.map(r => r.rojas);
+            const dataRemates = registros.map(r => r.remates);
+            const dataGoles = registros.map(r => r.goles);
+            const dataFaltas = registros.map(r => r.faltas);
 
-            actualizarFondoGlobal();
+            // Configuración de Chart.js
+            chartInstance = new Chart(ctx, {
+                type: 'line', // Tipo de gráfica (líneas con puntos marcados)
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Corners', data: dataCorners, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3 },
+                        { label: 'T. Amarillas', data: dataAmarillas, borderColor: '#eab308', backgroundColor: '#eab308', tension: 0.3 },
+                        { label: 'T. Rojas', data: dataRojas, borderColor: '#ef4444', backgroundColor: '#ef4444', tension: 0.3 },
+                        { label: 'Remates', data: dataRemates, borderColor: '#8b5cf6', backgroundColor: '#8b5cf6', tension: 0.3 },
+                        { label: 'Goles', data: dataGoles, borderColor: '#22c55e', backgroundColor: '#22c55e', tension: 0.3 },
+                        { label: 'Faltas', data: dataFaltas, borderColor: '#f97316', backgroundColor: '#f97316', tension: 0.3 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
         }
     </script>
 </body>
