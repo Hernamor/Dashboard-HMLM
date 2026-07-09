@@ -6,21 +6,21 @@
     <title>Dashboard Predictivo - PREDICCIONES</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; }
-        .header { text-align: center; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; max-width: 1400px; margin: 0 auto; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; margin: 0; padding: 20px; }
+        .header { text-align: center; background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; }
+        .grid { display: grid; grid-template-columns: 380px 1fr; gap: 25px; max-width: 1400px; margin: 0 auto; }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         h2 { color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
         label { font-weight: 600; color: #475569; display: block; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 15px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 12px; }
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; color: white; cursor: pointer; margin-top: 8px; }
-        .btn-primary { background-color: #1e3a8a; }
-        .btn-success { background-color: #16a34a; }
-        .btn-danger { background-color: #dc2626; }
+        .btn-primary { background: #1e3a8a; }
+        .btn-success { background: #16a34a; }
+        .btn-danger { background: #dc2626; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; }
-        th { background-color: #f8fafc; }
-        .chart-container { height: 320px; margin-top: 15px; }
+        th { background: #f8fafc; }
+        .chart-container { height: 340px; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -41,19 +41,14 @@
 
             <label>Corners</label>
             <input type="number" id="corners" required>
-
             <label>Tarjetas Amarillas</label>
             <input type="number" id="amarillas" required>
-
             <label>Tarjetas Rojas</label>
             <input type="number" id="rojas" required>
-
             <label>Remates a Puerta</label>
             <input type="number" id="remates" required>
-
             <label>Total de Goles</label>
             <input type="number" id="goles" required>
-
             <label>Faltas Cometidas</label>
             <input type="number" id="faltas" required>
 
@@ -69,9 +64,9 @@
             <button type="submit" class="btn-primary">💾 Guardar Registro</button>
         </form>
 
-        <div style="margin-top: 25px;">
-            <button onclick="subirArchivoDirecto(true)" class="btn-success">➕ Agregar JSON sin reemplazar</button>
-            <button onclick="limpiarLocalStorage()" class="btn-danger" style="margin-top: 8px;">🗑️ Limpiar todos los datos</button>
+        <div style="margin-top: 20px;">
+            <button onclick="subirArchivoDirecto(true)" class="btn-success">➕ Agregar JSON (sin reemplazar)</button>
+            <button onclick="limpiarDatos()" class="btn-danger" style="margin-top: 8px;">🗑️ Limpiar todos los datos</button>
         </div>
         <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="procesarArchivo(this)">
     </div>
@@ -104,24 +99,29 @@
             <canvas id="grafica"></canvas>
         </div>
 
-        <h3 style="margin-top: 25px;">Estadísticas Proyectadas (Partido N+1)</h3>
+        <h3 style="margin-top: 20px;">Estadísticas Proyectadas (Partido N+1)</h3>
         <table>
             <thead>
                 <tr>
                     <th>Métrica</th>
-                    <th>Promedio</th>
+                    <th>Promedio Histórico</th>
                     <th>Predicción</th>
                 </tr>
             </thead>
             <tbody id="tablaBody"></tbody>
         </table>
     </div>
-
 </div>
 
 <script>
 let BD_EQUIPOS = {};
-let chart = null;
+let chartInstance = null;
+
+const metricas = ['corners', 'amarillas', 'rojas', 'remates', 'goles', 'faltas'];
+const nombres = {
+    corners: 'Corners', amarillas: 'Amarillas', rojas: 'Rojas',
+    remates: 'Remates', goles: 'Goles', faltas: 'Faltas'
+};
 
 function guardar() {
     localStorage.setItem('dashboard_bd', JSON.stringify(BD_EQUIPOS));
@@ -133,14 +133,15 @@ function cargar() {
 }
 
 function actualizarSelectores() {
-    const select = document.getElementById('selectEquipo');
-    select.innerHTML = '';
-    const equipos = Object.keys(BD_EQUIPOS).filter(k => BD_EQUIPOS[k].length > 0);
-    equipos.forEach(eq => {
-        const opt = document.createElement('option');
-        opt.value = eq;
-        opt.textContent = eq;
-        select.appendChild(opt);
+    const sel = document.getElementById('selectEquipo');
+    sel.innerHTML = '';
+    Object.keys(BD_EQUIPOS).forEach(eq => {
+        if (BD_EQUIPOS[eq].length > 0) {
+            const opt = document.createElement('option');
+            opt.value = eq;
+            opt.textContent = eq;
+            sel.appendChild(opt);
+        }
     });
 }
 
@@ -150,12 +151,12 @@ document.getElementById('partidoForm').addEventListener('submit', function(e) {
     if (!id) return;
 
     const partido = {
-        corners: parseInt(document.getElementById('corners').value) || 0,
-        amarillas: parseInt(document.getElementById('amarillas').value) || 0,
-        rojas: parseInt(document.getElementById('rojas').value) || 0,
-        remates: parseInt(document.getElementById('remates').value) || 0,
-        goles: parseInt(document.getElementById('goles').value) || 0,
-        faltas: parseInt(document.getElementById('faltas').value) || 0,
+        corners: +document.getElementById('corners').value || 0,
+        amarillas: +document.getElementById('amarillas').value || 0,
+        rojas: +document.getElementById('rojas').value || 0,
+        remates: +document.getElementById('remates').value || 0,
+        goles: +document.getElementById('goles').value || 0,
+        faltas: +document.getElementById('faltas').value || 0,
         tipo_oponente: document.getElementById('tipoOponente').value
     };
 
@@ -177,11 +178,10 @@ function subirArchivoDirecto(merge) {
 function procesarArchivo(input) {
     const file = input.files[0];
     if (!file) return;
-
     const reader = new FileReader();
-    reader.onload = function(ev) {
+    reader.onload = function(e) {
         try {
-            const nuevos = JSON.parse(ev.target.result);
+            const nuevos = JSON.parse(e.target.result);
             const merge = input.dataset.merge === 'true';
 
             if (merge) {
@@ -192,92 +192,127 @@ function procesarArchivo(input) {
             } else {
                 BD_EQUIPOS = nuevos;
             }
-
             guardar();
             actualizarSelectores();
             alert('Datos importados correctamente');
         } catch (err) {
-            alert('Error al importar: ' + err.message);
+            alert('Error: ' + err.message);
         }
     };
     reader.readAsText(file);
     input.value = '';
 }
 
+function calcularRegresion(datos, metrica) {
+    const n = datos.length;
+    if (n === 0) return { m: 0, b: 0 };
+    if (n === 1) return { m: 0, b: datos[0][metrica] };
+
+    let sx = 0, sy = 0, sxy = 0, sx2 = 0;
+    for (let i = 0; i < n; i++) {
+        const x = i + 1;
+        const y = datos[i][metrica];
+        sx += x; sy += y; sxy += x * y; sx2 += x * x;
+    }
+    const m = (n * sxy - sx * sy) / (n * sx2 - sx * sx);
+    const b = (sy - m * sx) / n;
+    return { m, b };
+}
+
 function analizarEquipo() {
     const equipo = document.getElementById('selectEquipo').value;
     const tipo = document.getElementById('tipoRegresion').value;
     const metrica = document.getElementById('metrica').value;
-
     const tbody = document.getElementById('tablaBody');
     tbody.innerHTML = '';
 
     if (!equipo || !BD_EQUIPOS[equipo]) return;
 
     let datos = BD_EQUIPOS[equipo];
-
-    // Filtrar por tipo de oponente
     if (tipo !== 'todos') {
         datos = datos.filter(p => p.tipo_oponente === tipo);
     }
 
     if (datos.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3">No hay partidos de este tipo.</td></tr>`;
-        if (chart) chart.destroy();
+        tbody.innerHTML = `<tr><td colspan="3">No hay datos para este filtro.</td></tr>`;
+        if (chartInstance) chartInstance.destroy();
         return;
     }
 
-    // Calcular regresión
+    // Calcular regresión para la métrica seleccionada (para la gráfica)
+    const reg = calcularRegresion(datos, metrica);
     const n = datos.length;
-    let sumaX = 0, sumaY = 0, sumaXY = 0, sumaX2 = 0;
-    for (let i = 0; i < n; i++) {
-        const x = i + 1;
-        const y = datos[i][metrica];
-        sumaX += x; sumaY += y; sumaXY += x * y; sumaX2 += x * x;
-    }
-    const m = (n * sumaXY - sumaX * sumaY) / (n * sumaX2 - sumaX * sumaX);
-    const b = (sumaY - m * sumaX) / n;
+    const predX = n + 1;
+    const predY = reg.m * predX + reg.b;
 
-    // Llenar tabla
-    metricasLista.forEach(mKey => {
-        const promedio = datos.reduce((a, c) => a + c[mKey], 0) / datos.length;
-        const pred = m * (n + 1) + b;
-        const row = `<tr>
-            <td>${nombresMetricas[mKey]}</td>
-            <td>${promedio.toFixed(2)}</td>
-            <td><strong>${pred.toFixed(2)}</strong></td>
-        </tr>`;
-        tbody.innerHTML += row;
+    // Llenar tabla con regresión individual por métrica
+    metricas.forEach(m => {
+        const r = calcularRegresion(datos, m);
+        const promedio = datos.reduce((a, c) => a + c[m], 0) / datos.length;
+        const prediccion = r.m * predX + r.b;
+
+        const fila = `
+            <tr>
+                <td><strong>${nombres[m]}</strong></td>
+                <td>${promedio.toFixed(2)}</td>
+                <td><strong style="color:#166534;">${prediccion.toFixed(2)}</strong></td>
+            </tr>
+        `;
+        tbody.innerHTML += fila;
     });
 
-    // Gráfica simple
+    // Crear gráfica con barras + línea de regresión
+    crearGraficaConRegresion(datos, metrica, reg.m, reg.b);
+}
+
+function crearGraficaConRegresion(datos, metrica, m, b) {
     const ctx = document.getElementById('grafica').getContext('2d');
-    if (chart) chart.destroy();
+    if (chartInstance) chartInstance.destroy();
 
-    const labels = datos.map((_, i) => 'P' + (i+1));
-    const valores = datos.map(d => d[metrica]);
+    const n = datos.length;
+    const labels = datos.map((_, i) => `P${i+1}`);
+    labels.push(`Pred. P${n+1}`);
 
-    chart = new Chart(ctx, {
+    const valoresReales = datos.map(d => d[metrica]);
+    valoresReales.push(null);
+
+    const linea = [];
+    for (let i = 1; i <= n + 1; i++) {
+        linea.push(Math.max(0, m * i + b));
+    }
+
+    chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
-            datasets: [{
-                label: metrica,
-                data: valores,
-                backgroundColor: '#3b82f6'
-            }]
+            datasets: [
+                {
+                    label: 'Histórico',
+                    data: valoresReales,
+                    backgroundColor: '#3b82f6',
+                    barThickness: 20,
+                    type: 'bar'
+                },
+                {
+                    label: 'Tendencia (Regresión)',
+                    data: linea,
+                    borderColor: '#ef4444',
+                    borderWidth: 3.5,
+                    pointRadius: 4,
+                    type: 'line',
+                    tension: 0.15
+                }
+            ]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } }
+        }
     });
 }
 
-const metricasLista = ['corners', 'amarillas', 'rojas', 'remates', 'goles', 'faltas'];
-const nombresMetricas = {
-    corners: 'Corners', amarillas: 'Amarillas', rojas: 'Rojas',
-    remates: 'Remates', goles: 'Goles', faltas: 'Faltas'
-};
-
-function limpiarLocalStorage() {
+function limpiarDatos() {
     if (confirm('¿Borrar todos los datos?')) {
         localStorage.removeItem('dashboard_bd');
         location.reload();
@@ -288,7 +323,6 @@ function limpiarLocalStorage() {
 window.onload = function() {
     cargar();
     actualizarSelectores();
-    
     const equipos = Object.keys(BD_EQUIPOS);
     if (equipos.length > 0) {
         document.getElementById('selectEquipo').value = equipos[0];
