@@ -21,13 +21,16 @@
         th, td { padding: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; }
         th { background: #f8fafc; }
         .chart-container { height: 340px; margin-top: 15px; }
+        .win { color: #16a34a; font-weight: bold; }
+        .draw { color: #3b82f6; font-weight: bold; }
+        .loss { color: #dc2626; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <h1>PREDICCIONES</h1>
-    <p>Análisis con Regresión Lineal</p>
+    <p>Análisis con Regresión Lineal • Cada equipo inicia desde 0 partidos</p>
 </div>
 
 <div class="grid">
@@ -38,6 +41,16 @@
         <form id="partidoForm">
             <label>Identificador del Equipo</label>
             <input type="text" id="equipoId" placeholder="Ej. MARRUECOS" required style="text-transform: uppercase;">
+
+            <label>Oponente</label>
+            <input type="text" id="oponente" placeholder="Ej. Paraguay" required>
+
+            <label>Resultado</label>
+            <select id="resultado" required>
+                <option value="ganado">Ganado</option>
+                <option value="empate">Empate</option>
+                <option value="perdido">Perdido</option>
+            </select>
 
             <label>Corners</label>
             <input type="number" id="corners" required>
@@ -104,12 +117,14 @@
             <thead>
                 <tr>
                     <th>Métrica</th>
-                    <th>Promedio Histórico</th>
+                    <th>Promedio</th>
                     <th>Predicción</th>
                 </tr>
             </thead>
             <tbody id="tablaBody"></tbody>
         </table>
+
+        <div id="estadisticasExtra" style="margin-top: 20px; font-size: 0.95rem;"></div>
     </div>
 </div>
 
@@ -118,10 +133,7 @@ let BD_EQUIPOS = {};
 let chartInstance = null;
 
 const metricas = ['corners', 'amarillas', 'rojas', 'remates', 'goles', 'faltas'];
-const nombres = {
-    corners: 'Corners', amarillas: 'Amarillas', rojas: 'Rojas',
-    remates: 'Remates', goles: 'Goles', faltas: 'Faltas'
-};
+const nombres = { corners: 'Corners', amarillas: 'Amarillas', rojas: 'Rojas', remates: 'Remates', goles: 'Goles', faltas: 'Faltas' };
 
 function guardar() {
     localStorage.setItem('dashboard_bd', JSON.stringify(BD_EQUIPOS));
@@ -151,6 +163,8 @@ document.getElementById('partidoForm').addEventListener('submit', function(e) {
     if (!id) return;
 
     const partido = {
+        oponente: document.getElementById('oponente').value.trim(),
+        resultado: document.getElementById('resultado').value,
         corners: +document.getElementById('corners').value || 0,
         amarillas: +document.getElementById('amarillas').value || 0,
         rojas: +document.getElementById('rojas').value || 0,
@@ -239,13 +253,13 @@ function analizarEquipo() {
         return;
     }
 
-    // Calcular regresión para la métrica seleccionada (para la gráfica)
+    // Calcular regresión para la métrica seleccionada
     const reg = calcularRegresion(datos, metrica);
     const n = datos.length;
     const predX = n + 1;
     const predY = reg.m * predX + reg.b;
 
-    // Llenar tabla con regresión individual por métrica
+    // Llenar tabla
     metricas.forEach(m => {
         const r = calcularRegresion(datos, m);
         const promedio = datos.reduce((a, c) => a + c[m], 0) / datos.length;
@@ -261,8 +275,11 @@ function analizarEquipo() {
         tbody.innerHTML += fila;
     });
 
-    // Crear gráfica con barras + línea de regresión
+    // Gráfica con regresión
     crearGraficaConRegresion(datos, metrica, reg.m, reg.b);
+
+    // Estadísticas de resultados
+    mostrarEstadisticasResultados(datos);
 }
 
 function crearGraficaConRegresion(datos, metrica, m, b) {
@@ -286,30 +303,39 @@ function crearGraficaConRegresion(datos, metrica, m, b) {
         data: {
             labels: labels,
             datasets: [
-                {
-                    label: 'Histórico',
-                    data: valoresReales,
-                    backgroundColor: '#3b82f6',
-                    barThickness: 20,
-                    type: 'bar'
-                },
-                {
-                    label: 'Tendencia (Regresión)',
-                    data: linea,
-                    borderColor: '#ef4444',
-                    borderWidth: 3.5,
-                    pointRadius: 4,
-                    type: 'line',
-                    tension: 0.15
-                }
+                { label: 'Histórico', data: valoresReales, backgroundColor: '#3b82f6', barThickness: 22, type: 'bar' },
+                { label: 'Tendencia', data: linea, borderColor: '#ef4444', borderWidth: 3.5, type: 'line', tension: 0.15 }
             ]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true } }
-        }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
     });
+}
+
+function mostrarEstadisticasResultados(datos) {
+    const cont = document.getElementById('estadisticasExtra');
+    if (datos.length === 0) {
+        cont.innerHTML = '';
+        return;
+    }
+
+    let ganados = 0, empates = 0, perdidos = 0;
+    datos.forEach(p => {
+        if (p.resultado === 'ganado') ganados++;
+        else if (p.resultado === 'empate') empates++;
+        else if (p.resultado === 'perdido') perdidos++;
+    });
+
+    const total = datos.length;
+    const pGanados = (ganados / total * 100).toFixed(1);
+    const pEmpates = (empates / total * 100).toFixed(1);
+    const pPerdidos = (perdidos / total * 100).toFixed(1);
+
+    cont.innerHTML = `
+        <strong>Resultados:</strong><br>
+        <span class="win">${pGanados}% Victorias</span> • 
+        <span class="draw">${pEmpates}% Empates</span> • 
+        <span class="loss">${pPerdidos}% Derrotas
+    `;
 }
 
 function limpiarDatos() {
@@ -319,7 +345,6 @@ function limpiarDatos() {
     }
 }
 
-// Inicialización
 window.onload = function() {
     cargar();
     actualizarSelectores();
