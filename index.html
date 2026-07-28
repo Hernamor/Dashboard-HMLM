@@ -3,160 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Predictivo - PREDICCIONES</title>
-    <!-- Librería para Gráficas -->
+    <title>Dashboard Predictivo - Flashscore H2H</title>
+    <!-- Librerías -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Librería para Escáner de Imágenes (OCR) -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     
     <style>
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; margin: 0; padding: 20px; }
-        .header { text-align: center; background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; }
-        .grid { display: grid; grid-template-columns: 380px 1fr; gap: 25px; max-width: 1400px; margin: 0 auto; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; margin: 0; padding: 20px; color: #333; }
+        .header { text-align: center; background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #334155; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; max-width: 1400px; margin: 0 auto; }
+        @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+        
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        h2 { color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
-        label { font-weight: 600; color: #475569; display: block; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 12px; box-sizing: border-box; }
+        h2 { color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; }
+        label { font-weight: 600; color: #475569; display: block; margin-bottom: 5px; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 12px; box-sizing: border-box; background: #f8fafc; }
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; color: white; cursor: pointer; margin-top: 8px; transition: 0.2s; }
         button:hover { opacity: 0.9; }
-        .btn-primary { background: #1e3a8a; }
+        .btn-primary { background: #dc2626; } /* Color rojo Flashscore */
         .btn-success { background: #16a34a; }
-        .btn-danger { background: #dc2626; }
+        .btn-danger { background: #475569; }
         
-        /* Estilos del escáner */
-        .scanner-box { background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 2px dashed #3b82f6; text-align: center; }
-        .scanner-title { margin-top: 0; color: #1e3a8a; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        #ocrStatus { font-size: 0.9rem; color: #0369a1; font-weight: bold; margin-top: 10px; display: none; }
-        .spinner { display: inline-block; width: 16px; height: 16px; border: 3px solid rgba(3,105,161,0.3); border-radius: 50%; border-top-color: #0369a1; animation: spin 1s ease-in-out infinite; }
+        /* Estructura Flashscore - Formulario */
+        .fs-match-header { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; }
+        .fs-col { flex: 1; background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .fs-col h3 { text-align: center; margin-top: 0; color: #1e293b; font-size: 1.1rem; }
+        .fs-shared { background: #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .fs-shared-title { text-align: center; font-weight: bold; margin-bottom: 10px; color: #334155; font-size: 0.95rem; }
+        
+        .fs-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding: 8px 0; }
+        .fs-row:last-child { border-bottom: none; }
+        .fs-row label { margin: 0; text-align: center; flex: 2; font-size: 0.85rem; }
+        .fs-row input { width: 60px; margin: 0; text-align: center; flex: 1; }
+        
+        .h2h-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        
+        /* Escáner */
+        .scanner-box { background: #1e293b; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        .scanner-title { margin-top: 0; color: #f8fafc; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        #ocrStatus { font-size: 0.9rem; color: #ef4444; font-weight: bold; margin-top: 10px; display: none; }
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 3px solid rgba(239,68,68,0.3); border-radius: 50%; border-top-color: #ef4444; animation: spin 1s infinite linear; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f8fafc; }
-        .chart-container { height: 340px; margin-top: 15px; }
-        .win { color: #16a34a; font-weight: bold; }
-        .draw { color: #3b82f6; font-weight: bold; }
-        .loss { color: #dc2626; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
+        th, td { padding: 10px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; color: #1e293b; }
+        .chart-container { height: 280px; margin-top: 15px; }
+        
+        .prediction-box { background: #ecfdf5; border: 1px solid #10b981; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .prediction-box h3 { color: #065f46; margin-top: 0; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>PREDICCIONES</h1>
-    <p>Análisis con Regresión Lineal • Auto-Escáner de Estadísticas Integrado</p>
+    <h1 style="margin:0;">ANÁLISIS PREDICTIVO</h1>
+    <p style="margin:5px 0 0 0; color: #cbd5e1;">Motor basado en Estadísticas Estilo Flashscore & Regresión Lineal</p>
 </div>
 
 <div class="grid">
 
-    <!-- INGRESO DE DATOS -->
+    <!-- COLUMNA 1: INGRESO DE DATOS -->
     <div class="card">
-        <h2>Ingreso de Datos</h2>
+        <h2>Carga de Partido</h2>
         
-        <!-- NUEVO BLOQUE: ESCÁNER OCR -->
         <div class="scanner-box">
-            <h3 class="scanner-title">📷 Auto-Rellenar (Escáner)</h3>
-            <p style="font-size:0.85rem; color:#475569; margin-bottom:10px;">Sube captura de pantalla de las estadísticas (Flashscore, Sofascore, etc.)</p>
-            <input type="file" id="imagenOCR" accept="image/*" onchange="escanearImagen(this)" style="margin-bottom:0; background: white;">
-            <div id="ocrStatus"><div class="spinner"></div> Escaneando imagen, por favor espera...</div>
+            <h3 class="scanner-title">📷 Escáner Automático (OCR)</h3>
+            <p style="font-size:0.85rem; margin-bottom:10px; color:#cbd5e1;">Sube la captura del partido. Detectará ambos equipos automáticamente.</p>
+            <input type="file" id="imagenOCR" accept="image/*" onchange="escanearImagen(this)" style="margin-bottom:0; background: white; color: black;">
+            <div id="ocrStatus"><div class="spinner"></div> Analizando imagen...</div>
         </div>
 
         <form id="partidoForm">
-            <label>Identificador del Equipo</label>
-            <input type="text" id="equipoId" placeholder="Ej. MARRUECOS" required style="text-transform: uppercase;">
+            <!-- DATOS COMPARTIDOS -->
+            <div class="fs-shared">
+                <div class="fs-shared-title">DATOS GENERALES DEL ENFRENTAMIENTO</div>
+                <label>Año del Partido</label>
+                <input type="number" id="año" placeholder="Ej. 2026" required value="2026">
+                
+                <label style="margin-top:10px;">Historial Manual (Hasta este partido)</label>
+                <div class="h2h-grid">
+                    <div><label>Total Jugados</label><input type="number" id="h2h_total" value="0"></div>
+                    <div><label>Vic. Izquierda</label><input type="number" id="h2h_vL" value="0"></div>
+                    <div><label>Empates</label><input type="number" id="h2h_emp" value="0"></div>
+                    <div><label>Vic. Derecha</label><input type="number" id="h2h_vV" value="0"></div>
+                </div>
+            </div>
 
-            <label>Oponente</label>
-            <input type="text" id="oponente" placeholder="Ej. Paraguay" required>
+            <!-- EQUIPOS (IZQUIERDA Y DERECHA) -->
+            <div class="fs-match-header">
+                <div class="fs-col">
+                    <input type="text" id="eqIzq" placeholder="Equipo Izquierda" required style="font-weight:bold; text-transform: uppercase;">
+                </div>
+                <div class="fs-col">
+                    <input type="text" id="eqDer" placeholder="Equipo Derecha" required style="font-weight:bold; text-transform: uppercase;">
+                </div>
+            </div>
 
-            <label>Resultado</label>
-            <select id="resultado" required>
-                <option value="ganado">Ganado</option>
-                <option value="empate">Empate</option>
-                <option value="perdido">Perdido</option>
-            </select>
+            <div class="fs-row">
+                <input type="number" id="golesIzq" required>
+                <label>Goles Finales</label>
+                <input type="number" id="golesDer" required>
+            </div>
+            <div class="fs-row">
+                <input type="number" id="remTotIzq" required>
+                <label>Remates totales</label>
+                <input type="number" id="remTotDer" required>
+            </div>
+            <div class="fs-row">
+                <input type="number" id="remPueIzq" required>
+                <label>Remates a puerta</label>
+                <input type="number" id="remPueDer" required>
+            </div>
+            <div class="fs-row">
+                <input type="number" id="corIzq" required>
+                <label>Córneres</label>
+                <input type="number" id="corDer" required>
+            </div>
+            <div class="fs-row">
+                <input type="number" id="amaIzq" required>
+                <label>Tarjetas amarillas</label>
+                <input type="number" id="amaDer" required>
+            </div>
+            <div class="fs-row">
+                <input type="number" id="rojIzq" required>
+                <label>Tarjetas rojas</label>
+                <input type="number" id="rojDer" required>
+            </div>
 
-            <label>Corners</label>
-            <input type="number" id="corners" required>
-            <label>Tarjetas Amarillas</label>
-            <input type="number" id="amarillas" required>
-            <label>Tarjetas Rojas</label>
-            <input type="number" id="rojas" required>
-            <label>Remates a Puerta</label>
-            <input type="number" id="remates" required>
-            <label>Total de Goles (Revisar manualmente)</label>
-            <input type="number" id="goles" required>
-            <label>Faltas Cometidas</label>
-            <input type="number" id="faltas" required>
-
-            <label>Tipo de selección que enfrentaste</label>
-            <select id="tipoOponente" required>
-                <option value="normal">Normal / No especificado</option>
-                <option value="ofensiva">Ofensiva</option>
-                <option value="defensiva">Defensiva</option>
-                <option value="presion">Alta Presión</option>
-                <option value="equilibrada">Equilibrada</option>
-            </select>
-
-            <button type="submit" class="btn-primary">💾 Guardar Registro</button>
+            <button type="submit" class="btn-primary">💾 Guardar Partido en Base de Datos</button>
         </form>
 
         <div style="margin-top: 20px; border-top: 2px solid #e2e8f0; padding-top: 15px;">
-            <button onclick="subirArchivoDirecto(true)" class="btn-success">➕ Agregar JSON (Base de datos)</button>
-            <button onclick="limpiarDatos()" class="btn-danger" style="margin-top: 8px;">🗑️ Limpiar todos los datos</button>
+            <button onclick="subirArchivoDirecto(true)" class="btn-success">➕ Importar Base de Datos (JSON)</button>
+            <button onclick="limpiarDatos()" class="btn-danger">🗑️ Limpiar Memoria</button>
         </div>
         <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="procesarArchivo(this)">
     </div>
 
-    <!-- ANÁLISIS -->
+    <!-- COLUMNA 2: ANÁLISIS Y PREDICCIONES -->
     <div class="card">
-        <h2>Análisis Individual</h2>
+        <h2>Motor Predictivo</h2>
 
-        <label>Equipo</label>
-        <select id="selectEquipo" onchange="analizarEquipo()"></select>
-
-        <label>Tipo de Regresión</label>
-        <select id="tipoRegresion" onchange="analizarEquipo()">
-            <option value="todos">1. Todos los partidos (Normal)</option>
-            <option value="ofensiva">2. Solo vs Ofensivas</option>
-            <option value="defensiva">3. Solo vs Defensivas</option>
-            <option value="presion">4. Solo vs Alta Presión</option>
-            <option value="equilibrada">5. Solo vs Equilibradas</option>
-        </select>
-
-        <label>Métrica para Gráfica</label>
-        <select id="metrica" onchange="analizarEquipo()">
-            <option value="corners">Corners</option>
-            <option value="goles">Goles</option>
-            <option value="remates">Remates a Puerta</option>
-            <option value="amarillas">Tarjetas Amarillas</option>
-        </select>
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1;">
+                <label>Seleccionar Equipo</label>
+                <select id="selectEquipo" onchange="analizarEquipo()"></select>
+            </div>
+            <div style="flex:1;">
+                <label>Analizar Métrica</label>
+                <select id="metrica" onchange="analizarEquipo()">
+                    <option value="goles">Goles</option>
+                    <option value="remates_totales">Remates Totales</option>
+                    <option value="remates_puerta">Remates a Puerta</option>
+                    <option value="corners">Córneres</option>
+                    <option value="amarillas">Tarjetas Amarillas</option>
+                </select>
+            </div>
+        </div>
 
         <div class="chart-container">
             <canvas id="grafica"></canvas>
         </div>
 
-        <h3 style="margin-top: 20px;">Estadísticas Proyectadas (Partido N+1)</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Métrica</th>
-                    <th>Promedio</th>
-                    <th>Predicción</th>
-                </tr>
-            </thead>
-            <tbody id="tablaBody"></tbody>
-        </table>
-
-        <div id="estadisticasExtra" style="margin-top: 20px; font-size: 0.95rem;"></div>
-
-        <!-- BLOQUE: Historial vs Oponente -->
-        <hr style="border: 1px solid #e2e8f0; margin: 25px 0 15px 0;">
-        <h3 style="margin-top: 0;">Historial vs Oponente Específico</h3>
-        <label>Buscar Selección a enfrentar</label>
-        <input type="text" id="buscarOponente" placeholder="Ej. Paraguay" onkeyup="mostrarHistorialOponente()">
-        
-        <div id="resultadoHistorialOponente" style="margin-top: 15px; font-size: 0.95rem; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
-            Ingresa un oponente para ver el historial directo.
+        <!-- CUADRO DE RESPUESTA H2H -->
+        <div class="prediction-box">
+            <h3>🔮 Predicción H2H vs Oponente</h3>
+            <label>Escribe el rival a enfrentar:</label>
+            <input type="text" id="rivalInput" placeholder="Ej. Toluca" onkeyup="analizarEquipo()" style="background:white; border-color:#10b981;">
+            
+            <div id="boxResultadosH2H" style="font-size: 0.95rem; margin-top: 10px;">
+                Escribe un rival para generar proyecciones específicas basadas en su historial directo.
+            </div>
+            
+            <table id="tablaH2H" style="display:none; background: white; margin-top: 15px;">
+                <thead>
+                    <tr style="background:#d1fae5;">
+                        <th>Parámetro</th>
+                        <th>Promedio Histórico</th>
+                        <th>Proyección (Regresión)</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyH2H"></tbody>
+            </table>
         </div>
+
     </div>
 </div>
 
@@ -164,11 +195,11 @@
 let BD_EQUIPOS = {};
 let chartInstance = null;
 
-const metricas = ['corners', 'amarillas', 'rojas', 'remates', 'goles', 'faltas'];
-const nombres = { corners: 'Corners', amarillas: 'Amarillas', rojas: 'Rojas', remates: 'Remates', goles: 'Goles', faltas: 'Faltas' };
+const metricasParams = ['goles', 'remates_totales', 'remates_puerta', 'corners', 'amarillas', 'rojas'];
+const nombresMetricas = { goles: 'Goles', remates_totales: 'Remates Tot.', remates_puerta: 'Remates Puerta', corners: 'Córneres', amarillas: 'Amarillas', rojas: 'Rojas' };
 
 /* =========================================
-   LÓGICA DEL ESCÁNER DE IMÁGENES (OCR)
+   1. ESCÁNER OCR (ADAPTADO A 2 COLUMNAS)
 ========================================= */
 function escanearImagen(input) {
     const file = input.files[0];
@@ -177,94 +208,76 @@ function escanearImagen(input) {
     const statusDiv = document.getElementById('ocrStatus');
     statusDiv.style.display = 'block';
 
-    // Utilizamos Tesseract.js para leer español
-    Tesseract.recognize(
-        file,
-        'spa',
-        { logger: m => console.log(m) } // Opcional: ver progreso en consola F12
-    ).then(({ data: { text } }) => {
+    Tesseract.recognize(file, 'spa').then(({ data: { text } }) => {
         statusDiv.style.display = 'none';
-        procesarTextoEscaneado(text);
-        input.value = ''; // Limpiar input para permitir subir la misma imagen de nuevo
+        procesarTextoDobleColumna(text);
+        input.value = ''; 
     }).catch(err => {
         statusDiv.style.display = 'none';
-        alert("Error al escanear la imagen. Intenta con una imagen más clara.");
-        console.error(err);
+        alert("Error de escaneo.");
     });
 }
 
-function procesarTextoEscaneado(texto) {
-    // Dividimos por líneas y pasamos a minúsculas para buscar coincidencias
+function procesarTextoDobleColumna(texto) {
     const lineas = texto.toLowerCase().split('\n');
-    let extraidos = { corners: null, amarillas: null, rojas: null, remates: null, faltas: null, goles: null };
+    let encontrados = 0;
 
+    // Buscar Goles (Usualmente formato X - Y o simplemente el número más grande arriba)
+    const regexGoles = /(\d+)\s*-\s*(\d+)/;
+    for(let linea of lineas) {
+        let matchGoles = linea.match(regexGoles);
+        if(matchGoles) {
+            document.getElementById('golesIzq').value = matchGoles[1];
+            document.getElementById('golesDer').value = matchGoles[2];
+            break;
+        }
+    }
+
+    // Buscar Estadísticas (Patrón: Número + Texto + Número, ej: 13 Remates totales 14)
+    const regexStats = /(\d+)\s+(.+?)\s+(\d+)/;
+    
     lineas.forEach(linea => {
-        // Extraemos todos los números encontrados en esa línea
-        const numerosMatch = linea.match(/\d+/g);
-        if (!numerosMatch) return;
+        const match = linea.match(regexStats);
+        if (!match) return;
 
-        // Tomamos el primer número de la línea (generalmente el equipo local)
-        const valor = numerosMatch[0];
+        const valIzq = match[1];
+        const textoStat = match[2];
+        const valDer = match[3];
 
-        // Lógica de búsqueda de palabras clave
-        if (linea.includes('esquina') || linea.includes('corners') || linea.includes('córner')) {
-            extraidos.corners = valor;
+        if (textoStat.includes('remate') && textoStat.includes('totale')) {
+            document.getElementById('remTotIzq').value = valIzq; document.getElementById('remTotDer').value = valDer; encontrados++;
         }
-        else if (linea.includes('amarilla')) {
-            extraidos.amarillas = valor;
+        else if (textoStat.includes('puerta') || textoStat.includes('arco')) {
+            document.getElementById('remPueIzq').value = valIzq; document.getElementById('remPueDer').value = valDer; encontrados++;
         }
-        else if (linea.includes('roja')) {
-            extraidos.rojas = valor;
+        else if (textoStat.includes('córner') || textoStat.includes('corner') || textoStat.includes('esquina')) {
+            document.getElementById('corIzq').value = valIzq; document.getElementById('corDer').value = valDer; encontrados++;
         }
-        else if (linea.includes('remate') || linea.includes('tiro a puerta') || linea.includes('tiro al arco') || linea.includes('arco')) {
-            // A veces dice "Remates totales", "Remates a puerta". Damos prioridad a puerta si existe.
-            extraidos.remates = valor;
+        else if (textoStat.includes('amarilla')) {
+            document.getElementById('amaIzq').value = valIzq; document.getElementById('amaDer').value = valDer; encontrados++;
         }
-        else if (linea.includes('falta')) {
-            extraidos.faltas = valor;
-        }
-        else if (linea.includes('goles')) {
-            extraidos.goles = valor;
+        else if (textoStat.includes('roja')) {
+            document.getElementById('rojIzq').value = valIzq; document.getElementById('rojDer').value = valDer; encontrados++;
         }
     });
 
-    // Rellenamos los inputs si encontramos valores
-    let rellenos = 0;
-    if (extraidos.corners) { document.getElementById('corners').value = extraidos.corners; rellenos++; }
-    if (extraidos.amarillas) { document.getElementById('amarillas').value = extraidos.amarillas; rellenos++; }
-    if (extraidos.rojas) { document.getElementById('rojas').value = extraidos.rojas; rellenos++; }
-    if (extraidos.remates) { document.getElementById('remates').value = extraidos.remates; rellenos++; }
-    if (extraidos.faltas) { document.getElementById('faltas').value = extraidos.faltas; rellenos++; }
-    if (extraidos.goles) { document.getElementById('goles').value = extraidos.goles; rellenos++; }
-
-    if (rellenos > 0) {
-        alert(`✅ Escaneo completado. Se autocompletaron ${rellenos} campos.\n\n⚠️ REVISA LOS DATOS: El escáner suele extraer el valor del equipo local (izquierda). Si tu equipo fue visitante, deberás ajustar los números manualmente.`);
-    } else {
-        alert("❌ No se detectaron estadísticas reconocibles. Asegúrate de que la captura esté nítida, en español y contenga palabras como 'esquina', 'amarillas', 'remates'.");
-    }
+    if(encontrados > 0) alert("✅ Escaneo completado. Revisa que los nombres de los equipos y goles estén correctos (esos pueden requerir ingreso manual si la fuente varía).");
+    else alert("❌ No se detectó la estructura de Flashscore (Número - Texto - Número).");
 }
 
 /* =========================================
-   LÓGICA DEL GUARDADO Y DASHBOARD (MANTENIDA)
+   2. GUARDADO DE DATOS (DOBLE INSERCIÓN)
 ========================================= */
-
-function guardar() {
-    localStorage.setItem('dashboard_bd', JSON.stringify(BD_EQUIPOS));
-}
-
-function cargar() {
-    const data = localStorage.getItem('dashboard_bd');
-    if (data) BD_EQUIPOS = JSON.parse(data);
-}
+function guardar() { localStorage.setItem('dashboard_bd', JSON.stringify(BD_EQUIPOS)); }
+function cargar() { const data = localStorage.getItem('dashboard_bd'); if (data) BD_EQUIPOS = JSON.parse(data); }
 
 function actualizarSelectores() {
     const sel = document.getElementById('selectEquipo');
     sel.innerHTML = '';
-    Object.keys(BD_EQUIPOS).forEach(eq => {
+    Object.keys(BD_EQUIPOS).sort().forEach(eq => {
         if (BD_EQUIPOS[eq].length > 0) {
             const opt = document.createElement('option');
-            opt.value = eq;
-            opt.textContent = eq;
+            opt.value = eq; opt.textContent = eq;
             sel.appendChild(opt);
         }
     });
@@ -272,80 +285,67 @@ function actualizarSelectores() {
 
 document.getElementById('partidoForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const id = document.getElementById('equipoId').value.trim().toUpperCase();
-    if (!id) return;
+    const idIzq = document.getElementById('eqIzq').value.trim().toUpperCase();
+    const idDer = document.getElementById('eqDer').value.trim().toUpperCase();
+    if (!idIzq || !idDer) return;
 
-    const partido = {
-        oponente: document.getElementById('oponente').value.trim(),
-        resultado: document.getElementById('resultado').value,
-        corners: +document.getElementById('corners').value || 0,
-        amarillas: +document.getElementById('amarillas').value || 0,
-        rojas: +document.getElementById('rojas').value || 0,
-        remates: +document.getElementById('remates').value || 0,
-        goles: +document.getElementById('goles').value || 0,
-        faltas: +document.getElementById('faltas').value || 0,
-        tipo_oponente: document.getElementById('tipoOponente').value
+    const año = document.getElementById('año').value;
+    const hTotal = +document.getElementById('h2h_total').value;
+    const hVicIzq = +document.getElementById('h2h_vL').value;
+    const hEmp = +document.getElementById('h2h_emp').value;
+    const hVicDer = +document.getElementById('h2h_vV').value;
+
+    const gI = +document.getElementById('golesIzq').value;
+    const gD = +document.getElementById('golesDer').value;
+
+    // Calcular resultado automático
+    let resIzq = gI > gD ? 'ganado' : (gI < gD ? 'perdido' : 'empate');
+    let resDer = resIzq === 'ganado' ? 'perdido' : (resIzq === 'perdido' ? 'ganado' : 'empate');
+
+    // Objeto Izquierda
+    const partidoIzq = {
+        oponente: idDer, año: año, resultado: resIzq,
+        h2h_jugados: hTotal, h2h_victorias: hVicIzq, h2h_empates: hEmp, h2h_derrotas: hVicDer,
+        goles: gI, remates_totales: +document.getElementById('remTotIzq').value,
+        remates_puerta: +document.getElementById('remPueIzq').value, corners: +document.getElementById('corIzq').value,
+        amarillas: +document.getElementById('amaIzq').value, rojas: +document.getElementById('rojIzq').value
     };
 
-    if (!BD_EQUIPOS[id]) BD_EQUIPOS[id] = [];
-    BD_EQUIPOS[id].push(partido);
+    // Objeto Derecha (Se invierten victorias/derrotas del H2H manual)
+    const partidoDer = {
+        oponente: idIzq, año: año, resultado: resDer,
+        h2h_jugados: hTotal, h2h_victorias: hVicDer, h2h_empates: hEmp, h2h_derrotas: hVicIzq,
+        goles: gD, remates_totales: +document.getElementById('remTotDer').value,
+        remates_puerta: +document.getElementById('remPueDer').value, corners: +document.getElementById('corDer').value,
+        amarillas: +document.getElementById('amaDer').value, rojas: +document.getElementById('rojDer').value
+    };
+
+    if (!BD_EQUIPOS[idIzq]) BD_EQUIPOS[idIzq] = [];
+    if (!BD_EQUIPOS[idDer]) BD_EQUIPOS[idDer] = [];
+    
+    BD_EQUIPOS[idIzq].push(partidoIzq);
+    BD_EQUIPOS[idDer].push(partidoDer);
+    
     guardar();
     actualizarSelectores();
-    document.getElementById('selectEquipo').value = id;
+    document.getElementById('selectEquipo').value = idIzq;
     analizarEquipo();
     
-    // Limpiamos solo las métricas (Dejamos los ids y selectores iguales para cargar rápido el sgte partido)
-    document.getElementById('corners').value = '';
-    document.getElementById('amarillas').value = '';
-    document.getElementById('rojas').value = '';
-    document.getElementById('remates').value = '';
-    document.getElementById('goles').value = '';
-    document.getElementById('faltas').value = '';
+    // Limpiar métricas pero dejar Año y H2H por si se cargan varios partidos seguidos
+    ['golesIzq','golesDer','remTotIzq','remTotDer','remPueIzq','remPueDer','corIzq','corDer','amaIzq','amaDer','rojIzq','rojDer'].forEach(id => document.getElementById(id).value = '');
+    alert("Partido registrado para ambos equipos.");
 });
 
-function subirArchivoDirecto(merge) {
-    const input = document.getElementById('fileInput');
-    input.dataset.merge = merge;
-    input.click();
-}
-
-function procesarArchivo(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const nuevos = JSON.parse(e.target.result);
-            const merge = input.dataset.merge === 'true';
-
-            if (merge) {
-                for (let eq in nuevos) {
-                    if (!BD_EQUIPOS[eq]) BD_EQUIPOS[eq] = [];
-                    BD_EQUIPOS[eq] = BD_EQUIPOS[eq].concat(nuevos[eq]);
-                }
-            } else {
-                BD_EQUIPOS = nuevos;
-            }
-            guardar();
-            actualizarSelectores();
-            alert('Datos importados correctamente');
-        } catch (err) {
-            alert('Error: ' + err.message);
-        }
-    };
-    reader.readAsText(file);
-    input.value = '';
-}
-
+/* =========================================
+   3. REGRESIÓN Y ANÁLISIS H2H
+========================================= */
 function calcularRegresion(datos, metrica) {
     const n = datos.length;
     if (n === 0) return { m: 0, b: 0 };
     if (n === 1) return { m: 0, b: datos[0][metrica] };
-
     let sx = 0, sy = 0, sxy = 0, sx2 = 0;
     for (let i = 0; i < n; i++) {
-        const x = i + 1;
-        const y = datos[i][metrica];
+        const x = i + 1; const y = datos[i][metrica];
         sx += x; sy += y; sxy += x * y; sx2 += x * x;
     }
     const m = (n * sxy - sx * sy) / (n * sx2 - sx * sx);
@@ -355,57 +355,67 @@ function calcularRegresion(datos, metrica) {
 
 function analizarEquipo() {
     const equipo = document.getElementById('selectEquipo').value;
-    const tipo = document.getElementById('tipoRegresion').value;
     const metrica = document.getElementById('metrica').value;
-    const tbody = document.getElementById('tablaBody');
-    tbody.innerHTML = '';
-
+    const rival = document.getElementById('rivalInput').value.trim().toUpperCase();
+    
     if (!equipo || !BD_EQUIPOS[equipo]) return;
+    
+    const todosLosDatos = BD_EQUIPOS[equipo];
+    
+    // Gráfica General
+    const regGen = calcularRegresion(todosLosDatos, metrica);
+    crearGrafica(todosLosDatos, metrica, regGen.m, regGen.b);
 
-    let datos = BD_EQUIPOS[equipo];
-    if (tipo !== 'todos') {
-        datos = datos.filter(p => p.tipo_oponente === tipo);
-    }
-
-    if (datos.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3">No hay datos para este filtro.</td></tr>`;
-        if (chartInstance) chartInstance.destroy();
+    // Módulo de Predicción H2H vs Rival Específico
+    const box = document.getElementById('boxResultadosH2H');
+    const tabla = document.getElementById('tablaH2H');
+    const tbody = document.getElementById('bodyH2H');
+    
+    if(rival === '') {
+        box.innerHTML = 'Escribe un rival para generar proyecciones específicas basadas en su historial directo.';
+        tabla.style.display = 'none';
         return;
     }
 
-    // Calcular regresión para la métrica seleccionada
-    const reg = calcularRegresion(datos, metrica);
-    const n = datos.length;
-    const predX = n + 1;
-    const predY = reg.m * predX + reg.b;
+    // Filtrar datos SOLO contra el rival
+    const datosRival = todosLosDatos.filter(p => p.oponente === rival);
 
-    // Llenar tabla
-    metricas.forEach(m => {
-        const r = calcularRegresion(datos, m);
-        const promedio = datos.reduce((a, c) => a + c[m], 0) / datos.length;
+    if (datosRival.length === 0) {
+        box.innerHTML = `⚠️ No hay registros previos de <strong>${equipo}</strong> vs <strong>${rival}</strong> en la base de datos para generar proyección.`;
+        tabla.style.display = 'none';
+        return;
+    }
+
+    // Mostrar resumen H2H Extraído del último registro (asumiendo que es el más actualizado)
+    const ultimoMatch = datosRival[datosRival.length - 1];
+    
+    box.innerHTML = `
+        <strong>Historial H2H Guardado (Base al último enfrentamiento):</strong><br>
+        Jugados: ${ultimoMatch.h2h_jugados} | Victorias: ${ultimoMatch.h2h_victorias} | Empates: ${ultimoMatch.h2h_empates} | Derrotas: ${ultimoMatch.h2h_derrotas}<br><br>
+        <em>Proyección estadística de ${equipo} para su siguiente partido vs ${rival} basada en sus ${datosRival.length} registros mutuos en esta plataforma:</em>
+    `;
+
+    // Llenar tabla de predicciones basada en filtro rival
+    tbody.innerHTML = '';
+    const predX = datosRival.length + 1;
+
+    metricasParams.forEach(m => {
+        const r = calcularRegresion(datosRival, m);
+        const promedio = datosRival.reduce((a, c) => a + c[m], 0) / datosRival.length;
         const prediccion = r.m * predX + r.b;
 
-        const fila = `
+        tbody.innerHTML += `
             <tr>
-                <td><strong>${nombres[m]}</strong></td>
+                <td><strong>${nombresMetricas[m]}</strong></td>
                 <td>${promedio.toFixed(2)}</td>
-                <td><strong style="color:#166534;">${prediccion.toFixed(2)}</strong></td>
+                <td><strong style="color:#059669; font-size:1.1rem;">${Math.max(0, prediccion).toFixed(2)}</strong></td>
             </tr>
         `;
-        tbody.innerHTML += fila;
     });
-
-    // Gráfica con regresión
-    crearGraficaConRegresion(datos, metrica, reg.m, reg.b);
-
-    // Estadísticas de resultados
-    mostrarEstadisticasResultados(datos);
-    
-    // Actualizar historial de oponente específico
-    mostrarHistorialOponente();
+    tabla.style.display = 'table';
 }
 
-function crearGraficaConRegresion(datos, metrica, m, b) {
+function crearGrafica(datos, metrica, m, b) {
     const ctx = document.getElementById('grafica').getContext('2d');
     if (chartInstance) chartInstance.destroy();
 
@@ -417,91 +427,40 @@ function crearGraficaConRegresion(datos, metrica, m, b) {
     valoresReales.push(null);
 
     const linea = [];
-    for (let i = 1; i <= n + 1; i++) {
-        linea.push(Math.max(0, m * i + b));
-    }
+    for (let i = 1; i <= n + 1; i++) linea.push(Math.max(0, m * i + b));
 
     chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [
-                { label: 'Histórico', data: valoresReales, backgroundColor: '#3b82f6', barThickness: 22, type: 'bar' },
-                { label: 'Tendencia', data: linea, borderColor: '#ef4444', borderWidth: 3.5, type: 'line', tension: 0.15 }
+                { label: 'Valor Real (General)', data: valoresReales, backgroundColor: '#cbd5e1', barThickness: 15 },
+                { label: 'Línea de Tendencia', data: linea, borderColor: '#dc2626', borderWidth: 2, type: 'line', tension: 0.1 }
             ]
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
     });
 }
 
-function mostrarEstadisticasResultados(datos) {
-    const cont = document.getElementById('estadisticasExtra');
-    if (datos.length === 0) {
-        cont.innerHTML = '';
-        return;
-    }
-
-    let ganados = 0, empates = 0, perdidos = 0;
-    datos.forEach(p => {
-        if (p.resultado === 'ganado') ganados++;
-        else if (p.resultado === 'empate') empates++;
-        else if (p.resultado === 'perdido') perdidos++;
-    });
-
-    const total = datos.length;
-    const pGanados = (ganados / total * 100).toFixed(1);
-    const pEmpates = (empates / total * 100).toFixed(1);
-    const pPerdidos = (perdidos / total * 100).toFixed(1);
-
-    cont.innerHTML = `
-        <strong>Resultados Globales (Filtro Actual):</strong><br>
-        <span class="win">${pGanados}% Victorias</span> • 
-        <span class="draw">${pEmpates}% Empates</span> • 
-        <span class="loss">${pPerdidos}% Derrotas</span>
-    `;
+function subirArchivoDirecto() { document.getElementById('fileInput').click(); }
+function procesarArchivo(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const nuevos = JSON.parse(e.target.result);
+            for (let eq in nuevos) {
+                if (!BD_EQUIPOS[eq]) BD_EQUIPOS[eq] = [];
+                BD_EQUIPOS[eq] = BD_EQUIPOS[eq].concat(nuevos[eq]);
+            }
+            guardar(); actualizarSelectores(); alert('Base importada con éxito.');
+        } catch (err) { alert('Error: ' + err.message); }
+    };
+    reader.readAsText(file); input.value = '';
 }
-
-function mostrarHistorialOponente() {
-    const equipo = document.getElementById('selectEquipo').value;
-    const oponenteInput = document.getElementById('buscarOponente').value.trim().toLowerCase();
-    const cont = document.getElementById('resultadoHistorialOponente');
-
-    if (!equipo || !BD_EQUIPOS[equipo] || oponenteInput === '') {
-        cont.innerHTML = 'Ingresa un oponente para ver el historial directo.';
-        return;
-    }
-
-    // Filtrar los partidos donde el nombre del oponente coincida con la búsqueda
-    const datosVsOponente = BD_EQUIPOS[equipo].filter(p => 
-        p.oponente.toLowerCase().includes(oponenteInput)
-    );
-
-    if (datosVsOponente.length === 0) {
-        cont.innerHTML = `No hay registros previos de <strong>${equipo}</strong> enfrentando a <strong>${oponenteInput.toUpperCase()}</strong>.`;
-        return;
-    }
-
-    let ganados = 0, empates = 0, perdidos = 0;
-    datosVsOponente.forEach(p => {
-        if (p.resultado === 'ganado') ganados++;
-        else if (p.resultado === 'empate') empates++;
-        else if (p.resultado === 'perdido') perdidos++;
-    });
-
-    // Renderizar el historial directo
-    cont.innerHTML = `
-        <strong>Historial histórico de ${equipo} vs ${oponenteInput.toUpperCase()} (${datosVsOponente.length} partidos):</strong><br><br>
-        <span class="win" style="font-size: 1.1rem;">✅ ${ganados} Victorias</span><br>
-        <span class="draw" style="font-size: 1.1rem;">➖ ${empates} Empates</span><br>
-        <span class="loss" style="font-size: 1.1rem;">❌ ${perdidos} Derrotas</span>
-    `;
-}
-
 function limpiarDatos() {
-    if (confirm('¿Borrar todos los datos?')) {
-        localStorage.removeItem('dashboard_bd');
-        location.reload();
-    }
+    if (confirm('¿Borrar todos los datos?')) { localStorage.removeItem('dashboard_bd'); location.reload(); }
 }
 
 window.onload = function() {
