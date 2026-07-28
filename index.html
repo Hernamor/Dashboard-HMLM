@@ -20,7 +20,7 @@
         input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 12px; box-sizing: border-box; background: #f8fafc; }
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; color: white; cursor: pointer; margin-top: 8px; transition: 0.2s; }
         button:hover { opacity: 0.9; }
-        .btn-primary { background: #dc2626; } /* Color rojo Flashscore */
+        .btn-primary { background: #dc2626; } 
         .btn-success { background: #16a34a; }
         .btn-danger { background: #475569; }
         
@@ -199,7 +199,7 @@ const metricasParams = ['goles', 'remates_totales', 'remates_puerta', 'corners',
 const nombresMetricas = { goles: 'Goles', remates_totales: 'Remates Tot.', remates_puerta: 'Remates Puerta', corners: 'Córneres', amarillas: 'Amarillas', rojas: 'Rojas' };
 
 /* =========================================
-   1. ESCÁNER OCR (ADAPTADO A 2 COLUMNAS)
+   1. ESCÁNER OCR (FORZADO)
 ========================================= */
 function escanearImagen(input) {
     const file = input.files[0];
@@ -222,51 +222,65 @@ function procesarTextoDobleColumna(texto) {
     const lineas = texto.toLowerCase().split('\n');
     let encontrados = 0;
 
-    // Buscar Goles (Usualmente formato X - Y o simplemente el número más grande arriba)
-    const regexGoles = /(\d+)\s*-\s*(\d+)/;
+    // 1. Extraer Goles (Detecta el formato "0-2", "0 - 2", "0–2" ignorando espacios)
     for(let linea of lineas) {
-        let matchGoles = linea.match(regexGoles);
+        let matchGoles = linea.match(/\b(\d+)\s*[-–—_]\s*(\d+)\b/);
         if(matchGoles) {
             document.getElementById('golesIzq').value = matchGoles[1];
             document.getElementById('golesDer').value = matchGoles[2];
-            break;
+            encontrados++;
+            break; // Extrae solo el primer resultado que parezca marcador
         }
     }
 
-    // Buscar Estadísticas (Patrón: Número + Texto + Número, ej: 13 Remates totales 14)
-    const regexStats = /(\d+)\s+(.+?)\s+(\d+)/;
-    
+    // 2. Extraer Estadísticas forzando la búsqueda de palabras clave
     lineas.forEach(linea => {
-        const match = linea.match(regexStats);
-        if (!match) return;
+        // Extraemos todos los números puros que haya en esa línea específica
+        const numeros = linea.match(/\d+/g);
+        
+        // Si no detectó al menos 2 números en la línea (Izquierda y Derecha), la ignoramos
+        if (!numeros || numeros.length < 2) return;
 
-        const valIzq = match[1];
-        const textoStat = match[2];
-        const valDer = match[3];
+        // Tomamos siempre el primer número de la línea para el Local, y el último para el Visitante
+        const valIzq = numeros[0];
+        const valDer = numeros[numeros.length - 1];
 
-        if (textoStat.includes('remate') && textoStat.includes('totale')) {
-            document.getElementById('remTotIzq').value = valIzq; document.getElementById('remTotDer').value = valDer; encontrados++;
+        if (linea.includes('remate') && linea.includes('totale')) {
+            document.getElementById('remTotIzq').value = valIzq; 
+            document.getElementById('remTotDer').value = valDer; 
+            encontrados++;
         }
-        else if (textoStat.includes('puerta') || textoStat.includes('arco')) {
-            document.getElementById('remPueIzq').value = valIzq; document.getElementById('remPueDer').value = valDer; encontrados++;
+        else if (linea.includes('puerta') || linea.includes('arco')) {
+            document.getElementById('remPueIzq').value = valIzq; 
+            document.getElementById('remPueDer').value = valDer; 
+            encontrados++;
         }
-        else if (textoStat.includes('córner') || textoStat.includes('corner') || textoStat.includes('esquina')) {
-            document.getElementById('corIzq').value = valIzq; document.getElementById('corDer').value = valDer; encontrados++;
+        else if (linea.includes('córner') || linea.includes('corner') || linea.includes('esquina')) {
+            document.getElementById('corIzq').value = valIzq; 
+            document.getElementById('corDer').value = valDer; 
+            encontrados++;
         }
-        else if (textoStat.includes('amarilla')) {
-            document.getElementById('amaIzq').value = valIzq; document.getElementById('amaDer').value = valDer; encontrados++;
+        else if (linea.includes('amarilla')) {
+            document.getElementById('amaIzq').value = valIzq; 
+            document.getElementById('amaDer').value = valDer; 
+            encontrados++;
         }
-        else if (textoStat.includes('roja')) {
-            document.getElementById('rojIzq').value = valIzq; document.getElementById('rojDer').value = valDer; encontrados++;
+        else if (linea.includes('roja') || linea.includes('expulsión')) {
+            document.getElementById('rojIzq').value = valIzq; 
+            document.getElementById('rojDer').value = valDer; 
+            encontrados++;
         }
     });
 
-    if(encontrados > 0) alert("✅ Escaneo completado. Revisa que los nombres de los equipos y goles estén correctos (esos pueden requerir ingreso manual si la fuente varía).");
-    else alert("❌ No se detectó la estructura de Flashscore (Número - Texto - Número).");
+    if(encontrados > 0) {
+        alert("✅ Escaneo completado. Se autocompletaron los campos. Por favor, verifica rápidamente que todos los datos se hayan volcado en la casilla correcta.");
+    } else {
+        alert("❌ No se lograron extraer estadísticas. Asegúrate de que la captura se vea nítida.");
+    }
 }
 
 /* =========================================
-   2. GUARDADO DE DATOS (DOBLE INSERCIÓN)
+   2. GUARDADO DE DATOS Y LÓGICA
 ========================================= */
 function guardar() { localStorage.setItem('dashboard_bd', JSON.stringify(BD_EQUIPOS)); }
 function cargar() { const data = localStorage.getItem('dashboard_bd'); if (data) BD_EQUIPOS = JSON.parse(data); }
@@ -298,11 +312,9 @@ document.getElementById('partidoForm').addEventListener('submit', function(e) {
     const gI = +document.getElementById('golesIzq').value;
     const gD = +document.getElementById('golesDer').value;
 
-    // Calcular resultado automático
     let resIzq = gI > gD ? 'ganado' : (gI < gD ? 'perdido' : 'empate');
     let resDer = resIzq === 'ganado' ? 'perdido' : (resIzq === 'perdido' ? 'ganado' : 'empate');
 
-    // Objeto Izquierda
     const partidoIzq = {
         oponente: idDer, año: año, resultado: resIzq,
         h2h_jugados: hTotal, h2h_victorias: hVicIzq, h2h_empates: hEmp, h2h_derrotas: hVicDer,
@@ -311,7 +323,6 @@ document.getElementById('partidoForm').addEventListener('submit', function(e) {
         amarillas: +document.getElementById('amaIzq').value, rojas: +document.getElementById('rojIzq').value
     };
 
-    // Objeto Derecha (Se invierten victorias/derrotas del H2H manual)
     const partidoDer = {
         oponente: idIzq, año: año, resultado: resDer,
         h2h_jugados: hTotal, h2h_victorias: hVicDer, h2h_empates: hEmp, h2h_derrotas: hVicIzq,
@@ -331,7 +342,7 @@ document.getElementById('partidoForm').addEventListener('submit', function(e) {
     document.getElementById('selectEquipo').value = idIzq;
     analizarEquipo();
     
-    // Limpiar métricas pero dejar Año y H2H por si se cargan varios partidos seguidos
+    // Limpiar métricas para el siguiente partido
     ['golesIzq','golesDer','remTotIzq','remTotDer','remPueIzq','remPueDer','corIzq','corDer','amaIzq','amaDer','rojIzq','rojDer'].forEach(id => document.getElementById(id).value = '');
     alert("Partido registrado para ambos equipos.");
 });
@@ -377,7 +388,6 @@ function analizarEquipo() {
         return;
     }
 
-    // Filtrar datos SOLO contra el rival
     const datosRival = todosLosDatos.filter(p => p.oponente === rival);
 
     if (datosRival.length === 0) {
@@ -386,7 +396,6 @@ function analizarEquipo() {
         return;
     }
 
-    // Mostrar resumen H2H Extraído del último registro (asumiendo que es el más actualizado)
     const ultimoMatch = datosRival[datosRival.length - 1];
     
     box.innerHTML = `
@@ -395,7 +404,6 @@ function analizarEquipo() {
         <em>Proyección estadística de ${equipo} para su siguiente partido vs ${rival} basada en sus ${datosRival.length} registros mutuos en esta plataforma:</em>
     `;
 
-    // Llenar tabla de predicciones basada en filtro rival
     tbody.innerHTML = '';
     const predX = datosRival.length + 1;
 
