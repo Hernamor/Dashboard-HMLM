@@ -13,8 +13,8 @@
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; max-width: 1400px; margin: 0 auto; }
         @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
        
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; }
-        h2 { color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        h2 { color: #0f172a; border-bottom: 4px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; }
         label { font-weight: 600; color: #475569; display: block; margin-bottom: 5px; font-size: 0.9rem; }
         input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 12px; box-sizing: border-box; background: #f8fafc; }
         select { cursor: pointer; }
@@ -55,17 +55,13 @@
 <body>
 <div class="header">
     <h1 style="margin:0;">ANÁLISIS PREDICTIVO (PARLAY) - LIGA MX</h1>
-    <p style="margin:5px 0 0 0; color: #cbd5e1;">Motor basado en Estadísticas Estilo Flashscore & Regresión Lineal</p>
 </div>
 <div class="grid">
     <!-- COLUMNA 1 -->
     <div>
         <!-- GESTOR DE HISTORIAL H2H -->
         <div class="card" style="border-left: 5px solid #10b981;">
-            <h2>📚 Gestor de Historial H2H (Independiente)</h2>
-            <p class="info-note" style="margin-top: -5px; margin-bottom: 15px;">
-                Selecciona los equipos de la lista. Al guardar un partido nuevo, el historial se actualiza automáticamente (+1).
-            </p>
+            <h2>📚 Historial de Equipos</h2>
            
             <div class="flex-row">
                 <div class="flex-1">
@@ -80,7 +76,7 @@
            
             <div class="flex-row">
                 <div class="flex-1">
-                    <label>Victorias (Eq. 1)</label>
+                    <label>Victorias</label>
                     <input type="number" id="man_v" value="0" min="0">
                 </div>
                 <div class="flex-1">
@@ -88,27 +84,27 @@
                     <input type="number" id="man_e" value="0" min="0">
                 </div>
                 <div class="flex-1">
-                    <label>Derrotas (Eq. 1)</label>
+                    <label>Derrotas</label>
                     <input type="number" id="man_d" value="0" min="0">
                 </div>
             </div>
            
             <div class="flex-row" style="margin-top: 10px;">
-                <button type="button" onclick="guardarH2HManual()" class="btn-success">💾 Añadir / Actualizar</button>
-                <button type="button" onclick="borrarH2HEspecifico()" class="btn-warning">🗑️ Borrar Historial</button>
-                <button type="button" onclick="borrarTodosH2H()" class="btn-danger">🗑️ Borrar Todos</button>
+                <button type="button" onclick="guardarH2HManual()" class="btn-success"> Añadir / Actualizar</button>
+                <button type="button" onclick="borrarH2HEspecifico()" class="btn-warning"> Borrar Historial</button>
+                <button type="button" onclick="borrarTodosH2H()" class="btn-danger"> Borrar Todos</button>
             </div>
         </div>
 
         <!-- CARGA DE PARTIDO -->
         <div class="card">
-            <h2>Carga de Partido Nuevo</h2>
+            <h2>Partido Reciente</h2>
            
             <div class="scanner-box">
-                <h3 class="scanner-title">📷 Escáner Automático (OCR)</h3>
-                <p style="font-size:0.85rem; margin-bottom:10px; color:#cbd5e1;">Sube la captura. Los parámetros se rellenarán automáticamente (nombres de equipos se eligen manualmente).</p>
+                <h3 class="scanner-title"> Escáner Foto</h3>
+                <p style="font-size:0.85rem; margin-bottom:10px; color:#cbd5e1;">Sube la captura.</p>
                 <input type="file" id="imagenOCR" accept="image/*" onchange="escanearImagen(this)" style="margin-bottom:0; background: white; color: black;">
-                <div id="ocrStatus"><div class="spinner"></div> Analizando imagen...</div>
+                <div id="ocrStatus"><div class="spinner"></div> Analizando polnito...</div>
             </div>
 
             <form id="partidoForm">
@@ -149,12 +145,12 @@
                     <input type="number" id="rojDer" required min="0">
                 </div>
 
-                <button type="submit" class="btn-primary">💾 Guardar Partido en Base de Datos</button>
+                <button type="submit" class="btn-primary">Guardar Partido en Base de Datos</button>
             </form>
 
             <div style="margin-top: 20px; border-top: 2px solid #e2e8f0; padding-top: 15px;">
-                <button onclick="subirArchivoDirecto()" class="btn-success">➕ Importar Base de Datos Partidos (JSON)</button>
-                <button onclick="limpiarDatosPartidos()" class="btn-danger">🗑️ Borrar Todos los Partidos</button>
+                <button onclick="subirArchivoDirecto()" class="btn-success"> Importar JSON</button>
+                <button onclick="limpiarDatosPartidos()" class="btn-danger"> Borrar Todos los Partidos</button>
             </div>
             <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="procesarArchivo(this)">
         </div>
@@ -162,7 +158,7 @@
 
     <!-- COLUMNA 2: MOTOR PREDICTIVO -->
     <div class="card">
-        <h2>Motor Predictivo</h2>
+        <h2>Modelo Predictivo</h2>
         <div style="display:flex; gap:10px;">
             <div style="flex:1;">
                 <label>Seleccionar Equipo</label>
@@ -185,7 +181,7 @@
         </div>
 
         <div class="prediction-box">
-            <h3>🔮 Predicción H2H vs Oponente</h3>
+            <h3> Predicción Basada en su historial vs Oponente</h3>
             <label>Selecciona el rival a enfrentar:</label>
             <select id="rivalInput" onchange="analizarEquipo()" style="background:white; border-color:#10b981;"></select>
            
