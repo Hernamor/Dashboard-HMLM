@@ -28,23 +28,21 @@
         .fs-match-header { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; }
         .fs-col { flex: 1; background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
         
-        /* DISEÑO REDIMENSIONADO Y MASIVO PARA EL FORMULARIO */
         .fs-shared { background: #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .fs-shared input { font-size: 1.5rem; font-weight: bold; height: 55px; }
         .fs-match-header select { font-size: 1.2rem; font-weight: bold; height: 50px; }
         
-        .fs-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding: 15px 0; }
+        /* DISTANCIAS CORREGIDAS PARA EL FORMULARIO NUMÉRICO */
+        .fs-row { display: flex; justify-content: center; align-items: center; gap: 15px; border-bottom: 2px solid #e2e8f0; padding: 15px 0; }
         .fs-row:last-child { border-bottom: none; }
-        .fs-row label { margin: 0; text-align: center; flex: 1; font-size: 1.3rem; font-weight: 700; color: #1e293b; }
-        
-        /* Inputs numéricos de los partidos (Cajas exactas) */
+        .fs-row label { margin: 0; text-align: center; width: 180px; flex: none; font-size: 1.3rem; font-weight: 700; color: #1e293b; }
         .fs-row input { 
             width: 80px; 
             height: 65px; 
             margin: 0; 
             text-align: center; 
-            flex: none; /* Evita que se estiren de más */
-            font-size: 2rem; /* Tamaño de letra gigante */
+            flex: none; 
+            font-size: 2rem; 
             font-weight: 800;
             border: 2px solid #94a3b8;
             border-radius: 10px;
@@ -55,9 +53,13 @@
         .flex-row { display: flex; gap: 10px; }
         .flex-1 { flex: 1; }
         
-        .scanner-box { background: #1e293b; color: white; padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: center; }
-        .scanner-title { margin-top: 0; color: #f8fafc; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        #ocrStatus { font-size: 0.9rem; color: #ef4444; font-weight: bold; margin-top: 10px; display: none; }
+        /* ESCÁNER REDISEÑADO (HORIZONTAL Y LIMPIO) */
+        .scanner-wrapper { background: #1e293b; padding: 20px 25px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
+        .scanner-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .scanner-title { margin: 0; color: #f8fafc; font-size: 1.4rem; display: flex; align-items: center; gap: 8px; font-weight: bold; }
+        .scanner-input { margin: 0; background: white; color: #1e293b; font-size: 1rem; padding: 8px 12px; border-radius: 6px; cursor: pointer; flex: 1; max-width: 300px; font-weight: 600; }
+        #ocrStatus { font-size: 1rem; color: #ef4444; font-weight: bold; margin-top: 15px; display: none; text-align: center; }
+        
         .spinner { display: inline-block; width: 16px; height: 16px; border: 3px solid rgba(239,68,68,0.3); border-radius: 50%; border-top-color: #ef4444; animation: spin 1s infinite linear; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
@@ -124,10 +126,12 @@
         <div class="card">
             <h2 style="font-size: 1.8rem;">Partido Reciente</h2>
             
-            <div class="scanner-box">
-                <h3 class="scanner-title"> Escáner Foto</h3>
-                <p style="font-size:0.9rem; margin-bottom:10px; color:#cbd5e1;">Sube la captura de Flashscore.</p>
-                <input type="file" id="imagenOCR" accept="image/*" onchange="escanearImagen(this)" style="margin-bottom:0; background: white; color: black; font-size: 1rem; padding: 15px;">
+            <!-- ESCÁNER REDISEÑADO -->
+            <div class="scanner-wrapper">
+                <div class="scanner-header">
+                    <h3 class="scanner-title">📷 Escáner Foto</h3>
+                    <input type="file" id="imagenOCR" class="scanner-input" accept="image/*" onchange="escanearImagen(this)">
+                </div>
                 <div id="ocrStatus"><div class="spinner"></div> Analizando imagen...</div>
             </div>
 
@@ -148,7 +152,7 @@
                     </div>
                 </div>
 
-                <!-- INPUTS MASIVOS -->
+                <!-- INPUTS MASIVOS (Ahora más juntos al centro) -->
                 <div class="fs-row">
                     <input type="number" id="golesIzq" required min="0">
                     <label>Goles Finales</label>
@@ -196,7 +200,7 @@
             <canvas id="grafica"></canvas>
         </div>
 
-        <!-- NUEVA TABLA: PREDICCIÓN GLOBAL -->
+        <!-- TABLA: PREDICCIÓN GLOBAL -->
         <div class="global-prediction-box">
             <h3>📊 Predicción Global (Próximo Partido)</h3>
             <p class="info-note" style="margin-top: -5px; margin-bottom: 15px;">Valores matemáticos exactos extraídos de la línea de tendencia de la gráfica superior.</p>
