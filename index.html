@@ -18,7 +18,7 @@
         label { font-weight: 600; color: #475569; display: block; margin-bottom: 5px; font-size: 0.9rem; }
         input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 12px; box-sizing: border-box; background: #f8fafc; }
         select { cursor: pointer; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; color: white; cursor: pointer; margin-top: 8px; transition: 0.2s; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; color: white; cursor: pointer; margin-top: 8px; transition: 0.2s; font-size: 1rem; }
         button:hover { opacity: 0.9; }
         .btn-primary { background: #dc2626; }
         .btn-success { background: #16a34a; }
@@ -27,35 +27,58 @@
         
         .fs-match-header { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; }
         .fs-col { flex: 1; background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .fs-shared { background: #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
         
-        .fs-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding: 8px 0; }
+        /* DISEÑO REDIMENSIONADO Y MASIVO PARA EL FORMULARIO */
+        .fs-shared { background: #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .fs-shared input { font-size: 1.5rem; font-weight: bold; height: 55px; }
+        .fs-match-header select { font-size: 1.2rem; font-weight: bold; height: 50px; }
+        
+        .fs-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding: 15px 0; }
         .fs-row:last-child { border-bottom: none; }
-        .fs-row label { margin: 0; text-align: center; flex: 2; font-size: 0.85rem; }
-        .fs-row input { width: 60px; margin: 0; text-align: center; flex: 1; }
+        .fs-row label { margin: 0; text-align: center; flex: 1; font-size: 1.3rem; font-weight: 700; color: #1e293b; }
+        
+        /* Inputs numéricos de los partidos (Cajas exactas) */
+        .fs-row input { 
+            width: 80px; 
+            height: 65px; 
+            margin: 0; 
+            text-align: center; 
+            flex: none; /* Evita que se estiren de más */
+            font-size: 2rem; /* Tamaño de letra gigante */
+            font-weight: 800;
+            border: 2px solid #94a3b8;
+            border-radius: 10px;
+            color: #0f172a;
+        }
+        .fs-row input:focus { border-color: #dc2626; outline: none; background: #fff; }
         
         .flex-row { display: flex; gap: 10px; }
         .flex-1 { flex: 1; }
         
-        .scanner-box { background: #1e293b; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
-        .scanner-title { margin-top: 0; color: #f8fafc; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .scanner-box { background: #1e293b; color: white; padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: center; }
+        .scanner-title { margin-top: 0; color: #f8fafc; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         #ocrStatus { font-size: 0.9rem; color: #ef4444; font-weight: bold; margin-top: 10px; display: none; }
         .spinner { display: inline-block; width: 16px; height: 16px; border: 3px solid rgba(239,68,68,0.3); border-radius: 50%; border-top-color: #ef4444; animation: spin 1s infinite linear; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
-        th, td { padding: 10px; text-align: center; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f8fafc; color: #1e293b; }
-        /* Se aumentó un poco la altura de la gráfica para que quepan todos los parámetros */
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; }
+        th, td { padding: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; color: #1e293b; font-weight: 700; }
+        
         .chart-container { height: 350px; margin-top: 15px; }
         
-        .prediction-box { background: #ecfdf5; border: 1px solid #10b981; padding: 15px; border-radius: 8px; margin-top: 20px; }
-        .prediction-box h3 { color: #065f46; margin-top: 0; margin-bottom: 10px; }
-        .info-note { font-size: 0.8rem; color: #64748b; margin-top: 8px; font-style: italic; }
+        .prediction-box { background: #ecfdf5; border: 1px solid #10b981; padding: 15px; border-radius: 8px; margin-top: 25px; }
+        .prediction-box h3 { color: #065f46; margin-top: 0; margin-bottom: 10px; font-size: 1.2rem; }
+        
+        .global-prediction-box { background: #eff6ff; border: 1px solid #3b82f6; padding: 15px; border-radius: 8px; margin-top: 25px; }
+        .global-prediction-box h3 { color: #1d4ed8; margin-top: 0; margin-bottom: 10px; font-size: 1.2rem; }
+        
+        .info-note { font-size: 0.85rem; color: #64748b; margin-top: 8px; font-style: italic; }
     </style>
 </head>
 <body>
 <div class="header">
-    <h1 style="margin:0;">ANÁLISIS PREDICTIVO (PARLAY) - LIGA MX</h1>
+    <h1 style="margin:0; font-size: 2rem;">ANÁLISIS PREDICTIVO (PARLAY) - LIGA MX</h1>
 </div>
 <div class="grid">
     <!-- COLUMNA 1 -->
@@ -99,32 +122,33 @@
 
         <!-- CARGA DE PARTIDO -->
         <div class="card">
-            <h2>Partido Reciente</h2>
+            <h2 style="font-size: 1.8rem;">Partido Reciente</h2>
             
             <div class="scanner-box">
                 <h3 class="scanner-title"> Escáner Foto</h3>
-                <p style="font-size:0.85rem; margin-bottom:10px; color:#cbd5e1;">Sube la captura.</p>
-                <input type="file" id="imagenOCR" accept="image/*" onchange="escanearImagen(this)" style="margin-bottom:0; background: white; color: black;">
-                <div id="ocrStatus"><div class="spinner"></div> Analizando...</div>
+                <p style="font-size:0.9rem; margin-bottom:10px; color:#cbd5e1;">Sube la captura de Flashscore.</p>
+                <input type="file" id="imagenOCR" accept="image/*" onchange="escanearImagen(this)" style="margin-bottom:0; background: white; color: black; font-size: 1rem; padding: 15px;">
+                <div id="ocrStatus"><div class="spinner"></div> Analizando imagen...</div>
             </div>
 
             <form id="partidoForm">
                 <div class="fs-shared">
-                    <label style="text-align: center;">Año del Partido</label>
+                    <label style="text-align: center; font-size: 1.2rem;">Año del Partido</label>
                     <input type="number" id="año" placeholder="Ej. 2026" required value="2026" min="2000" max="2035" style="text-align:center;">
                 </div>
 
                 <div class="fs-match-header">
                     <div class="fs-col">
-                        <label style="text-align:center; margin-bottom:8px;">Equipo Izquierda</label>
+                        <label style="text-align:center; margin-bottom:8px; font-size: 1.1rem;">Equipo Izquierda</label>
                         <select id="eqIzq" required></select>
                     </div>
                     <div class="fs-col">
-                        <label style="text-align:center; margin-bottom:8px;">Equipo Derecha</label>
+                        <label style="text-align:center; margin-bottom:8px; font-size: 1.1rem;">Equipo Derecha</label>
                         <select id="eqDer" required></select>
                     </div>
                 </div>
 
+                <!-- INPUTS MASIVOS -->
                 <div class="fs-row">
                     <input type="number" id="golesIzq" required min="0">
                     <label>Goles Finales</label>
@@ -137,16 +161,16 @@
                 </div>
                 <div class="fs-row">
                     <input type="number" id="amaIzq" required min="0">
-                    <label>Tarjetas amarillas</label>
+                    <label>Tarjetas Amarillas</label>
                     <input type="number" id="amaDer" required min="0">
                 </div>
                 <div class="fs-row">
                     <input type="number" id="rojIzq" required min="0">
-                    <label>Tarjetas rojas</label>
+                    <label>Tarjetas Rojas</label>
                     <input type="number" id="rojDer" required min="0">
                 </div>
 
-                <button type="submit" class="btn-primary">Guardar Partido en Base de Datos</button>
+                <button type="submit" class="btn-primary" style="font-size: 1.2rem; padding: 15px; margin-top: 20px;">Guardar Partido en Base de Datos</button>
             </form>
 
             <div style="margin-top: 20px; border-top: 2px solid #e2e8f0; padding-top: 15px;">
@@ -159,11 +183,11 @@
 
     <!-- COLUMNA 2: MOTOR PREDICTIVO -->
     <div class="card">
-        <h2>Modelo Predictivo Global</h2>
+        <h2 style="font-size: 1.8rem;">Modelo Predictivo Global</h2>
         <div style="display:flex; gap:10px;">
             <div style="flex:1;">
-                <label>Seleccionar Equipo Principal</label>
-                <select id="selectEquipo" onchange="analizarEquipo()"></select>
+                <label style="font-size: 1.1rem;">Seleccionar Equipo Principal</label>
+                <select id="selectEquipo" onchange="analizarEquipo()" style="font-size: 1.1rem; font-weight: bold; height: 50px;"></select>
             </div>
         </div>
         <p class="info-note">⚠️ Se están evaluando todos los parámetros de forma simultánea (hasta el año actual).</p>
@@ -172,12 +196,29 @@
             <canvas id="grafica"></canvas>
         </div>
 
+        <!-- NUEVA TABLA: PREDICCIÓN GLOBAL -->
+        <div class="global-prediction-box">
+            <h3>📊 Predicción Global (Próximo Partido)</h3>
+            <p class="info-note" style="margin-top: -5px; margin-bottom: 15px;">Valores matemáticos exactos extraídos de la línea de tendencia de la gráfica superior.</p>
+            <table style="background: white;">
+                <thead>
+                    <tr style="background:#dbeafe;">
+                        <th>Parámetro</th>
+                        <th>Promedio Histórico</th>
+                        <th>Proyección (Regresión)</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyGlobalPred"></tbody>
+            </table>
+        </div>
+
+        <!-- TABLA H2H ESPECÍFICA -->
         <div class="prediction-box">
-            <h3> Predicción Basada en su historial vs Oponente</h3>
-            <label>Selecciona el rival a enfrentar:</label>
-            <select id="rivalInput" onchange="analizarEquipo()" style="background:white; border-color:#10b981;"></select>
+            <h3>⚔️ Predicción Basada en su historial vs Oponente</h3>
+            <label style="font-size: 1.05rem;">Selecciona el rival a enfrentar:</label>
+            <select id="rivalInput" onchange="analizarEquipo()" style="background:white; border-color:#10b981; font-size: 1.1rem; font-weight: bold; height: 50px;"></select>
             
-            <div id="boxResultadosH2H" style="font-size: 0.95rem; margin-top: 10px; background: white; padding: 10px; border-radius: 6px; border: 1px dashed #10b981;">
+            <div id="boxResultadosH2H" style="font-size: 0.95rem; margin-top: 15px; background: white; padding: 12px; border-radius: 6px; border: 1px dashed #10b981;">
                 Selecciona un rival para ver el Historial H2H vinculado.
             </div>
             
@@ -185,7 +226,7 @@
                 <thead>
                     <tr style="background:#d1fae5;">
                         <th>Parámetro</th>
-                        <th>Promedio General</th>
+                        <th>Promedio (Vs Rival)</th>
                         <th>Proyección (Regresión)</th>
                     </tr>
                 </thead>
@@ -206,7 +247,6 @@ const EQUIPOS_LIGA_MX = [
     "TIGRES UANL", "TIJUANA", "TOLUCA"
 ];
 
-// Variables globales
 let BD_EQUIPOS = {};
 let BD_H2H = {};
 let chartInstance = null;
@@ -216,16 +256,15 @@ const nombresMetricas = {
     goles: 'Goles', corners: 'Córneres', amarillas: 'Amarillas', rojas: 'Rojas'
 };
 
-// Paleta de colores para renderizar las 4 métricas al mismo tiempo
 const coloresMetricas = {
-    goles: { bg: 'rgba(59, 130, 246, 0.4)', border: '#2563eb' },      // Azul
-    corners: { bg: 'rgba(16, 185, 129, 0.4)', border: '#059669' },    // Verde
-    amarillas: { bg: 'rgba(245, 158, 11, 0.4)', border: '#d97706' },  // Amarillo/Naranja
-    rojas: { bg: 'rgba(239, 68, 68, 0.4)', border: '#dc2626' }        // Rojo
+    goles: { bg: 'rgba(59, 130, 246, 0.4)', border: '#2563eb' },
+    corners: { bg: 'rgba(16, 185, 129, 0.4)', border: '#059669' },
+    amarillas: { bg: 'rgba(245, 158, 11, 0.4)', border: '#d97706' },
+    rojas: { bg: 'rgba(239, 68, 68, 0.4)', border: '#dc2626' }
 };
 
 // ============================================
-// UTILIDADES DE EQUIPOS
+// UTILIDADES
 // ============================================
 function llenarSelectsEquipos() {
     const selects = [ 'man_eq1', 'man_eq2', 'eqIzq', 'eqDer', 'rivalInput' ];
@@ -290,15 +329,12 @@ function borrarH2HEspecifico() {
     const eq2 = document.getElementById('man_eq2').value;
     if (!eq1 || !eq2) { alert('Selecciona ambos equipos.'); return; }
     const key = generarKeyH2H(eq1, eq2);
-    if (BD_H2H[key]) {
-        delete BD_H2H[key]; guardarBD(); alert(`Historial borrado: ${eq1} vs ${eq2}`); analizarEquipo();
-    } else alert('No existe historial.');
+    if (BD_H2H[key]) { delete BD_H2H[key]; guardarBD(); alert(`Historial borrado: ${eq1} vs ${eq2}`); analizarEquipo(); } 
+    else alert('No existe historial.');
 }
 
 function borrarTodosH2H() {
-    if (confirm('¿Borrar TODOS los historiales H2H?')) {
-        BD_H2H = {}; guardarBD(); alert('Borrados.'); analizarEquipo();
-    }
+    if (confirm('¿Borrar TODOS los historiales H2H?')) { BD_H2H = {}; guardarBD(); alert('Borrados.'); analizarEquipo(); }
 }
 
 // ============================================
@@ -310,7 +346,6 @@ function guardarBD() {
         localStorage.setItem('dashboard_bd_h2h', JSON.stringify(BD_H2H));
     } catch (e) { alert('Error al guardar en memoria.'); }
 }
-
 function cargarBD() {
     try {
         const dPartidos = localStorage.getItem('dashboard_bd_partidos');
@@ -360,9 +395,8 @@ function escanearImagen(input) {
     const file = input.files[0]; if (!file) return;
     const statusDiv = document.getElementById('ocrStatus'); statusDiv.style.display = 'block';
     Tesseract.recognize(file, 'spa')
-        .then(({ data: { text } }) => {
-            statusDiv.style.display = 'none'; procesarTextoDobleColumna(text); input.value = '';
-        }).catch(e => { statusDiv.style.display = 'none'; alert("Error OCR."); });
+        .then(({ data: { text } }) => { statusDiv.style.display = 'none'; procesarTextoDobleColumna(text); input.value = ''; })
+        .catch(e => { statusDiv.style.display = 'none'; alert("Error OCR."); });
 }
 
 function procesarTextoDobleColumna(texto) {
@@ -392,7 +426,7 @@ function procesarTextoDobleColumna(texto) {
 }
 
 // ============================================
-// ANÁLISIS Y GRÁFICA UNIFICADA
+// ANÁLISIS, PREDICCIONES Y GRÁFICAS
 // ============================================
 function calcularRegresion(datos, metrica) {
     const n = datos.length;
@@ -410,10 +444,7 @@ function calcularRegresion(datos, metrica) {
 
 function filtrarDatosReales(datos) {
     const anioRef = parseInt(document.getElementById('año').value, 10) || new Date().getFullYear();
-    // REGLA CORREGIDA: Usamos <= para que SÍ se vean los partidos del mismo año en curso.
-    return datos
-        .filter(p => parseInt(p.año, 10) <= anioRef)
-        .sort((a, b) => parseInt(a.año, 10) - parseInt(b.año, 10));
+    return datos.filter(p => parseInt(p.año, 10) <= anioRef).sort((a, b) => parseInt(a.año, 10) - parseInt(b.año, 10));
 }
 
 function actualizarSelectores() {
@@ -431,16 +462,39 @@ function actualizarSelectores() {
 function analizarEquipo() {
     const equipo = document.getElementById('selectEquipo').value;
     const rival = document.getElementById('rivalInput').value;
+    const tbodyGlobal = document.getElementById('bodyGlobalPred');
 
     if (!equipo || !BD_EQUIPOS[equipo]) {
-        if (chartInstance) { chartInstance.destroy(); chartInstance = null; } return;
+        if (chartInstance) { chartInstance.destroy(); chartInstance = null; } 
+        tbodyGlobal.innerHTML = '';
+        return;
     }
 
     const todosLosDatos = filtrarDatosReales(BD_EQUIPOS[equipo]);
-    
-    // Lanzar renderizado de gráfica con TODOS los parámetros a la vez
     crearGraficaTodosParametros(todosLosDatos);
 
+    // LLENAR TABLA DE PREDICCIÓN GLOBAL
+    tbodyGlobal.innerHTML = '';
+    const predXGlobal = todosLosDatos.length + 1;
+    
+    if(todosLosDatos.length > 0) {
+        metricasParams.forEach(m => {
+            const r = calcularRegresion(todosLosDatos, m);
+            const promedio = todosLosDatos.reduce((a, c) => a + (Number(c[m]) || 0), 0) / todosLosDatos.length;
+            const prediccion = r.m * predXGlobal + r.b;
+            tbodyGlobal.innerHTML += `
+                <tr>
+                    <td><strong>${nombresMetricas[m]}</strong></td>
+                    <td>${promedio.toFixed(2)}</td>
+                    <td><strong style="color:#1d4ed8; font-size:1.15rem;">${Math.max(0, prediccion).toFixed(2)}</strong></td>
+                </tr>
+            `;
+        });
+    } else {
+        tbodyGlobal.innerHTML = `<tr><td colspan="3">No hay datos suficientes para proyectar.</td></tr>`;
+    }
+
+    // GESTIÓN H2H
     const box = document.getElementById('boxResultadosH2H');
     const tabla = document.getElementById('tablaH2H');
     const tbody = document.getElementById('bodyH2H');
@@ -456,8 +510,8 @@ function analizarEquipo() {
         let misVictorias = (equipo === recH2H.eq1) ? recH2H.v1 : recH2H.v2;
         let misDerrotas = (equipo === recH2H.eq1) ? recH2H.v2 : recH2H.v1;
         box.innerHTML = `
-            <strong style="color: #065f46; font-size: 1.05rem;">Historial H2H (${equipo} vs ${rival}):</strong><br>
-            <span style="display:inline-block; margin-top:5px; background:#d1fae5; padding:5px 10px; border-radius:4px;">
+            <strong style="color: #065f46; font-size: 1.1rem;">Historial H2H (${equipo} vs ${rival}):</strong><br>
+            <span style="display:inline-block; margin-top:5px; background:#d1fae5; padding:8px 12px; border-radius:4px; font-size:1.05rem;">
                 Partidos: <b>${recH2H.jugados}</b> |
                 <span style="color:#16a34a">Victorias: <b>${misVictorias}</b></span> |
                 <span style="color:#d97706">Empates: <b>${recH2H.emp}</b></span> |
@@ -470,7 +524,7 @@ function analizarEquipo() {
 
     const datosRival = todosLosDatos.filter(p => p.oponente === rival);
     if (datosRival.length === 0) {
-        box.innerHTML += `<br><br><em>No hay estadísticas entre estos equipos para proyectar el próximo encuentro.</em>`;
+        box.innerHTML += `<br><br><em>No hay estadísticas en plataforma entre estos equipos para proyectar el próximo encuentro.</em>`;
         tabla.style.display = 'none'; return;
     }
 
@@ -484,7 +538,7 @@ function analizarEquipo() {
             <tr>
                 <td><strong>${nombresMetricas[m]}</strong></td>
                 <td>${promedio.toFixed(2)}</td>
-                <td><strong style="color:#059669; font-size:1.1rem;">${Math.max(0, prediccion).toFixed(2)}</strong></td>
+                <td><strong style="color:#059669; font-size:1.15rem;">${Math.max(0, prediccion).toFixed(2)}</strong></td>
             </tr>
         `;
     });
@@ -495,7 +549,7 @@ function crearGraficaTodosParametros(datos) {
     const ctx = document.getElementById('grafica').getContext('2d');
     if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
     
-    if(datos.length === 0) return; // Evita errores si no hay datos
+    if(datos.length === 0) return;
 
     const n = datos.length;
     const labels = datos.map((_, i) => `P${i+1}`);
@@ -503,54 +557,30 @@ function crearGraficaTodosParametros(datos) {
 
     const configuracionDatasets = [];
 
-    // Por cada parámetro (Goles, Corners, Amarillas, Rojas) creamos un set de Barras y otro de Tendencia
     metricasParams.forEach(m => {
         const reg = calcularRegresion(datos, m);
         const valoresReales = datos.map(d => Number(d[m]) || 0);
-        valoresReales.push(null); // Deja vacío el espacio para la predicción en las barras
+        valoresReales.push(null);
 
         const linea = [];
         for (let i = 1; i <= n + 1; i++) {
             linea.push(Math.max(0, reg.m * i + reg.b));
         }
 
-        // 1. Barras de registro histórico
         configuracionDatasets.push({
-            label: `[Historial] ${nombresMetricas[m]}`,
-            data: valoresReales,
-            backgroundColor: coloresMetricas[m].bg,
-            barThickness: 8,
-            type: 'bar'
+            label: `[Historial] ${nombresMetricas[m]}`, data: valoresReales, backgroundColor: coloresMetricas[m].bg, barThickness: 8, type: 'bar'
         });
-
-        // 2. Líneas de tendencia y predicción matemática
         configuracionDatasets.push({
-            label: `[Tendencia] ${nombresMetricas[m]}`,
-            data: linea,
-            borderColor: coloresMetricas[m].border,
-            borderWidth: 2,
-            type: 'line',
-            tension: 0.1,
-            pointRadius: 4
+            label: `[Tendencia] ${nombresMetricas[m]}`, data: linea, borderColor: coloresMetricas[m].border, borderWidth: 2, type: 'line', tension: 0.1, pointRadius: 4
         });
     });
 
     chartInstance = new Chart(ctx, {
         type: 'bar',
-        data: {
-            labels: labels,
-            datasets: configuracionDatasets
-        },
+        data: { labels: labels, datasets: configuracionDatasets },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true } },
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: { font: { size: 11 }, boxWidth: 12 }
-                }
-            }
+            responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } },
+            plugins: { legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } } }
         }
     });
 }
