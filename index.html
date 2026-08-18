@@ -11,7 +11,7 @@
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; margin: 0; padding: 20px; color: #333; }
         .header { text-align: center; background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #334155; }
         
-        /* NUEVA ESTRUCTURA DE 3 COLUMNAS */
+        /* ESTRUCTURA DE 3 COLUMNAS */
         .grid { display: grid; grid-template-columns: minmax(380px, 1fr) minmax(500px, 1.5fr) minmax(420px, 1fr); gap: 25px; max-width: 100%; margin: 0 auto; }
         
         @media (max-width: 1400px) { .grid { grid-template-columns: 1fr 1fr; } }
@@ -32,7 +32,7 @@
         .fs-match-header { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; }
         .fs-col { flex: 1; background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
         
-        /* DISEÑO DE INPUTS MASIVOS (FORMULARIO PRINCIPAL Y MODAL) */
+        /* DISEÑO DE INPUTS MASIVOS */
         .fs-shared { background: #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .fs-shared input { font-size: 1.5rem; font-weight: bold; height: 50px; }
         .fs-match-header select, .fs-match-header input { font-size: 1.1rem; font-weight: bold; height: 45px; text-align: center; }
@@ -49,7 +49,7 @@
         .flex-row { display: flex; gap: 10px; }
         .flex-1 { flex: 1; }
         
-        /* ESCÁNER HORIZONTAL Y LIMPIO */
+        /* ESCÁNER HORIZONTAL */
         .scanner-wrapper { background: #1e293b; padding: 15px 20px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
         .scanner-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .scanner-title { margin: 0; color: #f8fafc; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; font-weight: bold; }
@@ -196,7 +196,7 @@
     <div class="col-3">
         <div class="card" style="border: 2px solid #e2e8f0; height: 95%;">
             <h3 style="color: #1e293b; margin-top: 0; font-size: 1.6rem; border-bottom: 3px solid #cbd5e1; padding-bottom: 10px;">📝 Historial Registrado</h3>
-            <p class="info-note" style="margin-top: 5px; margin-bottom: 15px;">Partidos individuales del equipo seleccionado. Puedes editarlos en caso de un mal escaneo o borrarlos.</p>
+            <p class="info-note" style="margin-top: 5px; margin-bottom: 15px;">Partidos individuales del equipo seleccionado. Puedes editarlos o borrarlos aquí.</p>
             
             <div style="overflow-x: auto; max-height: 800px; overflow-y: auto;">
                 <table style="width: 100%; min-width: 400px;">
@@ -226,7 +226,7 @@
             <button class="close-btn" onclick="cerrarModal()">✖</button>
         </div>
         
-        <!-- Variables Ocultas para buscar el registro original -->
+        <!-- Variables Ocultas para ubicar la posición exacta del registro -->
         <input type="hidden" id="editIndex">
         <input type="hidden" id="editOldOpponent">
 
@@ -238,11 +238,11 @@
         <div class="fs-match-header">
             <div class="fs-col" style="padding: 10px;">
                 <label style="text-align:center;">Equipo Local (Tú)</label>
-                <input type="text" id="editEqIzq" disabled style="background:#e2e8f0; color:#1e293b; border:none;">
+                <input type="text" id="editEqIzq" disabled style="background:#e2e8f0; color:#1e293b; border:none; text-align:center; font-weight:bold;">
             </div>
             <div class="fs-col" style="padding: 10px; background:#fef3c7;">
                 <label style="text-align:center; color:#1d4ed8;">Oponente (Rival)</label>
-                <select id="editEqDer" style="border: 2px solid #3b82f6;"></select>
+                <select id="editEqDer" style="border: 2px solid #3b82f6; text-align:center; font-weight:bold; height:45px;"></select>
             </div>
         </div>
 
@@ -365,7 +365,7 @@ function procesarTextoDobleColumna(texto) {
 }
 
 // ============================================
-// MODAL DE EDICIÓN TOTAL (NUEVO)
+// MODAL DE EDICIÓN TOTAL RESPETANDO EL ÍNDICE
 // ============================================
 function abrirModalEdicion(equipo, index) {
     const p1 = BD_EQUIPOS[equipo][index];
@@ -375,7 +375,6 @@ function abrirModalEdicion(equipo, index) {
     let p2 = null;
     if (BD_EQUIPOS[oldOpponent]) {
         const resEsperado = p1.resultado === 'ganado' ? 'perdido' : (p1.resultado === 'perdido' ? 'ganado' : 'empate');
-        // Busca el partido espejo
         p2 = BD_EQUIPOS[oldOpponent].find(m => m.oponente === equipo && m.año === p1.año && m.resultado === resEsperado);
     }
 
@@ -405,17 +404,8 @@ function guardarEdicionTotal() {
     
     if (!newOpponent || equipo === newOpponent) { alert('Rival inválido.'); return; }
     
-    // 1. Borrar el registro original de ambos lados
     const p1_old = BD_EQUIPOS[equipo][index];
-    BD_EQUIPOS[equipo].splice(index, 1);
     
-    if (BD_EQUIPOS[oldOpponent]) {
-        const resEsperado = p1_old.resultado === 'ganado' ? 'perdido' : (p1_old.resultado === 'perdido' ? 'ganado' : 'empate');
-        const mirrorIndex = BD_EQUIPOS[oldOpponent].findIndex(m => m.oponente === equipo && m.año === p1_old.año && m.resultado === resEsperado);
-        if(mirrorIndex !== -1) BD_EQUIPOS[oldOpponent].splice(mirrorIndex, 1);
-    }
-    
-    // 2. Crear e insertar el nuevo par de registros con los datos editados
     const año = parseInt(document.getElementById('editAño').value, 10);
     const gI = +document.getElementById('e_golI').value; const gD = +document.getElementById('e_golD').value;
     let resIzq = gI > gD ? 'ganado' : (gI < gD ? 'perdido' : 'empate');
@@ -430,15 +420,32 @@ function guardarEdicionTotal() {
         corners: +document.getElementById('e_corD').value, amarillas: +document.getElementById('e_amaD').value, rojas: +document.getElementById('e_rojD').value
     };
 
-    if (!BD_EQUIPOS[equipo]) BD_EQUIPOS[equipo] = [];
-    if (!BD_EQUIPOS[newOpponent]) BD_EQUIPOS[newOpponent] = [];
+    // 1. REEMPLAZO EXACTO EN EL MISMO ÍNDICE (Evita que el partido se vaya hasta arriba)
+    BD_EQUIPOS[equipo][index] = partidoIzq;
     
-    // Lo empujamos de nuevo al historial
-    BD_EQUIPOS[equipo].push(partidoIzq);
-    BD_EQUIPOS[newOpponent].push(partidoDer);
+    // 2. ACTUALIZACIÓN INTELIGENTE DEL EQUIPO RIVAL
+    if (oldOpponent === newOpponent) {
+        // Si el oponente sigue siendo el mismo, buscamos su registro y lo reemplazamos
+        const resEsperado = p1_old.resultado === 'ganado' ? 'perdido' : (p1_old.resultado === 'perdido' ? 'ganado' : 'empate');
+        const mirrorIndex = BD_EQUIPOS[oldOpponent].findIndex(m => m.oponente === equipo && m.año === p1_old.año && m.resultado === resEsperado);
+        if(mirrorIndex !== -1) {
+            BD_EQUIPOS[oldOpponent][mirrorIndex] = partidoDer;
+        } else {
+            BD_EQUIPOS[oldOpponent].push(partidoDer); // Fallback en caso de que no existiera
+        }
+    } else {
+        // Si cambiaste de oponente en el menú, se borra del viejo y se inserta en el nuevo
+        if (BD_EQUIPOS[oldOpponent]) {
+            const resEsperado = p1_old.resultado === 'ganado' ? 'perdido' : (p1_old.resultado === 'perdido' ? 'ganado' : 'empate');
+            const mirrorIndex = BD_EQUIPOS[oldOpponent].findIndex(m => m.oponente === equipo && m.año === p1_old.año && m.resultado === resEsperado);
+            if(mirrorIndex !== -1) BD_EQUIPOS[oldOpponent].splice(mirrorIndex, 1);
+        }
+        if (!BD_EQUIPOS[newOpponent]) BD_EQUIPOS[newOpponent] = [];
+        BD_EQUIPOS[newOpponent].push(partidoDer);
+    }
     
     guardarBD(); cerrarModal(); actualizarSelectores(); analizarEquipo();
-    alert('Partido editado exitosamente en ambos equipos.');
+    alert('Partido editado exitosamente respetando el orden cronológico original.');
 }
 
 function borrarPartidoTotal(equipo, index) {
@@ -461,11 +468,11 @@ function renderTablaPartidos(equipo) {
     const tbody = document.getElementById('tablaPartidosList'); tbody.innerHTML = '';
     if (!equipo || !BD_EQUIPOS[equipo] || BD_EQUIPOS[equipo].length === 0) { tbody.innerHTML = '<tr><td colspan="5">No hay partidos registrados.</td></tr>'; return; }
     
-    // Mostramos los partidos ordenados por el año más reciente primero (opcional, visual)
+    // Mostramos los partidos de más reciente a más viejo visualmente, pero guardamos el index real
     const datosList = [...BD_EQUIPOS[equipo]].reverse();
     
     datosList.forEach((p, reverseIdx) => {
-        const realIdx = BD_EQUIPOS[equipo].length - 1 - reverseIdx; // Índice real para poder editar/borrar
+        const realIdx = BD_EQUIPOS[equipo].length - 1 - reverseIdx; 
         let colorRes = p.resultado === 'ganado' ? '#16a34a' : (p.resultado === 'perdido' ? '#dc2626' : '#d97706');
         let txtRes = p.resultado === 'ganado' ? 'G' : (p.resultado === 'perdido' ? 'P' : 'E');
         tbody.innerHTML += `
@@ -532,11 +539,20 @@ function analizarEquipo() {
 
     const recH2H = BD_H2H[generarKeyH2H(equipo, rival)];
     if (recH2H) {
-        box.innerHTML = `<strong style="color: #065f46; font-size: 1.1rem;">Historial H2H (${equipo} vs ${rival}):</strong><br>
-        <span style="display:inline-block; margin-top:5px; background:#d1fae5; padding:8px 12px; border-radius:4px; font-size:1.05rem;">
-        Partidos: <b>${recH2H.jugados}</b> | <span style="color:#16a34a">Victorias: <b>${(equipo === recH2H.eq1) ? recH2H.v1 : recH2H.v2}</b></span> | 
-        <span style="color:#d97706">Empates: <b>${recH2H.emp}</b></span> | <span style="color:#dc2626">Derrotas: <b>${(equipo === recH2H.eq1) ? recH2H.v2 : recH2H.v1}</b></span></span>`;
-    } else box.innerHTML = `⚠️ No hay <strong>Historial H2H</strong> registrado para <strong>${equipo}</strong> vs <strong>${rival}</strong>.`;
+        let misVictorias = (equipo === recH2H.eq1) ? recH2H.v1 : recH2H.v2;
+        let misDerrotas = (equipo === recH2H.eq1) ? recH2H.v2 : recH2H.v1;
+        box.innerHTML = `
+            <strong style="color: #065f46; font-size: 1.1rem;">Historial H2H (${equipo} vs ${rival}):</strong><br>
+            <span style="display:inline-block; margin-top:5px; background:#d1fae5; padding:8px 12px; border-radius:4px; font-size:1.05rem;">
+                Partidos: <b>${recH2H.jugados}</b> |
+                <span style="color:#16a34a">Victorias: <b>${misVictorias}</b></span> |
+                <span style="color:#d97706">Empates: <b>${recH2H.emp}</b></span> |
+                <span style="color:#dc2626">Derrotas: <b>${misDerrotas}</b></span>
+            </span>
+        `;
+    } else {
+        box.innerHTML = `⚠️ No hay <strong>Historial H2H</strong> registrado para <strong>${equipo}</strong> vs <strong>${rival}</strong>.`;
+    }
 
     const datosRival = todosLosDatos.filter(p => p.oponente === rival);
     if (datosRival.length === 0) { box.innerHTML += `<br><br><em>No hay estadísticas en plataforma entre estos equipos para proyectar el próximo encuentro.</em>`; tabla.style.display = 'none'; renderTablaPartidos(equipo); return; }
@@ -544,10 +560,11 @@ function analizarEquipo() {
     tbody.innerHTML = ''; const predX = datosRival.length + 1;
     metricasParams.forEach(m => {
         const r = calcularRegresion(datosRival, m); const promedio = datosRival.reduce((a, c) => a + (Number(c[m]) || 0), 0) / datosRival.length;
-        tbody.innerHTML += `<tr><td><strong>${nombresMetricas[m]}</strong></td><td>${promedio.toFixed(2)}</td><td><strong style="color:#059669; font-size:1.15rem;">${Math.max(0, r.m * predX + r.b).toFixed(2)}</strong></td></tr>`;
+        const prediccion = r.m * predX + r.b;
+        tbody.innerHTML += `<tr><td><strong>${nombresMetricas[m]}</strong></td><td>${promedio.toFixed(2)}</td><td><strong style="color:#059669; font-size:1.15rem;">${Math.max(0, prediccion).toFixed(2)}</strong></td></tr>`;
     });
     tabla.style.display = 'table';
-    renderTablaPartidos(equipo); // Renderiza la tabla final
+    renderTablaPartidos(equipo); 
 }
 
 function crearGraficaTodosParametros(datos) {
