@@ -23,7 +23,7 @@
         select { cursor: pointer; }
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; color: white; cursor: pointer; margin-top: 8px; transition: 0.2s; font-size: 1rem; }
         button:hover { opacity: 0.9; }
-        .btn-primary { background: #dc2626; }
+        .btn-primary { background: #0f172a; }
         .btn-success { background: #16a34a; }
         .btn-danger { background: #475569; }
         .btn-warning { background: #ea580c; }
@@ -63,9 +63,9 @@
         .info-note { font-size: 0.85rem; color: #64748b; margin-top: 8px; font-style: italic; }
 
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .stat-card { background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; }
-        .stat-card h4 { margin: 0 0 10px 0; color: #0f172a; text-align: center; font-size: 1.1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
-        .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95rem; }
+        .stat-card { background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .stat-card h4 { margin: 0 0 10px 0; color: #0f172a; text-align: center; font-size: 1.1rem; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.95rem; }
         .prob-bar { height: 25px; border-radius: 12px; display: flex; overflow: hidden; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .prob-segment { display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; transition: width 0.5s ease; }
 
@@ -154,37 +154,41 @@
                 </div>
             </div>
             
-            <button onclick="ejecutarModeloPredictivo()" class="btn-primary" style="font-size: 1.3rem; padding: 15px; margin-top: 15px; background: #0f172a;">⚡ Calcular Predicción vs Oponente</button>
+            <button onclick="ejecutarModeloPredictivo()" class="btn-primary" style="font-size: 1.3rem; padding: 15px; margin-top: 15px;">⚡ Calcular Predicción vs Oponente</button>
             
-            <!-- RESULTADOS INDIVIDUALES -->
+            <!-- RESULTADOS INDIVIDUALES (AHORA CON TODAS LAS MÉTRICAS) -->
             <div id="analisisIndividual" class="stat-grid" style="display:none;">
                 <div class="stat-card" style="border-top: 4px solid #16a34a;">
                     <h4 id="titEq1">Equipo 1</h4>
                     <div class="stat-row"><span>Rendimiento Histórico (V/E/D):</span> <strong id="rendEq1">0%</strong></div>
-                    <div class="stat-row"><span>V/E/D:</span> <strong id="vedEq1">0/0/0</strong></div>
-                    <hr style="border: 0.5px solid #f1f5f9; margin: 8px 0;">
-                    <div class="stat-row"><span>Tendencia Goles (Regresión):</span> <strong id="regGolEq1" style="color:#059669;">0.00</strong></div>
+                    <div class="stat-row"><span>V/E/D:</span> <strong id="vedEq1">0 / 0 / 0</strong></div>
+                    <hr style="border: 0.5px solid #e2e8f0; margin: 10px 0;">
+                    <div class="stat-row"><span>Tendencia Goles (Regresión):</span> <strong id="regGolEq1" style="color:#16a34a;">0.00</strong></div>
                     <div class="stat-row"><span>Tendencia Córneres:</span> <strong id="regCorEq1">0.00</strong></div>
+                    <div class="stat-row"><span>Tendencia Amarillas:</span> <strong id="regAmaEq1">0.00</strong></div>
+                    <div class="stat-row"><span>Tendencia Rojas:</span> <strong id="regRojEq1">0.00</strong></div>
                 </div>
                 
                 <div class="stat-card" style="border-top: 4px solid #dc2626;">
                     <h4 id="titEq2">Equipo 2</h4>
                     <div class="stat-row"><span>Rendimiento Histórico (V/E/D):</span> <strong id="rendEq2">0%</strong></div>
-                    <div class="stat-row"><span>V/E/D:</span> <strong id="vedEq2">0/0/0</strong></div>
-                    <hr style="border: 0.5px solid #f1f5f9; margin: 8px 0;">
+                    <div class="stat-row"><span>V/E/D:</span> <strong id="vedEq2">0 / 0 / 0</strong></div>
+                    <hr style="border: 0.5px solid #e2e8f0; margin: 10px 0;">
                     <div class="stat-row"><span>Tendencia Goles (Regresión):</span> <strong id="regGolEq2" style="color:#dc2626;">0.00</strong></div>
                     <div class="stat-row"><span>Tendencia Córneres:</span> <strong id="regCorEq2">0.00</strong></div>
+                    <div class="stat-row"><span>Tendencia Amarillas:</span> <strong id="regAmaEq2">0.00</strong></div>
+                    <div class="stat-row"><span>Tendencia Rojas:</span> <strong id="regRojEq2">0.00</strong></div>
                 </div>
             </div>
 
             <!-- PREDICCIÓN FINAL FUSIONADA -->
             <div id="resultadoEnfrentamiento" class="prediction-box" style="display:none;">
-                <h3>📊 Probabilidad Final de Enfrentamiento</h3>
+                <h3 style="display:flex; justify-content:center; align-items:center; gap:8px;">📊 Probabilidad Final de Enfrentamiento</h3>
                 <p class="info-note" style="text-align:center; margin-top:-10px;">(Calculado combinando métricas V/E/D con la línea de tendencia de Goles)</p>
                 
                 <div class="prob-bar">
                     <div id="barEq1" class="prob-segment" style="background:#16a34a; width: 33%;">33%</div>
-                    <div id="barEmp" class="prob-segment" style="background:#94a3b8; width: 34%;">34% (Emp)</div>
+                    <div id="barEmp" class="prob-segment" style="background:#94a3b8; width: 34%;">34%</div>
                     <div id="barEq2" class="prob-segment" style="background:#dc2626; width: 33%;">33%</div>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-top:5px; font-weight:bold; font-size:0.9rem;">
@@ -448,28 +452,40 @@ function ejecutarModeloPredictivo() {
     const datos1 = BD_EQUIPOS[eq1] || []; const datos2 = BD_EQUIPOS[eq2] || [];
     if(datos1.length === 0 || datos2.length === 0) { alert("Ambos equipos necesitan historial guardado para calcular."); return; }
 
+    // Cálculos individuales Equipo 1
     const ved1 = calcularVED(datos1);
     const regGol1 = calcularRegresionIndividual(datos1, 'goles');
     const regCor1 = calcularRegresionIndividual(datos1, 'corners');
+    const regAma1 = calcularRegresionIndividual(datos1, 'amarillas');
+    const regRoj1 = calcularRegresionIndividual(datos1, 'rojas');
     
+    // Cálculos individuales Equipo 2
     const ved2 = calcularVED(datos2);
     const regGol2 = calcularRegresionIndividual(datos2, 'goles');
     const regCor2 = calcularRegresionIndividual(datos2, 'corners');
+    const regAma2 = calcularRegresionIndividual(datos2, 'amarillas');
+    const regRoj2 = calcularRegresionIndividual(datos2, 'rojas');
     
+    // Renderizado en UI
     document.getElementById('titEq1').innerText = eq1;
     document.getElementById('rendEq1').innerText = ved1.pctRendimiento.toFixed(1) + "%";
     document.getElementById('vedEq1').innerText = `${ved1.v} / ${ved1.e} / ${ved1.d}`;
     document.getElementById('regGolEq1').innerText = regGol1.proj.toFixed(2);
     document.getElementById('regCorEq1').innerText = regCor1.proj.toFixed(2);
+    document.getElementById('regAmaEq1').innerText = regAma1.proj.toFixed(2);
+    document.getElementById('regRojEq1').innerText = regRoj1.proj.toFixed(2);
     
     document.getElementById('titEq2').innerText = eq2;
     document.getElementById('rendEq2').innerText = ved2.pctRendimiento.toFixed(1) + "%";
     document.getElementById('vedEq2').innerText = `${ved2.v} / ${ved2.e} / ${ved2.d}`;
     document.getElementById('regGolEq2').innerText = regGol2.proj.toFixed(2);
     document.getElementById('regCorEq2').innerText = regCor2.proj.toFixed(2);
+    document.getElementById('regAmaEq2').innerText = regAma2.proj.toFixed(2);
+    document.getElementById('regRojEq2').innerText = regRoj2.proj.toFixed(2);
     
     document.getElementById('analisisIndividual').style.display = 'grid';
 
+    // Algoritmo de probabilidad
     let probGol1 = (regGol1.proj / ((regGol1.proj + regGol2.proj) || 1)) * 100;
     let probGol2 = (regGol2.proj / ((regGol1.proj + regGol2.proj) || 1)) * 100;
     
@@ -537,7 +553,6 @@ function renderTablaPartidos() {
         let colorRes = p.resultado === 'ganado' ? '#16a34a' : (p.resultado === 'perdido' ? '#dc2626' : '#d97706');
         let txtRes = p.resultado === 'ganado' ? 'G' : (p.resultado === 'perdido' ? 'P' : 'E');
         
-        // Botones de Mover (Deshabilitamos si está en los extremos)
         let btnUp = realIdx < BD_EQUIPOS[equipo].length - 1 ? `<button onclick="moverPartido('${equipo}', ${realIdx}, 1)" style="background:#475569; padding:4px 6px; margin:0 1px; font-size:0.8rem;" title="Mover hacia el presente (Más reciente)">⬆️</button>` : `<button disabled style="background:#cbd5e1; padding:4px 6px; margin:0 1px; cursor:not-allowed; font-size:0.8rem;">⬆️</button>`;
         let btnDown = realIdx > 0 ? `<button onclick="moverPartido('${equipo}', ${realIdx}, -1)" style="background:#475569; padding:4px 6px; margin:0 1px; font-size:0.8rem;" title="Mover hacia el pasado (Más antiguo)">⬇️</button>` : `<button disabled style="background:#cbd5e1; padding:4px 6px; margin:0 1px; cursor:not-allowed; font-size:0.8rem;">⬇️</button>`;
 
@@ -558,7 +573,6 @@ function renderTablaPartidos() {
     });
 }
 
-// Función exclusiva para reordenar en la memoria y afectar la Regresión
 function moverPartido(equipo, index, direccion) {
     const arr = BD_EQUIPOS[equipo];
     const nuevoIndex = index + direccion;
@@ -572,7 +586,6 @@ function moverPartido(equipo, index, direccion) {
     guardarBD();
     renderTablaPartidos();
     
-    // Si la gráfica de ese equipo está visible, la forzamos a recalcularse con el nuevo orden
     const eq1 = document.getElementById('predEq1').value;
     const eq2 = document.getElementById('predEq2').value;
     if(eq1 === equipo || eq2 === equipo) {
