@@ -12,7 +12,7 @@
         .header { text-align: center; background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #334155; }
         
         /* ESTRUCTURA DE 3 COLUMNAS */
-        .grid { display: grid; grid-template-columns: minmax(350px, 1fr) minmax(500px, 1.5fr) minmax(420px, 1fr); gap: 25px; max-width: 100%; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: minmax(350px, 1fr) minmax(500px, 1.5fr) minmax(440px, 1fr); gap: 25px; max-width: 100%; margin: 0 auto; }
         @media (max-width: 1400px) { .grid { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
         
@@ -54,7 +54,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; }
-        th, td { padding: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+        th, td { padding: 8px 5px; text-align: center; border-bottom: 1px solid #e2e8f0; }
         th { background: #f8fafc; color: #1e293b; font-weight: 700; }
         
         .chart-container { height: 280px; margin-top: 15px; }
@@ -69,7 +69,6 @@
         .prob-bar { height: 25px; border-radius: 12px; display: flex; overflow: hidden; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .prob-segment { display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; transition: width 0.5s ease; }
 
-        /* MODAL DE EDICIÓN */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 1000; align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 550px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 95vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
@@ -124,14 +123,12 @@
             </form>
         </div>
         
-        <!-- ZONA DE IMPORTACIÓN Y EXPORTACIÓN -->
+        <!-- ZONA DE IMPORTACIÓN Y EXPORTACIÓN MASIVA -->
         <div class="card" style="border-top: 5px solid #3b82f6;">
-            <h2>💽 Gestión de Datos (Local)</h2>
-            <p class="info-note" style="margin-top:-5px;">Tus datos se guardan automáticamente en tu navegador.</p>
+            <h2>💽 Respaldo de Base de Datos</h2>
+            <p class="info-note" style="margin-top:-5px;">Tus datos se guardan en el navegador. Exporta todo periódicamente para no perderlos.</p>
             
-            <label>Exportar datos del equipo:</label>
-            <select id="exportEq" style="margin-bottom: 10px; font-weight:bold;"></select>
-            <button onclick="exportarJSONEquipo()" class="btn-info">⬇️ Exportar JSON del Equipo</button>
+            <button onclick="exportarJSONCompleto()" class="btn-info" style="margin-bottom: 20px; font-size: 1.1rem;">⬇️ Exportar Base de Datos Completa</button>
             
             <hr style="border: 1px solid #e2e8f0; margin: 20px 0;">
             
@@ -141,7 +138,7 @@
         </div>
     </div>
 
-    <!-- COLUMNA 2: MODELO PREDICTIVO (INDIVIDUAL Y ENFRENTAMIENTO) -->
+    <!-- COLUMNA 2: MODELO PREDICTIVO -->
     <div class="col-2">
         <div class="card" style="min-height: 95%;">
             <h2 style="font-size: 1.8rem; text-align: center;">Modelo Predictivo y Probabilidades</h2>
@@ -159,7 +156,7 @@
             
             <button onclick="ejecutarModeloPredictivo()" class="btn-primary" style="font-size: 1.3rem; padding: 15px; margin-top: 15px; background: #0f172a;">⚡ Calcular Predicción vs Oponente</button>
             
-            <!-- RESULTADOS DEL CÁLCULO INDIVIDUAL DE CADA EQUIPO -->
+            <!-- RESULTADOS INDIVIDUALES -->
             <div id="analisisIndividual" class="stat-grid" style="display:none;">
                 <div class="stat-card" style="border-top: 4px solid #16a34a;">
                     <h4 id="titEq1">Equipo 1</h4>
@@ -209,12 +206,12 @@
     <div class="col-3">
         <div class="card" style="border: 2px solid #e2e8f0; height: 95%;">
             <h3 style="color: #1e293b; margin-top: 0; font-size: 1.6rem; border-bottom: 3px solid #cbd5e1; padding-bottom: 10px;">📝 Historial Registrado</h3>
-            <p class="info-note" style="margin-top: 5px; margin-bottom: 15px;">Selecciona un equipo para ver y editar sus partidos.</p>
+            <p class="info-note" style="margin-top: 5px; margin-bottom: 15px;">Mueve el orden temporal, edita o elimina partidos. El orden de los partidos afectará directamente la regresión lineal.</p>
             
             <select id="histEq" onchange="renderTablaPartidos()" style="font-weight:bold; font-size:1.1rem; margin-bottom:15px; border:2px solid #94a3b8;"></select>
             
             <div style="overflow-x: auto; max-height: 700px; overflow-y: auto;">
-                <table style="width: 100%; min-width: 400px;">
+                <table style="width: 100%; min-width: 420px;">
                     <thead style="position: sticky; top: 0; background: #f1f5f9; z-index: 1;">
                         <tr><th>Año</th><th>Oponente</th><th>Res</th><th>Gol</th><th>Acciones</th></tr>
                     </thead>
@@ -276,7 +273,6 @@ const EQUIPOS_LIGA_MX = [
 let BD_EQUIPOS = {}; 
 let chartInstance = null;
 
-// Cargar datos al abrir (Persistencia Web)
 window.onload = function() {
     try {
         const dPartidos = localStorage.getItem('dashboard_bd_partidos'); 
@@ -286,7 +282,6 @@ window.onload = function() {
     llenarSelectsEquipos(); 
     actualizarSelectoresGlobales();
     
-    // Seleccionar por defecto en la tabla si hay datos
     const equiposDisponibles = Object.keys(BD_EQUIPOS).sort();
     if (equiposDisponibles.length > 0) { 
         document.getElementById('histEq').value = equiposDisponibles[0]; 
@@ -314,18 +309,15 @@ function llenarSelectsEquipos() {
 }
 
 function actualizarSelectoresGlobales() {
-    const selects = ['histEq', 'exportEq'];
-    selects.forEach(id => {
-        const sel = document.getElementById(id); if(!sel) return;
-        const valorActual = sel.value;
-        sel.innerHTML = '<option value="">-- Equipo --</option>';
-        Object.keys(BD_EQUIPOS).sort().forEach(eq => {
-            if (BD_EQUIPOS[eq].length > 0) {
-                const opt = document.createElement('option'); opt.value = eq; opt.textContent = eq; sel.appendChild(opt);
-            }
-        });
-        if (valorActual && BD_EQUIPOS[valorActual]) sel.value = valorActual;
+    const sel = document.getElementById('histEq'); if(!sel) return;
+    const valorActual = sel.value;
+    sel.innerHTML = '<option value="">-- Selecciona Equipo para Ver --</option>';
+    Object.keys(BD_EQUIPOS).sort().forEach(eq => {
+        if (BD_EQUIPOS[eq].length > 0) {
+            const opt = document.createElement('option'); opt.value = eq; opt.textContent = eq; sel.appendChild(opt);
+        }
     });
+    if (valorActual && BD_EQUIPOS[valorActual]) sel.value = valorActual;
 }
 
 // ============================================
@@ -352,8 +344,6 @@ document.getElementById('partidoForm').addEventListener('submit', function(e) {
     
     guardarBD(); 
     actualizarSelectoresGlobales(); 
-    
-    // Auto-mostrar en la tabla de la derecha
     document.getElementById('histEq').value = idIzq; 
     renderTablaPartidos();
     
@@ -382,20 +372,16 @@ function procesarTextoDobleColumna(texto) {
 }
 
 // ============================================
-// EXPORTAR E IMPORTAR JSON
+// EXPORTAR E IMPORTAR MASIVO JSON
 // ============================================
-function exportarJSONEquipo() {
-    const eq = document.getElementById('exportEq').value;
-    if(!eq || !BD_EQUIPOS[eq] || BD_EQUIPOS[eq].length === 0) { alert("Selecciona un equipo válido con datos."); return; }
+function exportarJSONCompleto() {
+    if(Object.keys(BD_EQUIPOS).length === 0) { alert("La base de datos está vacía."); return; }
     
-    // Solo exporta los datos ÚNICOS de ese equipo
-    const dataObj = {}; dataObj[eq] = BD_EQUIPOS[eq];
-    const dataStr = JSON.stringify(dataObj, null, 2);
-    
+    const dataStr = JSON.stringify(BD_EQUIPOS, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `LigaMX_Datos_${eq.replace(/\s+/g, '_')}.json`;
+    a.href = url; a.download = `LigaMX_Backup_Completo.json`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
@@ -422,18 +408,12 @@ function procesarArchivo(input) {
 function limpiarDatosPartidos() { if (confirm('¿Borrar TODOS los partidos de la memoria?')) { BD_EQUIPOS = {}; guardarBD(); location.reload(); } }
 
 // ============================================
-// MATEMÁTICAS INDIVIDUALES: V/E/D Y REGRESIÓN
+// MATEMÁTICAS INDIVIDUALES
 // ============================================
 function calcularVED(datos) {
-    let v = 0, e = 0, d = 0;
-    const total = datos.length;
+    let v = 0, e = 0, d = 0; const total = datos.length;
     if(total === 0) return { v:0, e:0, d:0, pctRendimiento:0 };
-    
-    datos.forEach(p => {
-        if(p.resultado === 'ganado') v++; else if(p.resultado === 'empate') e++; else d++;
-    });
-    
-    // Índice de rendimiento: V vale 1, E vale 0.5, D vale 0.
+    datos.forEach(p => { if(p.resultado === 'ganado') v++; else if(p.resultado === 'empate') e++; else d++; });
     const pctRendimiento = ((v + (e * 0.5)) / total) * 100;
     return { v, e, d, pctRendimiento };
 }
@@ -451,13 +431,12 @@ function calcularRegresionIndividual(datos, metrica) {
     const m = (den === 0 ? 0 : (n * sxy - sx * sy) / den);
     const b = (sy - (m * sx)) / n;
     
-    // Proyección del próximo partido (x = n + 1)
     const proj = Math.max(0, m * (n + 1) + b);
     return { m, b, proj };
 }
 
 // ============================================
-// EJECUCIÓN DEL MODELO PREDICTIVO (CRUCE)
+// MODELO PREDICTIVO (CRUCE)
 // ============================================
 function ejecutarModeloPredictivo() {
     const eq1 = document.getElementById('predEq1').value;
@@ -466,12 +445,9 @@ function ejecutarModeloPredictivo() {
     if(!eq1 || !eq2) { alert("Selecciona ambos equipos para el modelo."); return; }
     if(eq1 === eq2) { alert("Deben ser equipos diferentes."); return; }
     
-    const datos1 = BD_EQUIPOS[eq1] || [];
-    const datos2 = BD_EQUIPOS[eq2] || [];
-    
+    const datos1 = BD_EQUIPOS[eq1] || []; const datos2 = BD_EQUIPOS[eq2] || [];
     if(datos1.length === 0 || datos2.length === 0) { alert("Ambos equipos necesitan historial guardado para calcular."); return; }
 
-    // 1. Cálculo 100% individual y aislado por equipo
     const ved1 = calcularVED(datos1);
     const regGol1 = calcularRegresionIndividual(datos1, 'goles');
     const regCor1 = calcularRegresionIndividual(datos1, 'corners');
@@ -480,7 +456,6 @@ function ejecutarModeloPredictivo() {
     const regGol2 = calcularRegresionIndividual(datos2, 'goles');
     const regCor2 = calcularRegresionIndividual(datos2, 'corners');
     
-    // 2. Imprimir datos aislados en la interfaz
     document.getElementById('titEq1').innerText = eq1;
     document.getElementById('rendEq1').innerText = ved1.pctRendimiento.toFixed(1) + "%";
     document.getElementById('vedEq1').innerText = `${ved1.v} / ${ved1.e} / ${ved1.d}`;
@@ -495,9 +470,6 @@ function ejecutarModeloPredictivo() {
     
     document.getElementById('analisisIndividual').style.display = 'grid';
 
-    // 3. CRUCE: Algoritmo de Probabilidad
-    // Ponderación: 60% Tendencia (Goles Esperados) + 40% Histórico (Rendimiento VED)
-    
     let probGol1 = (regGol1.proj / ((regGol1.proj + regGol2.proj) || 1)) * 100;
     let probGol2 = (regGol2.proj / ((regGol1.proj + regGol2.proj) || 1)) * 100;
     
@@ -507,27 +479,22 @@ function ejecutarModeloPredictivo() {
     let raw1 = (probGol1 * 0.6) + (probHist1 * 0.4);
     let raw2 = (probGol2 * 0.6) + (probHist2 * 0.4);
     
-    // Probabilidad de empate base: disminuye mientras mayor sea la diferencia de fuerza
     let difFuerza = Math.abs(raw1 - raw2);
     let pEmpate = Math.max(0, 30 - difFuerza); 
     
-    // Ajustar a suma = 100%
     let sumTotal = raw1 + raw2 + pEmpate;
     let final1 = (raw1 / sumTotal) * 100;
     let final2 = (raw2 / sumTotal) * 100;
     let finalEmpate = (pEmpate / sumTotal) * 100;
     
-    // 4. Renderizar Barra de Probabilidad
     document.getElementById('barEq1').style.width = final1 + "%"; document.getElementById('barEq1').innerText = final1.toFixed(1) + "%";
     document.getElementById('barEmp').style.width = finalEmpate + "%"; document.getElementById('barEmp').innerText = finalEmpate.toFixed(1) + "%";
     document.getElementById('barEq2').style.width = final2 + "%"; document.getElementById('barEq2').innerText = final2.toFixed(1) + "%";
     
     document.getElementById('lblEq1').innerText = eq1;
     document.getElementById('lblEq2').innerText = eq2;
-    
     document.getElementById('resultadoEnfrentamiento').style.display = 'block';
 
-    // 5. Gráfica Comparativa de Goles (Líneas de tendencia cruzadas)
     dibujarGraficaComparativa(datos1, regGol1, eq1, datos2, regGol2, eq2);
 }
 
@@ -535,7 +502,6 @@ function dibujarGraficaComparativa(d1, r1, n1, d2, r2, n2) {
     const ctx = document.getElementById('grafica').getContext('2d');
     if (chartInstance) { chartInstance.destroy(); }
     
-    // Usamos la longitud del equipo que tenga más partidos como eje X base
     const maxLength = Math.max(d1.length, d2.length);
     const labels = []; for(let i=1; i<=maxLength+1; i++) labels.push(i <= maxLength ? `P${i}` : `Próximo`);
     
@@ -557,7 +523,7 @@ function dibujarGraficaComparativa(d1, r1, n1, d2, r2, n2) {
 }
 
 // ============================================
-// TABLA Y EDICIÓN EXACTA CON ÍNDICES
+// TABLA, EDICIÓN Y BOTONES DE REORDENAR
 // ============================================
 function renderTablaPartidos() {
     const equipo = document.getElementById('histEq').value;
@@ -570,19 +536,48 @@ function renderTablaPartidos() {
         const realIdx = BD_EQUIPOS[equipo].length - 1 - reverseIdx; 
         let colorRes = p.resultado === 'ganado' ? '#16a34a' : (p.resultado === 'perdido' ? '#dc2626' : '#d97706');
         let txtRes = p.resultado === 'ganado' ? 'G' : (p.resultado === 'perdido' ? 'P' : 'E');
+        
+        // Botones de Mover (Deshabilitamos si está en los extremos)
+        let btnUp = realIdx < BD_EQUIPOS[equipo].length - 1 ? `<button onclick="moverPartido('${equipo}', ${realIdx}, 1)" style="background:#475569; padding:4px 6px; margin:0 1px; font-size:0.8rem;" title="Mover hacia el presente (Más reciente)">⬆️</button>` : `<button disabled style="background:#cbd5e1; padding:4px 6px; margin:0 1px; cursor:not-allowed; font-size:0.8rem;">⬆️</button>`;
+        let btnDown = realIdx > 0 ? `<button onclick="moverPartido('${equipo}', ${realIdx}, -1)" style="background:#475569; padding:4px 6px; margin:0 1px; font-size:0.8rem;" title="Mover hacia el pasado (Más antiguo)">⬇️</button>` : `<button disabled style="background:#cbd5e1; padding:4px 6px; margin:0 1px; cursor:not-allowed; font-size:0.8rem;">⬇️</button>`;
+
         tbody.innerHTML += `
             <tr>
                 <td>${p.año}</td>
                 <td style="font-weight:bold; font-size:0.9rem;">${p.oponente}</td>
                 <td style="color:white; background:${colorRes}; border-radius:4px; font-weight:bold;">${txtRes}</td>
                 <td style="font-weight:bold;">${p.goles}</td>
-                <td>
-                    <button onclick="abrirModalEdicion('${equipo}', ${realIdx})" style="background:#3b82f6; padding:4px 8px; margin:0 2px; font-size:0.85rem; width:auto;">✏️</button>
-                    <button onclick="borrarPartidoTotal('${equipo}', ${realIdx})" style="background:#ef4444; padding:4px 8px; margin:0 2px; font-size:0.85rem; width:auto;">🗑️</button>
+                <td style="white-space:nowrap;">
+                    ${btnDown}
+                    ${btnUp}
+                    <button onclick="abrirModalEdicion('${equipo}', ${realIdx})" style="background:#3b82f6; padding:4px 8px; margin:0 2px; font-size:0.85rem;" title="Editar Todo">✏️</button>
+                    <button onclick="borrarPartidoTotal('${equipo}', ${realIdx})" style="background:#ef4444; padding:4px 8px; margin:0 2px; font-size:0.85rem;" title="Borrar Todo">🗑️</button>
                 </td>
             </tr>
         `;
     });
+}
+
+// Función exclusiva para reordenar en la memoria y afectar la Regresión
+function moverPartido(equipo, index, direccion) {
+    const arr = BD_EQUIPOS[equipo];
+    const nuevoIndex = index + direccion;
+
+    if (nuevoIndex < 0 || nuevoIndex >= arr.length) return;
+
+    const temp = arr[index];
+    arr[index] = arr[nuevoIndex];
+    arr[nuevoIndex] = temp;
+
+    guardarBD();
+    renderTablaPartidos();
+    
+    // Si la gráfica de ese equipo está visible, la forzamos a recalcularse con el nuevo orden
+    const eq1 = document.getElementById('predEq1').value;
+    const eq2 = document.getElementById('predEq2').value;
+    if(eq1 === equipo || eq2 === equipo) {
+        ejecutarModeloPredictivo();
+    }
 }
 
 function abrirModalEdicion(equipo, index) {
@@ -628,7 +623,7 @@ function guardarEdicionTotal() {
     const pIzq = { oponente: newOpponent, año: año, resultado: resIzq, goles: gI, corners: +document.getElementById('e_corI').value, amarillas: +document.getElementById('e_amaI').value, rojas: +document.getElementById('e_rojI').value };
     const pDer = { oponente: equipo, año: año, resultado: resDer, goles: gD, corners: +document.getElementById('e_corD').value, amarillas: +document.getElementById('e_amaD').value, rojas: +document.getElementById('e_rojD').value };
 
-    BD_EQUIPOS[equipo][index] = pIzq; // Respeta el índice original
+    BD_EQUIPOS[equipo][index] = pIzq; 
     
     if (oldOpponent === newOpponent) {
         const resEsperado = p1_old.resultado === 'ganado' ? 'perdido' : (p1_old.resultado === 'perdido' ? 'ganado' : 'empate');
@@ -645,7 +640,10 @@ function guardarEdicionTotal() {
         BD_EQUIPOS[newOpponent].push(pDer);
     }
     
-    guardarBD(); cerrarModal(); renderTablaPartidos(); actualizarSelectoresGlobales(); alert('Editado correctamente.');
+    guardarBD(); cerrarModal(); renderTablaPartidos(); actualizarSelectoresGlobales();
+    const eq1 = document.getElementById('predEq1').value;
+    const eq2 = document.getElementById('predEq2').value;
+    if(eq1 === equipo || eq2 === equipo) ejecutarModeloPredictivo();
 }
 
 function borrarPartidoTotal(equipo, index) {
@@ -657,6 +655,10 @@ function borrarPartidoTotal(equipo, index) {
             if(mirrorIndex !== -1) BD_EQUIPOS[opponent].splice(mirrorIndex, 1);
         }
         BD_EQUIPOS[equipo].splice(index, 1); guardarBD(); renderTablaPartidos();
+        
+        const eq1 = document.getElementById('predEq1').value;
+        const eq2 = document.getElementById('predEq2').value;
+        if(eq1 === equipo || eq2 === equipo) ejecutarModeloPredictivo();
     }
 }
 </script>
