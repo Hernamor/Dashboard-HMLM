@@ -69,6 +69,15 @@
         .prob-bar { height: 25px; border-radius: 12px; display: flex; overflow: hidden; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .prob-segment { display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; transition: width 0.5s ease; }
 
+        /* NUEVA CAJA DE INTERPRETACIÓN */
+        .interpretacion-box { display: none; background: #f8fafc; border: 1px solid #cbd5e1; padding: 20px; border-radius: 8px; margin-top: 15px; }
+        .interpretacion-box h4 { margin-top: 0; margin-bottom: 15px; color: #0f172a; font-size: 1.1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+        .int-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9rem; }
+        .int-table th, .int-table td { text-align: center; padding: 8px; border-bottom: 1px solid #e2e8f0; }
+        .int-table th { background: #e2e8f0; color: #334155; }
+        .int-table .th-left { text-align: left; }
+        .int-table .td-left { text-align: left; font-weight: 600; color: #475569; }
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 1000; align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 550px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 95vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
@@ -200,6 +209,28 @@
                 </div>
             </div>
 
+            <!-- TABLA DE INTERPRETACIÓN AUTOMÁTICA -->
+            <div id="interpretacionContenedor" class="interpretacion-box">
+                <h4>Análisis del enfrentamiento</h4>
+                <table class="int-table">
+                    <thead>
+                        <tr>
+                            <th class="th-left">Métrica</th>
+                            <th id="thEqInt1">Local</th>
+                            <th id="thEqInt2">Visita</th>
+                            <th>Ventaja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="td-left">Ataque (A favor)</td><td id="tdAtq1">0.00</td><td id="tdAtq2">0.00</td><td id="tdVenAtq" style="font-weight: bold;">-</td></tr>
+                        <tr><td class="td-left">Defensa (En contra)</td><td id="tdDef1">0.00</td><td id="tdDef2">0.00</td><td id="tdVenDef" style="font-weight: bold;">-</td></tr>
+                        <tr><td class="td-left">Rendimiento V/E/D</td><td id="tdVed1">0.0%</td><td id="tdVed2">0.0%</td><td id="tdVenVed" style="font-weight: bold;">-</td></tr>
+                        <tr><td class="td-left">Córneres</td><td id="tdCor1">0.00</td><td id="tdCor2">0.00</td><td id="tdVenCor" style="font-weight: bold;">-</td></tr>
+                    </tbody>
+                </table>
+                <p style="margin: 0; font-size: 0.95rem; color: #1e293b;"><strong>Interpretación:</strong> <span id="textoInterpretacion"></span></p>
+            </div>
+
             <!-- GRÁFICA COMPARATIVA -->
             <div id="graficaContenedor" style="display:none;">
                 <p class="info-note" style="margin-top: 25px; text-align:center;">Líneas de tendencia de Goles a Favor (Ataque de cada equipo)</p>
@@ -327,7 +358,7 @@ function actualizarSelectoresGlobales() {
 }
 
 // ============================================
-// CARGA Y OCR DE PARTIDOS (AHORA CON golesRecibidos)
+// CARGA Y OCR DE PARTIDOS
 // ============================================
 document.getElementById('partidoForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -345,7 +376,7 @@ document.getElementById('partidoForm').addEventListener('submit', function(e) {
         año: año, 
         resultado: resIzq, 
         goles: gI, 
-        golesRecibidos: gD, // NUEVO
+        golesRecibidos: gD,
         corners: +document.getElementById('corIzq').value, 
         amarillas: +document.getElementById('amaIzq').value, 
         rojas: +document.getElementById('rojIzq').value 
@@ -356,7 +387,7 @@ document.getElementById('partidoForm').addEventListener('submit', function(e) {
         año: año, 
         resultado: resDer, 
         goles: gD, 
-        golesRecibidos: gI, // NUEVO
+        golesRecibidos: gI,
         corners: +document.getElementById('corDer').value, 
         amarillas: +document.getElementById('amaDer').value, 
         rojas: +document.getElementById('rojDer').value 
@@ -450,7 +481,7 @@ function calcularRegresionIndividual(datosTotales, metrica) {
     if (n === 0) return { m: 0, b: 0, proj: 0, promedio: 0, datosRecortados: [] };
     if (n === 1) {
         let val = Number(datos[0][metrica]);
-        if(isNaN(val)) val = 1.2; // Fallback para datos viejos
+        if(isNaN(val)) val = 1.2; 
         return { m: 0, b: val, proj: val, promedio: val, datosRecortados: datos };
     }
 
@@ -460,7 +491,6 @@ function calcularRegresionIndividual(datosTotales, metrica) {
     for (let i = 0; i < n; i++) {
         const x = i + 1;
         
-        // Manejo de datos heredados que no tenían golesRecibidos
         let y = Number(datos[i][metrica]);
         if(isNaN(y) || y === undefined) y = 1.2; 
         
@@ -488,7 +518,7 @@ function calcularRegresionIndividual(datosTotales, metrica) {
 }
 
 // ============================================
-// MODELO PREDICTIVO (ATAQUE vs DEFENSA)
+// MODELO PREDICTIVO Y LÓGICA DE INTERPRETACIÓN
 // ============================================
 function ejecutarModeloPredictivo() {
     const eq1 = document.getElementById('predEq1').value;
@@ -500,7 +530,6 @@ function ejecutarModeloPredictivo() {
     const datos1 = BD_EQUIPOS[eq1] || []; const datos2 = BD_EQUIPOS[eq2] || [];
     if(datos1.length === 0 || datos2.length === 0) { alert("Ambos equipos necesitan historial guardado para calcular."); return; }
 
-    // Eq 1
     const ved1 = calcularVED(datos1);
     const ataque1 = calcularRegresionIndividual(datos1, 'goles');
     const defensa1 = calcularRegresionIndividual(datos1, 'golesRecibidos');
@@ -508,7 +537,6 @@ function ejecutarModeloPredictivo() {
     const regAma1 = calcularRegresionIndividual(datos1, 'amarillas');
     const regRoj1 = calcularRegresionIndividual(datos1, 'rojas');
     
-    // Eq 2
     const ved2 = calcularVED(datos2);
     const ataque2 = calcularRegresionIndividual(datos2, 'goles');
     const defensa2 = calcularRegresionIndividual(datos2, 'golesRecibidos');
@@ -516,7 +544,6 @@ function ejecutarModeloPredictivo() {
     const regAma2 = calcularRegresionIndividual(datos2, 'amarillas');
     const regRoj2 = calcularRegresionIndividual(datos2, 'rojas');
     
-    // UI Update
     document.getElementById('titEq1').innerText = eq1;
     document.getElementById('rendEq1').innerText = ved1.pctRendimiento.toFixed(1) + "%";
     document.getElementById('vedEq1').innerText = `${ved1.v} / ${ved1.e} / ${ved1.d}`;
@@ -537,16 +564,12 @@ function ejecutarModeloPredictivo() {
     
     document.getElementById('analisisIndividual').style.display = 'grid';
 
-    // ========== CÁLCULO CON ATAQUE vs DEFENSA ==========
+    // Cálculo con Ataque vs Defensa
     const ventajaLocal = 0.25;
 
-    // Local = 60% su ataque + 40% defensa visitante + Localía
     let golLocal = (ataque1.proj * 0.60) + (defensa2.proj * 0.40) + ventajaLocal;
-
-    // Visitante = 60% su ataque + 40% defensa local
     let golVisita = (ataque2.proj * 0.60) + (defensa1.proj * 0.40);
 
-    // Evitar valores irreales
     golLocal  = Math.max(0.3, Math.min(golLocal, 3.8));
     golVisita = Math.max(0.3, Math.min(golVisita, 3.5));
 
@@ -569,14 +592,9 @@ function ejecutarModeloPredictivo() {
     let pEmpate = 0.28 - (diferencia * 0.55); 
     pEmpate = Math.max(0.16, Math.min(0.34, pEmpate)); 
 
-    let final1 = fuerza1 * (1 - pEmpate);
-    let final2 = fuerza2 * (1 - pEmpate);
-    let finalEmpate = pEmpate;
-
-    final1 *= 100;
-    final2 *= 100;
-    finalEmpate *= 100;
-    // ===================================================
+    let final1 = fuerza1 * (1 - pEmpate) * 100;
+    let final2 = fuerza2 * (1 - pEmpate) * 100;
+    let finalEmpate = pEmpate * 100;
     
     document.getElementById('barEq1').style.width = final1 + "%"; document.getElementById('barEq1').innerText = final1.toFixed(1) + "%";
     document.getElementById('barEmp').style.width = finalEmpate + "%"; document.getElementById('barEmp').innerText = finalEmpate.toFixed(1) + "%";
@@ -585,6 +603,86 @@ function ejecutarModeloPredictivo() {
     document.getElementById('lblEq1').innerText = eq1;
     document.getElementById('lblEq2').innerText = eq2;
     document.getElementById('resultadoEnfrentamiento').style.display = 'block';
+
+    // ========== GENERACIÓN DE LA TABLA Y TEXTO DE INTERPRETACIÓN ==========
+    const atq1Val = ataque1.proj; const atq2Val = ataque2.proj;
+    const def1Val = defensa1.proj; const def2Val = defensa2.proj;
+    const ved1Val = ved1.pctRendimiento; const ved2Val = ved2.pctRendimiento;
+    const cor1Val = regCor1.proj; const cor2Val = regCor2.proj;
+
+    document.getElementById('thEqInt1').innerText = eq1;
+    document.getElementById('thEqInt2').innerText = eq2;
+    
+    document.getElementById('tdAtq1').innerText = atq1Val.toFixed(2);
+    document.getElementById('tdAtq2').innerText = atq2Val.toFixed(2);
+    document.getElementById('tdDef1').innerText = def1Val.toFixed(2);
+    document.getElementById('tdDef2').innerText = def2Val.toFixed(2);
+    document.getElementById('tdVed1').innerText = ved1Val.toFixed(1) + "%";
+    document.getElementById('tdVed2').innerText = ved2Val.toFixed(1) + "%";
+    document.getElementById('tdCor1').innerText = cor1Val.toFixed(2);
+    document.getElementById('tdCor2').innerText = cor2Val.toFixed(2);
+
+    // Función para sacar al ganador de cada métrica (con un pequeño umbral para empate)
+    const getVentaja = (val1, val2, invertido = false) => {
+        const diff = Math.abs(val1 - val2);
+        if (diff < 0.12) return "Empate"; // Si la diferencia es menor a 0.12 goles, se considera parejo
+        if (invertido) return val1 < val2 ? eq1 : eq2; // En defensa, el menor número gana
+        return val1 > val2 ? eq1 : eq2; // En ataque y corners, el mayor gana
+    };
+
+    const venAtq = getVentaja(atq1Val, atq2Val);
+    const venDef = getVentaja(def1Val, def2Val, true);
+    const venCor = getVentaja(cor1Val, cor2Val);
+    
+    let venVed = "Empate";
+    if (Math.abs(ved1Val - ved2Val) > 3.0) { // Margen de 3% para histórico
+        venVed = ved1Val > ved2Val ? eq1 : eq2;
+    }
+
+    const aplicarColor = (elemId, ventaja) => {
+        const elem = document.getElementById(elemId);
+        elem.innerText = ventaja;
+        elem.style.color = ventaja === eq1 ? '#16a34a' : (ventaja === eq2 ? '#dc2626' : '#64748b');
+    };
+
+    aplicarColor('tdVenAtq', venAtq);
+    aplicarColor('tdVenDef', venDef);
+    aplicarColor('tdVenVed', venVed);
+    aplicarColor('tdVenCor', venCor);
+
+    // Lógica para redactar la interpretación automática
+    let textoInt = "";
+    const favFinal = final1 > final2 ? eq1 : eq2;
+    const diffFinal = Math.abs(final1 - final2);
+
+    if (diffFinal <= 8) {
+        textoInt += `Partido muy parejo y de pronóstico reservado. `;
+    } else if (diffFinal <= 18) {
+        textoInt += `Ligera ventaja matemática para ${favFinal}. `;
+    } else {
+        textoInt += `Claro favoritismo en las estadísticas para ${favFinal}. `;
+    }
+
+    if (venAtq === venDef && venAtq !== "Empate") {
+        textoInt += `${venAtq} domina el cruce teniendo mejor proyección tanto en ataque como en defensa. `;
+    } else {
+        if (venAtq !== "Empate" && venDef !== "Empate") {
+             textoInt += `${venAtq} tiene mejor pegada ofensiva, pero ${venDef} muestra mucha más solidez atrás. `;
+        } else if (venAtq !== "Empate") {
+             textoInt += `${venAtq} tiene ventaja por su volumen de ataque. `;
+        } else if (venDef !== "Empate") {
+             textoInt += `${venDef} tiene ventaja gracias a su muralla defensiva. `;
+        }
+    }
+
+    if (favFinal === eq1 && diffFinal <= 12) {
+        textoInt += `La condición de local termina siendo el factor clave para inclinar la balanza a favor de ${eq1}.`;
+    } else if (favFinal === eq2 && final2 > final1) {
+        textoInt += `A pesar de jugar de visitante, el peso de los números respalda a ${eq2}.`;
+    }
+
+    document.getElementById('textoInterpretacion').innerText = textoInt;
+    document.getElementById('interpretacionContenedor').style.display = 'block';
 
     dibujarGraficaComparativa(ataque1, eq1, ataque2, eq2);
 }
@@ -716,7 +814,6 @@ function guardarEdicionTotal() {
     let resIzq = gI > gD ? 'ganado' : (gI < gD ? 'perdido' : 'empate');
     let resDer = resIzq === 'ganado' ? 'perdido' : (resIzq === 'perdido' ? 'ganado' : 'empate');
 
-    // AHORA CON golesRecibidos EN EDICIÓN TAMBIÉN
     const pIzq = { 
         oponente: newOpponent, año: año, resultado: resIzq, 
         goles: gI, golesRecibidos: gD, 
