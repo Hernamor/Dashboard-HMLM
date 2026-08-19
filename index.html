@@ -64,7 +64,7 @@
 
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
         .stat-card { background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .stat-card h4 { margin: 0 0 10px 0; color: #0f172a; text-align: center; font-size: 1.1rem; }
+        .stat-card h4 { margin: 0 0 10px 0; color: #0f172a; text-align: center; font-size: 1.1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
         .stat-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.95rem; }
         .prob-bar { height: 25px; border-radius: 12px; display: flex; overflow: hidden; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .prob-segment { display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; transition: width 0.5s ease; }
@@ -156,14 +156,15 @@
             
             <button onclick="ejecutarModeloPredictivo()" class="btn-primary" style="font-size: 1.3rem; padding: 15px; margin-top: 15px;">⚡ Calcular Predicción vs Oponente</button>
             
-            <!-- RESULTADOS INDIVIDUALES (AHORA CON TODAS LAS MÉTRICAS) -->
+            <!-- RESULTADOS INDIVIDUALES PONDERADOS -->
             <div id="analisisIndividual" class="stat-grid" style="display:none;">
                 <div class="stat-card" style="border-top: 4px solid #16a34a;">
                     <h4 id="titEq1">Equipo 1</h4>
                     <div class="stat-row"><span>Rendimiento Histórico (V/E/D):</span> <strong id="rendEq1">0%</strong></div>
                     <div class="stat-row"><span>V/E/D:</span> <strong id="vedEq1">0 / 0 / 0</strong></div>
                     <hr style="border: 0.5px solid #e2e8f0; margin: 10px 0;">
-                    <div class="stat-row"><span>Tendencia Goles (Regresión):</span> <strong id="regGolEq1" style="color:#16a34a;">0.00</strong></div>
+                    <div class="stat-row"><span>Tendencia Ataque (Goles):</span> <strong id="regGolEq1" style="color:#16a34a;">0.00</strong></div>
+                    <div class="stat-row"><span>Tendencia Defensa (En contra):</span> <strong id="regDefEq1" style="color:#ca8a04;">0.00</strong></div>
                     <div class="stat-row"><span>Tendencia Córneres:</span> <strong id="regCorEq1">0.00</strong></div>
                     <div class="stat-row"><span>Tendencia Amarillas:</span> <strong id="regAmaEq1">0.00</strong></div>
                     <div class="stat-row"><span>Tendencia Rojas:</span> <strong id="regRojEq1">0.00</strong></div>
@@ -174,7 +175,8 @@
                     <div class="stat-row"><span>Rendimiento Histórico (V/E/D):</span> <strong id="rendEq2">0%</strong></div>
                     <div class="stat-row"><span>V/E/D:</span> <strong id="vedEq2">0 / 0 / 0</strong></div>
                     <hr style="border: 0.5px solid #e2e8f0; margin: 10px 0;">
-                    <div class="stat-row"><span>Tendencia Goles (Regresión):</span> <strong id="regGolEq2" style="color:#dc2626;">0.00</strong></div>
+                    <div class="stat-row"><span>Tendencia Ataque (Goles):</span> <strong id="regGolEq2" style="color:#dc2626;">0.00</strong></div>
+                    <div class="stat-row"><span>Tendencia Defensa (En contra):</span> <strong id="regDefEq2" style="color:#ca8a04;">0.00</strong></div>
                     <div class="stat-row"><span>Tendencia Córneres:</span> <strong id="regCorEq2">0.00</strong></div>
                     <div class="stat-row"><span>Tendencia Amarillas:</span> <strong id="regAmaEq2">0.00</strong></div>
                     <div class="stat-row"><span>Tendencia Rojas:</span> <strong id="regRojEq2">0.00</strong></div>
@@ -184,7 +186,7 @@
             <!-- PREDICCIÓN FINAL FUSIONADA -->
             <div id="resultadoEnfrentamiento" class="prediction-box" style="display:none;">
                 <h3 style="display:flex; justify-content:center; align-items:center; gap:8px;">📊 Probabilidad Final de Enfrentamiento</h3>
-                <p class="info-note" style="text-align:center; margin-top:-10px;">(Calculado combinando métricas V/E/D con la línea de tendencia de Goles)</p>
+                <p class="info-note" style="text-align:center; margin-top:-10px;">(Cálculo cruzado: Ataque vs Defensa + Rendimiento Histórico + Localía)</p>
                 
                 <div class="prob-bar">
                     <div id="barEq1" class="prob-segment" style="background:#16a34a; width: 33%;">33%</div>
@@ -198,9 +200,9 @@
                 </div>
             </div>
 
-            <!-- GRÁFICA COMPARATIVA OPCIONAL -->
+            <!-- GRÁFICA COMPARATIVA -->
             <div id="graficaContenedor" style="display:none;">
-                <p class="info-note" style="margin-top: 25px; text-align:center;">Líneas de tendencia de Goles (Proyección de cada equipo aislada)</p>
+                <p class="info-note" style="margin-top: 25px; text-align:center;">Líneas de tendencia de Goles a Favor (Ataque de cada equipo)</p>
                 <div class="chart-container"><canvas id="grafica"></canvas></div>
             </div>
         </div>
@@ -210,7 +212,7 @@
     <div class="col-3">
         <div class="card" style="border: 2px solid #e2e8f0; height: 95%;">
             <h3 style="color: #1e293b; margin-top: 0; font-size: 1.6rem; border-bottom: 3px solid #cbd5e1; padding-bottom: 10px;">📝 Historial Registrado</h3>
-            <p class="info-note" style="margin-top: 5px; margin-bottom: 15px;">Mueve el orden temporal, edita o elimina partidos. El orden de los partidos afectará directamente la regresión lineal.</p>
+            <p class="info-note" style="margin-top: 5px; margin-bottom: 15px;">Mueve el orden temporal, edita o elimina partidos. El orden afectará directamente la regresión lineal ponderada.</p>
             
             <select id="histEq" onchange="renderTablaPartidos()" style="font-weight:bold; font-size:1.1rem; margin-bottom:15px; border:2px solid #94a3b8;"></select>
             
@@ -325,7 +327,7 @@ function actualizarSelectoresGlobales() {
 }
 
 // ============================================
-// CARGA Y OCR DE PARTIDOS
+// CARGA Y OCR DE PARTIDOS (AHORA CON golesRecibidos)
 // ============================================
 document.getElementById('partidoForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -338,8 +340,27 @@ document.getElementById('partidoForm').addEventListener('submit', function(e) {
     let resIzq = gI > gD ? 'ganado' : (gI < gD ? 'perdido' : 'empate'); 
     let resDer = resIzq === 'ganado' ? 'perdido' : (resIzq === 'perdido' ? 'ganado' : 'empate');
 
-    const pIzq = { oponente: idDer, año: año, resultado: resIzq, goles: gI, corners: +document.getElementById('corIzq').value, amarillas: +document.getElementById('amaIzq').value, rojas: +document.getElementById('rojIzq').value };
-    const pDer = { oponente: idIzq, año: año, resultado: resDer, goles: gD, corners: +document.getElementById('corDer').value, amarillas: +document.getElementById('amaDer').value, rojas: +document.getElementById('rojDer').value };
+    const pIzq = { 
+        oponente: idDer, 
+        año: año, 
+        resultado: resIzq, 
+        goles: gI, 
+        golesRecibidos: gD, // NUEVO
+        corners: +document.getElementById('corIzq').value, 
+        amarillas: +document.getElementById('amaIzq').value, 
+        rojas: +document.getElementById('rojIzq').value 
+    };
+    
+    const pDer = { 
+        oponente: idIzq, 
+        año: año, 
+        resultado: resDer, 
+        goles: gD, 
+        golesRecibidos: gI, // NUEVO
+        corners: +document.getElementById('corDer').value, 
+        amarillas: +document.getElementById('amaDer').value, 
+        rojas: +document.getElementById('rojDer').value 
+    };
 
     if (!BD_EQUIPOS[idIzq]) BD_EQUIPOS[idIzq] = []; if (!BD_EQUIPOS[idDer]) BD_EQUIPOS[idDer] = [];
     
@@ -380,7 +401,6 @@ function procesarTextoDobleColumna(texto) {
 // ============================================
 function exportarJSONCompleto() {
     if(Object.keys(BD_EQUIPOS).length === 0) { alert("La base de datos está vacía."); return; }
-    
     const dataStr = JSON.stringify(BD_EQUIPOS, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -412,9 +432,10 @@ function procesarArchivo(input) {
 function limpiarDatosPartidos() { if (confirm('¿Borrar TODOS los partidos de la memoria?')) { BD_EQUIPOS = {}; guardarBD(); location.reload(); } }
 
 // ============================================
-// MATEMÁTICAS INDIVIDUALES
+// MATEMÁTICAS INDIVIDUALES PONDERADAS
 // ============================================
-function calcularVED(datos) {
+function calcularVED(datosTotales) {
+    const datos = datosTotales.slice(-12);
     let v = 0, e = 0, d = 0; const total = datos.length;
     if(total === 0) return { v:0, e:0, d:0, pctRendimiento:0 };
     datos.forEach(p => { if(p.resultado === 'ganado') v++; else if(p.resultado === 'empate') e++; else d++; });
@@ -422,25 +443,52 @@ function calcularVED(datos) {
     return { v, e, d, pctRendimiento };
 }
 
-function calcularRegresionIndividual(datos, metrica) {
-    const n = datos.length; if (n === 0) return { m: 0, b: 0, proj: 0 }; 
-    if (n === 1) return { m: 0, b: datos[0][metrica], proj: datos[0][metrica] };
-    
-    let sx = 0, sy = 0, sxy = 0, sx2 = 0;
-    for (let i = 0; i < n; i++) { 
-        const x = i + 1; const y = Number(datos[i][metrica]) || 0; 
-        sx += x; sy += y; sxy += x * y; sx2 += x * x; 
+function calcularRegresionIndividual(datosTotales, metrica) {
+    const datos = datosTotales.slice(-12);
+    const n = datos.length;
+
+    if (n === 0) return { m: 0, b: 0, proj: 0, promedio: 0, datosRecortados: [] };
+    if (n === 1) {
+        let val = Number(datos[0][metrica]);
+        if(isNaN(val)) val = 1.2; // Fallback para datos viejos
+        return { m: 0, b: val, proj: val, promedio: val, datosRecortados: datos };
     }
-    const den = n * sx2 - sx * sx; 
-    const m = (den === 0 ? 0 : (n * sxy - sx * sy) / den);
-    const b = (sy - (m * sx)) / n;
-    
-    const proj = Math.max(0, m * (n + 1) + b);
-    return { m, b, proj };
+
+    let sx = 0, sy = 0, sxy = 0, sx2 = 0, sumW = 0;
+    let sumaValores = 0;
+
+    for (let i = 0; i < n; i++) {
+        const x = i + 1;
+        
+        // Manejo de datos heredados que no tenían golesRecibidos
+        let y = Number(datos[i][metrica]);
+        if(isNaN(y) || y === undefined) y = 1.2; 
+        
+        const w = 1 + (i * 0.25); 
+
+        sx  += w * x;
+        sy  += w * y;
+        sxy += w * x * y;
+        sx2 += w * x * x;
+        sumW += w;
+        sumaValores += y;
+    }
+
+    const den = (sumW * sx2) - (sx * sx);
+    const m = (den === 0) ? 0 : ((sumW * sxy) - (sx * sy)) / den;
+    const b = (sy - (m * sx)) / sumW;
+
+    let proj = m * (n + 1) + b;
+
+    const promedio = sumaValores / n;
+    proj = Math.max(0, Math.min(proj, promedio * 1.8)); 
+    proj = (proj * 0.7) + (promedio * 0.3); 
+
+    return { m, b, proj, promedio, n, datosRecortados: datos };
 }
 
 // ============================================
-// MODELO PREDICTIVO (CRUCE)
+// MODELO PREDICTIVO (ATAQUE vs DEFENSA)
 // ============================================
 function ejecutarModeloPredictivo() {
     const eq1 = document.getElementById('predEq1').value;
@@ -452,25 +500,28 @@ function ejecutarModeloPredictivo() {
     const datos1 = BD_EQUIPOS[eq1] || []; const datos2 = BD_EQUIPOS[eq2] || [];
     if(datos1.length === 0 || datos2.length === 0) { alert("Ambos equipos necesitan historial guardado para calcular."); return; }
 
-    // Cálculos individuales Equipo 1
+    // Eq 1
     const ved1 = calcularVED(datos1);
-    const regGol1 = calcularRegresionIndividual(datos1, 'goles');
+    const ataque1 = calcularRegresionIndividual(datos1, 'goles');
+    const defensa1 = calcularRegresionIndividual(datos1, 'golesRecibidos');
     const regCor1 = calcularRegresionIndividual(datos1, 'corners');
     const regAma1 = calcularRegresionIndividual(datos1, 'amarillas');
     const regRoj1 = calcularRegresionIndividual(datos1, 'rojas');
     
-    // Cálculos individuales Equipo 2
+    // Eq 2
     const ved2 = calcularVED(datos2);
-    const regGol2 = calcularRegresionIndividual(datos2, 'goles');
+    const ataque2 = calcularRegresionIndividual(datos2, 'goles');
+    const defensa2 = calcularRegresionIndividual(datos2, 'golesRecibidos');
     const regCor2 = calcularRegresionIndividual(datos2, 'corners');
     const regAma2 = calcularRegresionIndividual(datos2, 'amarillas');
     const regRoj2 = calcularRegresionIndividual(datos2, 'rojas');
     
-    // Renderizado en UI
+    // UI Update
     document.getElementById('titEq1').innerText = eq1;
     document.getElementById('rendEq1').innerText = ved1.pctRendimiento.toFixed(1) + "%";
     document.getElementById('vedEq1').innerText = `${ved1.v} / ${ved1.e} / ${ved1.d}`;
-    document.getElementById('regGolEq1').innerText = regGol1.proj.toFixed(2);
+    document.getElementById('regGolEq1').innerText = ataque1.proj.toFixed(2);
+    document.getElementById('regDefEq1').innerText = defensa1.proj.toFixed(2);
     document.getElementById('regCorEq1').innerText = regCor1.proj.toFixed(2);
     document.getElementById('regAmaEq1').innerText = regAma1.proj.toFixed(2);
     document.getElementById('regRojEq1').innerText = regRoj1.proj.toFixed(2);
@@ -478,30 +529,54 @@ function ejecutarModeloPredictivo() {
     document.getElementById('titEq2').innerText = eq2;
     document.getElementById('rendEq2').innerText = ved2.pctRendimiento.toFixed(1) + "%";
     document.getElementById('vedEq2').innerText = `${ved2.v} / ${ved2.e} / ${ved2.d}`;
-    document.getElementById('regGolEq2').innerText = regGol2.proj.toFixed(2);
+    document.getElementById('regGolEq2').innerText = ataque2.proj.toFixed(2);
+    document.getElementById('regDefEq2').innerText = defensa2.proj.toFixed(2);
     document.getElementById('regCorEq2').innerText = regCor2.proj.toFixed(2);
     document.getElementById('regAmaEq2').innerText = regAma2.proj.toFixed(2);
     document.getElementById('regRojEq2').innerText = regRoj2.proj.toFixed(2);
     
     document.getElementById('analisisIndividual').style.display = 'grid';
 
-    // Algoritmo de probabilidad
-    let probGol1 = (regGol1.proj / ((regGol1.proj + regGol2.proj) || 1)) * 100;
-    let probGol2 = (regGol2.proj / ((regGol1.proj + regGol2.proj) || 1)) * 100;
-    
-    let probHist1 = (ved1.pctRendimiento / ((ved1.pctRendimiento + ved2.pctRendimiento) || 1)) * 100;
-    let probHist2 = (ved2.pctRendimiento / ((ved1.pctRendimiento + ved2.pctRendimiento) || 1)) * 100;
-    
-    let raw1 = (probGol1 * 0.6) + (probHist1 * 0.4);
-    let raw2 = (probGol2 * 0.6) + (probHist2 * 0.4);
-    
-    let difFuerza = Math.abs(raw1 - raw2);
-    let pEmpate = Math.max(0, 30 - difFuerza); 
-    
-    let sumTotal = raw1 + raw2 + pEmpate;
-    let final1 = (raw1 / sumTotal) * 100;
-    let final2 = (raw2 / sumTotal) * 100;
-    let finalEmpate = (pEmpate / sumTotal) * 100;
+    // ========== CÁLCULO CON ATAQUE vs DEFENSA ==========
+    const ventajaLocal = 0.25;
+
+    // Local = 60% su ataque + 40% defensa visitante + Localía
+    let golLocal = (ataque1.proj * 0.60) + (defensa2.proj * 0.40) + ventajaLocal;
+
+    // Visitante = 60% su ataque + 40% defensa local
+    let golVisita = (ataque2.proj * 0.60) + (defensa1.proj * 0.40);
+
+    // Evitar valores irreales
+    golLocal  = Math.max(0.3, Math.min(golLocal, 3.8));
+    golVisita = Math.max(0.3, Math.min(golVisita, 3.5));
+
+    const totalGoles = golLocal + golVisita || 1;
+    let fuerza1 = golLocal / totalGoles;
+    let fuerza2 = golVisita / totalGoles;
+
+    const hist1 = ved1.pctRendimiento / 100;
+    const hist2 = ved2.pctRendimiento / 100;
+    const totalHist = hist1 + hist2 || 1;
+
+    fuerza1 = (fuerza1 * 0.75) + ((hist1 / totalHist) * 0.25);
+    fuerza2 = (fuerza2 * 0.75) + ((hist2 / totalHist) * 0.25);
+
+    const sumaF = fuerza1 + fuerza2;
+    fuerza1 /= sumaF;
+    fuerza2 /= sumaF;
+
+    const diferencia = Math.abs(fuerza1 - fuerza2);
+    let pEmpate = 0.28 - (diferencia * 0.55); 
+    pEmpate = Math.max(0.16, Math.min(0.34, pEmpate)); 
+
+    let final1 = fuerza1 * (1 - pEmpate);
+    let final2 = fuerza2 * (1 - pEmpate);
+    let finalEmpate = pEmpate;
+
+    final1 *= 100;
+    final2 *= 100;
+    finalEmpate *= 100;
+    // ===================================================
     
     document.getElementById('barEq1').style.width = final1 + "%"; document.getElementById('barEq1').innerText = final1.toFixed(1) + "%";
     document.getElementById('barEmp').style.width = finalEmpate + "%"; document.getElementById('barEmp').innerText = finalEmpate.toFixed(1) + "%";
@@ -511,26 +586,34 @@ function ejecutarModeloPredictivo() {
     document.getElementById('lblEq2').innerText = eq2;
     document.getElementById('resultadoEnfrentamiento').style.display = 'block';
 
-    dibujarGraficaComparativa(datos1, regGol1, eq1, datos2, regGol2, eq2);
+    dibujarGraficaComparativa(ataque1, eq1, ataque2, eq2);
 }
 
-function dibujarGraficaComparativa(d1, r1, n1, d2, r2, n2) {
+function dibujarGraficaComparativa(r1, n1, r2, n2) {
     const ctx = document.getElementById('grafica').getContext('2d');
     if (chartInstance) { chartInstance.destroy(); }
     
+    const d1 = r1.datosRecortados || [];
+    const d2 = r2.datosRecortados || [];
+
     const maxLength = Math.max(d1.length, d2.length);
     const labels = []; for(let i=1; i<=maxLength+1; i++) labels.push(i <= maxLength ? `P${i}` : `Próximo`);
     
-    const linea1 = []; for (let i = 1; i <= maxLength + 1; i++) linea1.push(Math.max(0, r1.m * i + r1.b));
-    const linea2 = []; for (let i = 1; i <= maxLength + 1; i++) linea2.push(Math.max(0, r2.m * i + r2.b));
+    const linea1 = []; 
+    for (let i = 1; i <= maxLength; i++) linea1.push(Math.max(0, r1.m * i + r1.b));
+    linea1.push(r1.proj); 
+    
+    const linea2 = []; 
+    for (let i = 1; i <= maxLength; i++) linea2.push(Math.max(0, r2.m * i + r2.b));
+    linea2.push(r2.proj); 
 
     chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [
-                { label: `Tendencia Goles: ${n1}`, data: linea1, borderColor: '#16a34a', backgroundColor: '#16a34a', borderWidth: 3, tension: 0.1 },
-                { label: `Tendencia Goles: ${n2}`, data: linea2, borderColor: '#dc2626', backgroundColor: '#dc2626', borderWidth: 3, tension: 0.1 }
+                { label: `Tendencia Ataque: ${n1}`, data: linea1, borderColor: '#16a34a', backgroundColor: '#16a34a', borderWidth: 3, tension: 0.1 },
+                { label: `Tendencia Ataque: ${n2}`, data: linea2, borderColor: '#dc2626', backgroundColor: '#dc2626', borderWidth: 3, tension: 0.1 }
             ]
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
@@ -633,8 +716,17 @@ function guardarEdicionTotal() {
     let resIzq = gI > gD ? 'ganado' : (gI < gD ? 'perdido' : 'empate');
     let resDer = resIzq === 'ganado' ? 'perdido' : (resIzq === 'perdido' ? 'ganado' : 'empate');
 
-    const pIzq = { oponente: newOpponent, año: año, resultado: resIzq, goles: gI, corners: +document.getElementById('e_corI').value, amarillas: +document.getElementById('e_amaI').value, rojas: +document.getElementById('e_rojI').value };
-    const pDer = { oponente: equipo, año: año, resultado: resDer, goles: gD, corners: +document.getElementById('e_corD').value, amarillas: +document.getElementById('e_amaD').value, rojas: +document.getElementById('e_rojD').value };
+    // AHORA CON golesRecibidos EN EDICIÓN TAMBIÉN
+    const pIzq = { 
+        oponente: newOpponent, año: año, resultado: resIzq, 
+        goles: gI, golesRecibidos: gD, 
+        corners: +document.getElementById('e_corI').value, amarillas: +document.getElementById('e_amaI').value, rojas: +document.getElementById('e_rojI').value 
+    };
+    const pDer = { 
+        oponente: equipo, año: año, resultado: resDer, 
+        goles: gD, golesRecibidos: gI, 
+        corners: +document.getElementById('e_corD').value, amarillas: +document.getElementById('e_amaD').value, rojas: +document.getElementById('e_rojD').value 
+    };
 
     BD_EQUIPOS[equipo][index] = pIzq; 
     
