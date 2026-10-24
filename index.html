@@ -3,865 +3,788 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Predictivo - Flashscore H2H | Liga MX</title>
+    <title>Predictor Pro Liga MX - Motor CSV & Poisson</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-    
     <style>
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; margin: 0; padding: 20px; color: #333; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; margin: 0; padding: 20px; color: #1e293b; }
         .header { text-align: center; background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #334155; }
-        
-        /* ESTRUCTURA DE 3 COLUMNAS */
-        .grid { display: grid; grid-template-columns: minmax(350px, 1fr) minmax(500px, 1.5fr) minmax(440px, 1fr); gap: 25px; max-width: 100%; margin: 0 auto; }
-        @media (max-width: 1400px) { .grid { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
-        
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; }
-        h2 { color: #0f172a; border-bottom: 4px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; font-size: 1.6rem; }
-        label { font-weight: 600; color: #475569; display: block; margin-bottom: 5px; font-size: 0.9rem; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 12px; box-sizing: border-box; background: #f8fafc; }
-        select { cursor: pointer; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; color: white; cursor: pointer; margin-top: 8px; transition: 0.2s; font-size: 1rem; }
-        button:hover { opacity: 0.9; }
-        .btn-primary { background: #0f172a; }
+        .header h1 { margin: 0; font-size: 2rem; letter-spacing: 0.5px; }
+        .header p { margin: 6px 0 0 0; color: #94a3b8; font-size: 0.95rem; }
+
+        .grid { display: grid; grid-template-columns: 360px 1fr 420px; gap: 22px; max-width: 100%; margin: 0 auto; }
+        @media (max-width: 1450px) { .grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 950px) { .grid { grid-template-columns: 1fr; } }
+
+        .card { background: white; padding: 22px; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15); margin-bottom: 22px; }
+        h2 { color: #0f172a; border-bottom: 3px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; font-size: 1.35rem; }
+        h3 { color: #0f172a; margin-top: 0; font-size: 1.15rem; }
+        label { font-weight: 600; color: #475569; display: block; margin-bottom: 6px; font-size: 0.9rem; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; background: #f8fafc; font-size: 1rem; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; font-size: 1rem; margin-top: 6px; }
+        button:hover { opacity: 0.92; transform: translateY(-1px); }
+
+        .btn-primary { background: #2563eb; }
         .btn-success { background: #16a34a; }
-        .btn-danger { background: #475569; }
-        .btn-warning { background: #ea580c; }
-        .btn-info { background: #3b82f6; }
-        
-        .fs-match-header { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; }
-        .fs-col { flex: 1; background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        
-        .fs-shared { background: #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .fs-shared input { font-size: 1.5rem; font-weight: bold; height: 50px; }
-        .fs-match-header select, .fs-match-header input { font-size: 1.1rem; font-weight: bold; height: 45px; text-align: center; }
-        
-        .fs-row { display: flex; justify-content: center; align-items: center; gap: 15px; border-bottom: 2px solid #e2e8f0; padding: 15px 0; }
-        .fs-row:last-child { border-bottom: none; }
-        .fs-row label { margin: 0; text-align: center; width: 120px; flex: none; font-size: 1.1rem; font-weight: 700; color: #1e293b; }
-        .fs-row input { width: 75px; height: 60px; margin: 0; text-align: center; flex: none; font-size: 1.8rem; font-weight: 800; border: 2px solid #94a3b8; border-radius: 10px; color: #0f172a; }
-        .fs-row input:focus { border-color: #dc2626; outline: none; background: #fff; }
-        
-        .flex-row { display: flex; gap: 10px; }
-        .flex-1 { flex: 1; }
-        
-        .scanner-wrapper { background: #1e293b; padding: 15px 20px; border-radius: 10px; margin-bottom: 25px; }
-        .scanner-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-        .scanner-title { margin: 0; color: #f8fafc; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; font-weight: bold; }
-        .scanner-input { margin: 0; background: white; color: #1e293b; font-size: 0.95rem; padding: 8px 12px; border-radius: 6px; cursor: pointer; flex: 1; max-width: 250px; font-weight: 600; }
-        #ocrStatus { font-size: 1rem; color: #ef4444; font-weight: bold; margin-top: 15px; display: none; text-align: center; }
-        .spinner { display: inline-block; width: 16px; height: 16px; border: 3px solid rgba(239,68,68,0.3); border-radius: 50%; border-top-color: #ef4444; animation: spin 1s infinite linear; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; }
-        th, td { padding: 8px 5px; text-align: center; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f8fafc; color: #1e293b; font-weight: 700; }
-        
-        .chart-container { height: 280px; margin-top: 15px; }
-        .prediction-box { background: #eff6ff; border: 2px solid #3b82f6; padding: 20px; border-radius: 8px; margin-top: 25px; }
-        .prediction-box h3 { color: #1d4ed8; margin-top: 0; margin-bottom: 10px; font-size: 1.3rem; text-align: center; }
-        .info-note { font-size: 0.85rem; color: #64748b; margin-top: 8px; font-style: italic; }
+        .btn-danger { background: #dc2626; }
+        .btn-dark { background: #0f172a; }
 
+        .badge-status { display: inline-block; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; background: #dcfce7; color: #166534; margin-bottom: 12px; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .stat-card { background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .stat-card h4 { margin: 0 0 10px 0; color: #0f172a; text-align: center; font-size: 1.1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
-        .stat-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.95rem; }
-        .prob-bar { height: 25px; border-radius: 12px; display: flex; overflow: hidden; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .prob-segment { display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; transition: width 0.5s ease; }
+        .stat-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 15px; }
+        .stat-card h4 { margin: 0 0 10px 0; text-align: center; font-size: 1.1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; }
 
-        /* NUEVA CAJA DE INTERPRETACIÓN */
-        .interpretacion-box { display: none; background: #f8fafc; border: 1px solid #cbd5e1; padding: 20px; border-radius: 8px; margin-top: 15px; }
-        .interpretacion-box h4 { margin-top: 0; margin-bottom: 15px; color: #0f172a; font-size: 1.1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
-        .int-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9rem; }
-        .int-table th, .int-table td { text-align: center; padding: 8px; border-bottom: 1px solid #e2e8f0; }
-        .int-table th { background: #e2e8f0; color: #334155; }
-        .int-table .th-left { text-align: left; }
-        .int-table .td-left { text-align: left; font-weight: 600; color: #475569; }
+        .prob-bar { height: 28px; border-radius: 14px; display: flex; overflow: hidden; margin: 15px 0 8px 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.15); }
+        .prob-segment { display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; transition: width 0.4s ease; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 550px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 95vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
-        .modal-header h3 { margin: 0; color: #1e293b; font-size: 1.5rem; }
-        .close-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #94a3b8; padding: 0; margin: 0; line-height: 1; transition: 0.2s; width: auto; }
-        .close-btn:hover { color: #dc2626; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th, td { padding: 9px 6px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f1f5f9; color: #1e293b; font-weight: 700; }
+        .td-left { text-align: left; font-weight: 600; }
+
+        .pill-pick { padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; display: inline-block; }
+        .pick-high { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .pick-med { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
+        .pick-low { background: #f1f5f9; color: #64748b; }
+
+        .chart-container { height: 250px; margin-top: 18px; }
+        .info-note { font-size: 0.83rem; color: #64748b; margin-top: 6px; font-style: italic; }
     </style>
 </head>
 <body>
+
 <div class="header">
-    <h1 style="margin:0; font-size: 2.2rem;">ANÁLISIS PREDICTIVO (PARLAY) - LIGA MX</h1>
+    <h1>📊 PREDICTOR LIGA MX — MOTOR CSV & POISSON</h1>
+    <p>Análisis automatizado de Ganador, Goles por Equipo, Líneas Over/Under, Ambos Anotan y Valor de Cuotas (+EV)</p>
 </div>
 
 <div class="grid">
-
-    <!-- COLUMNA 1: CARGA Y EXPORTACIÓN -->
-    <div class="col-1">
-        <div class="card">
-            <h2>Partido Reciente</h2>
+    <!-- COLUMNA 1: GESTIÓN DE ARCHIVO CSV Y FILTROS -->
+    <div>
+        <div class="card" style="border-top: 5px solid #16a34a;">
+            <h2>📂 1. Fuente de Datos (CSV)</h2>
+            <div id="statusBD" class="badge-status">Esperando archivo MEX.csv...</div>
+            <p class="info-note" style="margin-top:0;">Sube tu archivo <b>MEX.csv</b> descargado de Football-Data. Los datos quedan guardados en tu navegador.</p>
             
-            <div class="scanner-wrapper">
-                <div class="scanner-header">
-                    <h3 class="scanner-title">📷 Escáner Foto</h3>
-                    <input type="file" id="imagenOCR" class="scanner-input" accept="image/*" onchange="escanearImagen(this)">
-                </div>
-                <div id="ocrStatus"><div class="spinner"></div> Analizando imagen...</div>
-            </div>
+            <button onclick="document.getElementById('csvFileInput').click()" class="btn-success" style="font-size: 1.05rem; padding: 14px;">
+                ⬆️ Cargar / Actualizar MEX.csv
+            </button>
+            <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="procesarArchivoCSV(this)">
 
-            <form id="partidoForm">
-                <div class="fs-shared">
-                    <label style="text-align: center; font-size: 1.1rem;">Año del Partido</label>
-                    <input type="number" id="año" required value="2026" min="2000" max="2035" style="text-align:center;">
-                </div>
+            <hr style="border: 1px solid #e2e8f0; margin: 18px 0;">
 
-                <div class="fs-match-header">
-                    <div class="fs-col">
-                        <label style="text-align:center; margin-bottom:8px;">Equipo Izquierda</label>
-                        <select id="eqIzq" required></select>
-                    </div>
-                    <div class="fs-col">
-                        <label style="text-align:center; margin-bottom:8px;">Equipo Derecha</label>
-                        <select id="eqDer" required></select>
-                    </div>
-                </div>
+            <label>Filtro de Temporadas a Analizar:</label>
+            <select id="filtroTemporada" onchange="reconstruirBaseDesdeRaw()">
+                <option value="recientes" selected>Últimas 2 Temporadas (2025/26 y 2026/27)</option>
+                <option value="actual">Solo Temporada Actual (2026/2027)</option>
+                <option value="ultimas3">Últimas 3 Temporadas (Desde 2024/25)</option>
+                <option value="todas">Histórico Completo (2012 - 2026)</option>
+            </select>
 
-                <div class="fs-row"><input type="number" id="golesIzq" required min="0"><label>Goles Finales</label><input type="number" id="golesDer" required min="0"></div>
-                <div class="fs-row"><input type="number" id="corIzq" required min="0"><label>Córneres</label><input type="number" id="corDer" required min="0"></div>
-                <div class="fs-row"><input type="number" id="amaIzq" required min="0"><label>Amarillas</label><input type="number" id="amaDer" required min="0"></div>
-                <div class="fs-row"><input type="number" id="rojIzq" required min="0"><label>Rojas</label><input type="number" id="rojDer" required min="0"></div>
+            <label>Ventana de Racha (Últimos N partidos por equipo):</label>
+            <select id="ventanaN" onchange="siHaySeleccionRecalcular()">
+                <option value="8">Últimos 8 partidos (Racha Corta)</option>
+                <option value="12" selected>Últimos 12 partidos (Balance Ideal)</option>
+                <option value="18">Últimos 18 partidos (Torneo Completo)</option>
+                <option value="30">Últimos 30 partidos (Largo Plazo)</option>
+            </select>
 
-                <button type="submit" class="btn-primary" style="font-size: 1.2rem; padding: 15px; margin-top: 20px;">Guardar Partido</button>
-            </form>
+            <label>Peso del Factor Localía / Visita Específico:</label>
+            <select id="pesoLocalia" onchange="siHaySeleccionRecalcular()">
+                <option value="0.6">Alto (60% en su condición Local/Visita + 40% General)</option>
+                <option value="0.4" selected>Moderado (40% Condición + 60% General)</option>
+                <option value="0.0">Desactivado (Usar solo racha general)</option>
+            </select>
+
+            <button onclick="borrarMemoria()" class="btn-danger" style="margin-top: 15px; background:#64748b; font-size:0.9rem; padding:9px;">
+                🗑️ Limpiar Memoria del Navegador
+            </button>
         </div>
-        
-        <!-- ZONA DE IMPORTACIÓN Y EXPORTACIÓN MASIVA -->
-        <div class="card" style="border-top: 5px solid #3b82f6;">
-            <h2>💽 Respaldo de Base de Datos</h2>
-            <p class="info-note" style="margin-top:-5px;">Tus datos se guardan en el navegador. Exporta todo periódicamente para no perderlos.</p>
-            
-            <button onclick="exportarJSONCompleto()" class="btn-info" style="margin-bottom: 20px; font-size: 1.1rem;">⬇️ Exportar Base de Datos Completa</button>
-            
-            <hr style="border: 1px solid #e2e8f0; margin: 20px 0;">
-            
-            <button onclick="subirArchivoDirecto()" class="btn-success">⬆️ Importar JSON Masivo</button>
-            <button onclick="limpiarDatosPartidos()" class="btn-danger">🗑️ Borrar Todos los Partidos</button>
-            <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="procesarArchivo(this)">
+
+        <!-- RESUMEN DE LA LIGA EN EL PERIODO SELECCIONADO -->
+        <div class="card">
+            <h2>📈 Promedios de Liga MX</h2>
+            <p class="info-note" style="margin-top:-5px;">Base de referencia para el modelo Poisson:</p>
+            <div class="stat-row"><span>Partidos Analizados:</span> <strong id="ligaTotalPartidos">0</strong></div>
+            <div class="stat-row"><span>Media Goles Local (HG):</span> <strong id="ligaMediaLocal" style="color:#16a34a;">0.00</strong></div>
+            <div class="stat-row"><span>Media Goles Visita (AG):</span> <strong id="ligaMediaVisita" style="color:#dc2626;">0.00</strong></div>
+            <div class="stat-row"><span>Media Goles Totales:</span> <strong id="ligaMediaTotal" style="color:#2563eb;">0.00</strong></div>
+            <hr style="border: 0.5px solid #e2e8f0; margin: 10px 0;">
+            <div class="stat-row"><span>% Victorias Local / Empate / Visita:</span> <strong id="ligaPct1X2">0% / 0% / 0%</strong></div>
+            <div class="stat-row"><span>% Ambos Anotan (BTTS):</span> <strong id="ligaPctBTTS">0%</strong></div>
+            <div class="stat-row"><span>% Over 2.5 Goles:</span> <strong id="ligaPctO25">0%</strong></div>
         </div>
     </div>
 
-    <!-- COLUMNA 2: MODELO PREDICTIVO -->
-    <div class="col-2">
-        <div class="card" style="min-height: 95%;">
-            <h2 style="font-size: 1.8rem; text-align: center;">Modelo Predictivo y Probabilidades</h2>
+    <!-- COLUMNA 2: MODELO PREDICTIVO Y MERCADOS DE EQUIPO -->
+    <div>
+        <div class="card">
+            <h2 style="text-align: center; font-size: 1.6rem;">⚡ 2. Simulador de Enfrentamiento y Apuestas</h2>
             
-            <div style="display: flex; gap: 15px; margin-top: 20px;">
+            <div style="display: flex; gap: 15px; margin-top: 15px;">
                 <div style="flex:1;">
-                    <label style="text-align:center;">Equipo Local</label>
-                    <select id="predEq1" style="font-size: 1.2rem; font-weight: bold; height: 50px; border: 2px solid #16a34a; color: #14532d; text-align:center;"></select>
+                    <label style="text-align:center; color:#15803d;">🏠 EQUIPO LOCAL</label>
+                    <select id="predEq1" style="font-size: 1.15rem; font-weight: bold; height: 48px; border: 2px solid #16a34a; color: #14532d; text-align:center;"></select>
                 </div>
                 <div style="flex:1;">
-                    <label style="text-align:center;">Equipo Visitante</label>
-                    <select id="predEq2" style="font-size: 1.2rem; font-weight: bold; height: 50px; border: 2px solid #dc2626; color: #7f1d1d; text-align:center;"></select>
-                </div>
-            </div>
-            
-            <button onclick="ejecutarModeloPredictivo()" class="btn-primary" style="font-size: 1.3rem; padding: 15px; margin-top: 15px;">⚡ Calcular Predicción vs Oponente</button>
-            
-            <!-- RESULTADOS INDIVIDUALES PONDERADOS -->
-            <div id="analisisIndividual" class="stat-grid" style="display:none;">
-                <div class="stat-card" style="border-top: 4px solid #16a34a;">
-                    <h4 id="titEq1">Equipo 1</h4>
-                    <div class="stat-row"><span>Rendimiento Histórico (V/E/D):</span> <strong id="rendEq1">0%</strong></div>
-                    <div class="stat-row"><span>V/E/D:</span> <strong id="vedEq1">0 / 0 / 0</strong></div>
-                    <hr style="border: 0.5px solid #e2e8f0; margin: 10px 0;">
-                    <div class="stat-row"><span>Tendencia Ataque (Goles):</span> <strong id="regGolEq1" style="color:#16a34a;">0.00</strong></div>
-                    <div class="stat-row"><span>Tendencia Defensa (En contra):</span> <strong id="regDefEq1" style="color:#ca8a04;">0.00</strong></div>
-                    <div class="stat-row"><span>Tendencia Córneres:</span> <strong id="regCorEq1">0.00</strong></div>
-                    <div class="stat-row"><span>Tendencia Amarillas:</span> <strong id="regAmaEq1">0.00</strong></div>
-                    <div class="stat-row"><span>Tendencia Rojas:</span> <strong id="regRojEq1">0.00</strong></div>
-                </div>
-                
-                <div class="stat-card" style="border-top: 4px solid #dc2626;">
-                    <h4 id="titEq2">Equipo 2</h4>
-                    <div class="stat-row"><span>Rendimiento Histórico (V/E/D):</span> <strong id="rendEq2">0%</strong></div>
-                    <div class="stat-row"><span>V/E/D:</span> <strong id="vedEq2">0 / 0 / 0</strong></div>
-                    <hr style="border: 0.5px solid #e2e8f0; margin: 10px 0;">
-                    <div class="stat-row"><span>Tendencia Ataque (Goles):</span> <strong id="regGolEq2" style="color:#dc2626;">0.00</strong></div>
-                    <div class="stat-row"><span>Tendencia Defensa (En contra):</span> <strong id="regDefEq2" style="color:#ca8a04;">0.00</strong></div>
-                    <div class="stat-row"><span>Tendencia Córneres:</span> <strong id="regCorEq2">0.00</strong></div>
-                    <div class="stat-row"><span>Tendencia Amarillas:</span> <strong id="regAmaEq2">0.00</strong></div>
-                    <div class="stat-row"><span>Tendencia Rojas:</span> <strong id="regRojEq2">0.00</strong></div>
+                    <label style="text-align:center; color:#b91c1c;">✈️ EQUIPO VISITANTE</label>
+                    <select id="predEq2" style="font-size: 1.15rem; font-weight: bold; height: 48px; border: 2px solid #dc2626; color: #7f1d1d; text-align:center;"></select>
                 </div>
             </div>
 
-            <!-- PREDICCIÓN FINAL FUSIONADA -->
-            <div id="resultadoEnfrentamiento" class="prediction-box" style="display:none;">
-                <h3 style="display:flex; justify-content:center; align-items:center; gap:8px;">📊 Probabilidad Final de Enfrentamiento</h3>
-                <p class="info-note" style="text-align:center; margin-top:-10px;">(Cálculo cruzado: Ataque vs Defensa + Rendimiento Histórico + Localía)</p>
-                
-                <div class="prob-bar">
-                    <div id="barEq1" class="prob-segment" style="background:#16a34a; width: 33%;">33%</div>
-                    <div id="barEmp" class="prob-segment" style="background:#94a3b8; width: 34%;">34%</div>
-                    <div id="barEq2" class="prob-segment" style="background:#dc2626; width: 33%;">33%</div>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-top:5px; font-weight:bold; font-size:0.9rem;">
-                    <span id="lblEq1" style="color:#16a34a;">Local</span>
-                    <span style="color:#64748b;">Empate</span>
-                    <span id="lblEq2" style="color:#dc2626;">Visita</span>
+            <!-- CUOTAS OPCIONALES DEL CASINO PARA DETECTAR VALOR (+EV) -->
+            <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:12px;">
+                <label style="text-align:center; margin-bottom:8px; font-size:0.85rem;">💰 Cuotas actuales de tu Casa de Apuestas (Opcional, para calcular Valor +EV):</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="number" step="0.01" id="oddCasa1" placeholder="Momio Local (ej. 1.95)" style="margin:0; text-align:center;">
+                    <input type="number" step="0.01" id="oddCasaX" placeholder="Momio Empate (ej. 3.50)" style="margin:0; text-align:center;">
+                    <input type="number" step="0.01" id="oddCasa2" placeholder="Momio Visita (ej. 3.80)" style="margin:0; text-align:center;">
                 </div>
             </div>
 
-            <!-- TABLA DE INTERPRETACIÓN AUTOMÁTICA -->
-            <div id="interpretacionContenedor" class="interpretacion-box">
-                <h4>Análisis del enfrentamiento</h4>
-                <table class="int-table">
+            <button onclick="ejecutarModelo()" class="btn-dark" style="font-size: 1.2rem; padding: 14px;">
+                🔮 Calcular Pronóstico de Equipos y Líneas de Goles
+            </button>
+
+            <div id="panelResultados" style="display:none; margin-top: 20px;">
+                
+                <!-- BARRA 1X2 -->
+                <div style="background: #eff6ff; border: 2px solid #3b82f6; padding: 16px; border-radius: 10px;">
+                    <h3 style="text-align:center; color:#1d4ed8; margin-bottom:6px;">Probabilidad de Ganador (1X2) y Doble Oportunidad</h3>
+                    <div style="text-align:center; font-size:1.05rem; font-weight:bold; color:#0f172a; margin-bottom:8px;">
+                        Goles Esperados (xG): <span id="xgLocalTxt" style="color:#16a34a;">0.00</span> vs <span id="xgVisitaTxt" style="color:#dc2626;">0.00</span> 
+                        &nbsp;|&nbsp; Total Esperado: <span id="xgTotalTxt" style="color:#2563eb;">0.00</span> goles
+                    </div>
+
+                    <div class="prob-bar">
+                        <div id="bar1" class="prob-segment" style="background:#16a34a; width:33%;">33%</div>
+                        <div id="barX" class="prob-segment" style="background:#64748b; width:34%;">34%</div>
+                        <div id="bar2" class="prob-segment" style="background:#dc2626; width:33%;">33%</div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9rem;">
+                        <span id="lbl1" style="color:#16a34a;">Local</span>
+                        <span id="lblX" style="color:#475569;">Empate</span>
+                        <span id="lbl2" style="color:#dc2626;">Visita</span>
+                    </div>
+                    <div id="evAlerta" style="margin-top:10px; text-align:center; font-size:0.9rem; font-weight:700;"></div>
+                </div>
+
+                <!-- TARJETAS COMPARATIVAS POR EQUIPO -->
+                <div class="stat-grid">
+                    <div class="stat-card" style="border-top: 4px solid #16a34a;">
+                        <h4 id="cardTit1" style="color:#15803d;">Equipo Local</h4>
+                        <div class="stat-row"><span>Rendimiento General (V/E/D):</span> <strong id="vedGen1">-</strong></div>
+                        <div class="stat-row"><span>Rendimiento en Casa (Local):</span> <strong id="vedLoc1">-</strong></div>
+                        <div class="stat-row"><span>Tendencia Ataque / Defensa:</span> <strong id="atqDef1">-</strong></div>
+                        <div class="stat-row"><span>Superó expectativas del Casino:</span> <strong id="vsCasino1">-</strong></div>
+                    </div>
+                    <div class="stat-card" style="border-top: 4px solid #dc2626;">
+                        <h4 id="cardTit2" style="color:#b91c1c;">Equipo Visitante</h4>
+                        <div class="stat-row"><span>Rendimiento General (V/E/D):</span> <strong id="vedGen2">-</strong></div>
+                        <div class="stat-row"><span>Rendimiento Fuera (Visita):</span> <strong id="vedVis2">-</strong></div>
+                        <div class="stat-row"><span>Tendencia Ataque / Defensa:</span> <strong id="atqDef2">-</strong></div>
+                        <div class="stat-row"><span>Superó expectativas del Casino:</span> <strong id="vsCasino2">-</strong></div>
+                    </div>
+                </div>
+
+                <!-- TABLA DE MERCADOS POR EQUIPO Y TOTALES -->
+                <h3 style="margin-top: 22px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;">🎯 Tabla de Mercados Recomendados (Goles por Equipo y Partido)</h3>
+                <table>
                     <thead>
                         <tr>
-                            <th class="th-left">Métrica</th>
-                            <th id="thEqInt1">Local</th>
-                            <th id="thEqInt2">Visita</th>
-                            <th>Ventaja</th>
+                            <th class="td-left">Mercado de Apuesta</th>
+                            <th>Probabilidad</th>
+                            <th>Momio Justo (Mínimo)</th>
+                            <th>Nivel de Confianza</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr><td class="td-left">Ataque (A favor)</td><td id="tdAtq1">0.00</td><td id="tdAtq2">0.00</td><td id="tdVenAtq" style="font-weight: bold;">-</td></tr>
-                        <tr><td class="td-left">Defensa (En contra)</td><td id="tdDef1">0.00</td><td id="tdDef2">0.00</td><td id="tdVenDef" style="font-weight: bold;">-</td></tr>
-                        <tr><td class="td-left">Rendimiento V/E/D</td><td id="tdVed1">0.0%</td><td id="tdVed2">0.0%</td><td id="tdVenVed" style="font-weight: bold;">-</td></tr>
-                        <tr><td class="td-left">Córneres</td><td id="tdCor1">0.00</td><td id="tdCor2">0.00</td><td id="tdVenCor" style="font-weight: bold;">-</td></tr>
+                    <tbody id="tablaMercadosBody"></tbody>
+                </table>
+
+                <!-- MARCADORES EXACTOS MÁS PROBABLES -->
+                <div style="margin-top: 18px; background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid #cbd5e1;">
+                    <h4 style="margin:0 0 8px 0; font-size:0.95rem; color:#334155;">🔢 Top 5 Marcadores Exactos Más Probables (Poisson Bivariado):</h4>
+                    <div id="topMarcadores" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+                </div>
+
+                <!-- GRÁFICA DE TENDENCIA GOLEADORA -->
+                <div class="chart-container">
+                    <canvas id="graficaTendencia"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLUMNA 3: H2H DIRECTO Y BITÁCORA DEL EQUIPO -->
+    <div>
+        <!-- H2H DIRECTO -->
+        <div class="card" style="border-top: 5px solid #2563eb;">
+            <h2>⚔️ Enfrentamientos Directos (H2H)</h2>
+            <p class="info-note" style="margin-top:-5px;">Historial directo entre ambos clubes en el archivo CSV:</p>
+            <div id="h2hResumen" style="font-weight:bold; font-size:0.95rem; margin-bottom:10px; color:#1e293b;">Selecciona dos equipos para ver su H2H.</div>
+            <div style="max-height: 220px; overflow-y: auto;">
+                <table>
+                    <thead>
+                        <tr><th>Fecha</th><th>Local</th><th>Marcador</th><th>Visita</th></tr>
+                    </thead>
+                    <tbody id="tablaH2H">
+                        <tr><td colspan="4">Sin selección</td></tr>
                     </tbody>
                 </table>
-                <p style="margin: 0; font-size: 0.95rem; color: #1e293b;"><strong>Interpretación:</strong> <span id="textoInterpretacion"></span></p>
-            </div>
-
-            <!-- GRÁFICA COMPARATIVA -->
-            <div id="graficaContenedor" style="display:none;">
-                <p class="info-note" style="margin-top: 25px; text-align:center;">Líneas de tendencia de Goles a Favor (Ataque de cada equipo)</p>
-                <div class="chart-container"><canvas id="grafica"></canvas></div>
             </div>
         </div>
-    </div>
 
-    <!-- COLUMNA 3: HISTORIAL REGISTRADO -->
-    <div class="col-3">
-        <div class="card" style="border: 2px solid #e2e8f0; height: 95%;">
-            <h3 style="color: #1e293b; margin-top: 0; font-size: 1.6rem; border-bottom: 3px solid #cbd5e1; padding-bottom: 10px;">📝 Historial Registrado</h3>
-            <p class="info-note" style="margin-top: 5px; margin-bottom: 15px;">Mueve el orden temporal, edita o elimina partidos. El orden afectará directamente la regresión lineal ponderada.</p>
-            
-            <select id="histEq" onchange="renderTablaPartidos()" style="font-weight:bold; font-size:1.1rem; margin-bottom:15px; border:2px solid #94a3b8;"></select>
-            
-            <div style="overflow-x: auto; max-height: 700px; overflow-y: auto;">
-                <table style="width: 100%; min-width: 420px;">
-                    <thead style="position: sticky; top: 0; background: #f1f5f9; z-index: 1;">
-                        <tr><th>Año</th><th>Oponente</th><th>Res</th><th>Gol</th><th>Acciones</th></tr>
+        <!-- HISTORIAL DE PARTIDOS POR EQUIPO -->
+        <div class="card">
+            <h2>📝 Historial por Equipo</h2>
+            <select id="histEqSelect" onchange="renderHistorialEquipo()" style="font-weight:bold;"></select>
+            <div style="max-height: 430px; overflow-y: auto;">
+                <table>
+                    <thead style="position: sticky; top: 0; background: #f1f5f9;">
+                        <tr><th>Fecha</th><th>Cond</th><th>Rival</th><th>Res</th><th>Momio</th></tr>
                     </thead>
-                    <tbody id="tablaPartidosList"></tbody>
+                    <tbody id="tablaHistorialEquipo"></tbody>
                 </table>
             </div>
         </div>
-    </div>
-
-</div>
-
-<!-- MODAL FLOTANTE DE EDICIÓN TOTAL -->
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modalTitle">Editar Partido</h3>
-            <button class="close-btn" onclick="cerrarModal()">✖</button>
-        </div>
-        
-        <input type="hidden" id="editIndex">
-        <input type="hidden" id="editOldOpponent">
-
-        <div class="fs-shared" style="padding: 10px; margin-bottom: 15px;">
-            <label style="text-align: center;">Año del Partido</label>
-            <input type="number" id="editAño" min="2000" max="2035" style="height:40px; font-size:1.2rem; text-align:center;">
-        </div>
-
-        <div class="fs-match-header">
-            <div class="fs-col" style="padding: 10px;">
-                <label style="text-align:center;">Equipo Local (Tú)</label>
-                <input type="text" id="editEqIzq" disabled style="background:#e2e8f0; color:#1e293b; border:none; text-align:center; font-weight:bold;">
-            </div>
-            <div class="fs-col" style="padding: 10px; background:#fef3c7;">
-                <label style="text-align:center; color:#1d4ed8;">Oponente (Rival)</label>
-                <select id="editEqDer" style="border: 2px solid #3b82f6; text-align:center; font-weight:bold; height:45px;"></select>
-            </div>
-        </div>
-
-        <div class="fs-row"><input type="number" id="e_golI"><label>Goles</label><input type="number" id="e_golD"></div>
-        <div class="fs-row"><input type="number" id="e_corI"><label>Córneres</label><input type="number" id="e_corD"></div>
-        <div class="fs-row"><input type="number" id="e_amaI"><label>Amarillas</label><input type="number" id="e_amaD"></div>
-        <div class="fs-row"><input type="number" id="e_rojI"><label>Rojas</label><input type="number" id="e_rojD"></div>
-        
-        <button onclick="guardarEdicionTotal()" class="btn-success" style="font-size: 1.2rem; padding: 15px; margin-top: 20px;">💾 Reemplazar y Guardar</button>
     </div>
 </div>
 
 <script>
-// ============================================
-// INICIALIZACIÓN Y VARIABLES
-// ============================================
-const EQUIPOS_LIGA_MX = [
-    "AMÉRICA", "ATLANTE", "ATLAS", "ATLÉTICO SAN LUIS", "CRUZ AZUL", 
-    "GUADALAJARA", "JUÁREZ", "LEÓN", "MONTERREY", "NECAXA", 
-    "PACHUCA", "PUEBLA", "PUMAS UNAM", "QUERÉTARO", "SANTOS LAGUNA", 
-    "TIGRES UANL", "TIJUANA", "TOLUCA"
-];
-
-let BD_EQUIPOS = {}; 
+let RAW_CSV_ROWS = [];
+let BD_EQUIPOS = {};
+let STATS_LIGA = { partidos: 0, mediaHG: 1.55, mediaAG: 1.25 };
 let chartInstance = null;
 
 window.onload = function() {
     try {
-        const dPartidos = localStorage.getItem('dashboard_bd_partidos'); 
-        if (dPartidos) BD_EQUIPOS = JSON.parse(dPartidos);
+        const guardado = localStorage.getItem('ligamx_raw_csv_v2');
+        if (guardado) {
+            RAW_CSV_ROWS = JSON.parse(guardado);
+            reconstruirBaseDesdeRaw();
+        }
     } catch (e) { console.error(e); }
-    
-    llenarSelectsEquipos(); 
-    actualizarSelectoresGlobales();
-    
-    const equiposDisponibles = Object.keys(BD_EQUIPOS).sort();
-    if (equiposDisponibles.length > 0) { 
-        document.getElementById('histEq').value = equiposDisponibles[0]; 
-        renderTablaPartidos(); 
-    }
 };
 
-function guardarBD() { 
-    try { localStorage.setItem('dashboard_bd_partidos', JSON.stringify(BD_EQUIPOS)); } 
-    catch (e) { alert('Error al guardar datos localmente.'); } 
+function borrarMemoria() {
+    if (confirm("¿Seguro que deseas borrar los datos cargados del navegador?")) {
+        localStorage.removeItem('ligamx_raw_csv_v2');
+        location.reload();
+    }
 }
 
-function llenarSelectsEquipos() {
-    const selects = ['eqIzq', 'eqDer', 'predEq1', 'predEq2', 'editEqDer'];
-    selects.forEach(id => {
-        const sel = document.getElementById(id);
-        if (!sel) return;
-        const valorActual = sel.value;
-        sel.innerHTML = '<option value="">-- Selecciona equipo --</option>';
-        EQUIPOS_LIGA_MX.forEach(eq => {
-            const opt = document.createElement('option'); opt.value = eq; opt.textContent = eq; sel.appendChild(opt);
-        });
-        if (valorActual && EQUIPOS_LIGA_MX.includes(valorActual)) sel.value = valorActual;
-    });
-}
+// ==========================================================
+// 1. LECTOR DIRECTO DE ARCHIVO MEX.CSV
+// ==========================================================
+function procesarArchivoCSV(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
 
-function actualizarSelectoresGlobales() {
-    const sel = document.getElementById('histEq'); if(!sel) return;
-    const valorActual = sel.value;
-    sel.innerHTML = '<option value="">-- Selecciona Equipo para Ver --</option>';
-    Object.keys(BD_EQUIPOS).sort().forEach(eq => {
-        if (BD_EQUIPOS[eq].length > 0) {
-            const opt = document.createElement('option'); opt.value = eq; opt.textContent = eq; sel.appendChild(opt);
-        }
-    });
-    if (valorActual && BD_EQUIPOS[valorActual]) sel.value = valorActual;
-}
-
-// ============================================
-// CARGA Y OCR DE PARTIDOS
-// ============================================
-document.getElementById('partidoForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const idIzq = document.getElementById('eqIzq').value, idDer = document.getElementById('eqDer').value;
-    if (!idIzq || !idDer || idIzq === idDer) { alert('Equipos inválidos o repetidos.'); return; }
-    
-    const año = parseInt(document.getElementById('año').value, 10);
-    const gI = +document.getElementById('golesIzq').value, gD = +document.getElementById('golesDer').value;
-    
-    let resIzq = gI > gD ? 'ganado' : (gI < gD ? 'perdido' : 'empate'); 
-    let resDer = resIzq === 'ganado' ? 'perdido' : (resIzq === 'perdido' ? 'ganado' : 'empate');
-
-    const pIzq = { 
-        oponente: idDer, 
-        año: año, 
-        resultado: resIzq, 
-        goles: gI, 
-        golesRecibidos: gD,
-        corners: +document.getElementById('corIzq').value, 
-        amarillas: +document.getElementById('amaIzq').value, 
-        rojas: +document.getElementById('rojIzq').value 
-    };
-    
-    const pDer = { 
-        oponente: idIzq, 
-        año: año, 
-        resultado: resDer, 
-        goles: gD, 
-        golesRecibidos: gI,
-        corners: +document.getElementById('corDer').value, 
-        amarillas: +document.getElementById('amaDer').value, 
-        rojas: +document.getElementById('rojDer').value 
-    };
-
-    if (!BD_EQUIPOS[idIzq]) BD_EQUIPOS[idIzq] = []; if (!BD_EQUIPOS[idDer]) BD_EQUIPOS[idDer] = [];
-    
-    BD_EQUIPOS[idIzq].push(pIzq); 
-    BD_EQUIPOS[idDer].push(pDer);
-    
-    guardarBD(); 
-    actualizarSelectoresGlobales(); 
-    document.getElementById('histEq').value = idIzq; 
-    renderTablaPartidos();
-    
-    ['golesIzq','golesDer','corIzq','corDer','amaIzq','amaDer','rojIzq','rojDer'].forEach(id => document.getElementById(id).value = '');
-    alert("Partido guardado en la memoria local.");
-});
-
-function escanearImagen(input) {
-    const file = input.files[0]; if (!file) return;
-    const statusDiv = document.getElementById('ocrStatus'); statusDiv.style.display = 'block';
-    Tesseract.recognize(file, 'spa').then(({ data: { text } }) => { 
-        statusDiv.style.display = 'none'; procesarTextoDobleColumna(text); input.value = ''; 
-    }).catch(e => { statusDiv.style.display = 'none'; });
-}
-function procesarTextoDobleColumna(texto) {
-    const lineas = texto.toLowerCase().split('\n').map(l => l.trim()).filter(Boolean); let encontrados = 0;
-    for (let linea of lineas) { let matchGoles = linea.match(/\b(\d+)\s*[-–—_]\s*(\d+)\b/); if (matchGoles) { document.getElementById('golesIzq').value = matchGoles[1]; document.getElementById('golesDer').value = matchGoles[2]; encontrados++; break; } }
-    lineas.forEach(linea => {
-        const numeros = linea.match(/\d+/g); if (!numeros || numeros.length < 2) return;
-        const vI = numeros[0]; const vD = numeros[numeros.length - 1];
-        if (/c[oó]rner|esquina|corner/.test(linea)) { document.getElementById('corIzq').value = vI; document.getElementById('corDer').value = vD; encontrados++; } 
-        else if (/amarilla|yellow/.test(linea)) { document.getElementById('amaIzq').value = vI; document.getElementById('amaDer').value = vD; encontrados++; } 
-        else if (/roja|red|expulsi[oó]n/.test(linea)) { document.getElementById('rojIzq').value = vI; document.getElementById('rojDer').value = vD; encontrados++; }
-    });
-    alert(encontrados > 0 ? "Escaneo OCR exitoso." : "No se detectaron estadísticas.");
-}
-
-// ============================================
-// EXPORTAR E IMPORTAR MASIVO JSON
-// ============================================
-function exportarJSONCompleto() {
-    if(Object.keys(BD_EQUIPOS).length === 0) { alert("La base de datos está vacía."); return; }
-    const dataStr = JSON.stringify(BD_EQUIPOS, null, 2);
-    const blob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `LigaMX_Backup_Completo.json`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-function subirArchivoDirecto() { document.getElementById('fileInput').click(); }
-function procesarArchivo(input) {
-    const file = input.files[0]; if (!file) return; const reader = new FileReader();
     reader.onload = function(e) {
-        try {
-            const nuevos = JSON.parse(e.target.result); let agregados = 0;
-            for (let eq in nuevos) {
-                if (!BD_EQUIPOS[eq]) BD_EQUIPOS[eq] = [];
-                const existentes = new Set(BD_EQUIPOS[eq].map(p => `${p.oponente}|${p.año}|${p.goles}|${p.corners}`));
-                nuevos[eq].forEach(p => { 
-                    const key = `${p.oponente}|${p.año}|${p.goles}|${p.corners}`; 
-                    if (!existentes.has(key)) { BD_EQUIPOS[eq].push(p); existentes.add(key); agregados++; } 
-                });
-            }
-            guardarBD(); actualizarSelectoresGlobales(); alert(`Se importaron ${agregados} registros.`);
-            if (Object.keys(nuevos).length > 0) { document.getElementById('histEq').value = Object.keys(nuevos)[0]; renderTablaPartidos(); }
-        } catch (err) { alert("Error leyendo JSON"); }
-    }; reader.readAsText(file); input.value = '';
+        const lineas = e.target.result.split(/\r?\n/).filter(Boolean);
+        if (lineas.length < 2) { alert("El archivo CSV está vacío o no es válido."); return; }
+
+        const headers = lineas[0].split(',').map(h => h.trim());
+        const idxSeason = headers.indexOf('Season');
+        const idxDate   = headers.indexOf('Date');
+        const idxHome   = headers.indexOf('Home');
+        const idxAway   = headers.indexOf('Away');
+        const idxHG     = headers.indexOf('HG');
+        const idxAG     = headers.indexOf('AG');
+        const idxRes    = headers.indexOf('Res');
+        const idxAvgH   = headers.indexOf('AvgCH');
+        const idxAvgD   = headers.indexOf('AvgCD');
+        const idxAvgA   = headers.indexOf('AvgCA');
+
+        if (idxHome === -1 || idxAway === -1 || idxHG === -1 || idxAG === -1) {
+            alert("El CSV no contiene las columnas esperadas (Home, Away, HG, AG).");
+            return;
+        }
+
+        const filasExtraidas = [];
+        for (let i = 1; i < lineas.length; i++) {
+            const cols = lineas[i].split(',');
+            if (cols.length <= idxAG) continue;
+
+            const hg = parseInt(cols[idxHG], 10);
+            const ag = parseInt(cols[idxAG], 10);
+            if (isNaN(hg) || isNaN(ag)) continue;
+
+            filasExtraidas.push({
+                season: cols[idxSeason]?.trim() || "",
+                date: cols[idxDate]?.trim() || "",
+                home: cols[idxHome]?.trim() || "",
+                away: cols[idxAway]?.trim() || "",
+                hg: hg,
+                ag: ag,
+                res: cols[idxRes]?.trim() || (hg > ag ? 'H' : (hg < ag ? 'A' : 'D')),
+                oddH: parseFloat(cols[idxAvgH]) || 0,
+                oddD: parseFloat(cols[idxAvgD]) || 0,
+                oddA: parseFloat(cols[idxAvgA]) || 0
+            });
+        }
+
+        RAW_CSV_ROWS = filasExtraidas;
+        try { localStorage.setItem('ligamx_raw_csv_v2', JSON.stringify(RAW_CSV_ROWS)); } catch(err) {}
+        reconstruirBaseDesdeRaw();
+        alert(`¡Éxito! Se leyeron ${filasExtraidas.length} partidos históricos del archivo MEX.csv.`);
+    };
+    reader.readAsText(file);
+    input.value = '';
 }
-function limpiarDatosPartidos() { if (confirm('¿Borrar TODOS los partidos de la memoria?')) { BD_EQUIPOS = {}; guardarBD(); location.reload(); } }
 
-// ============================================
-// MATEMÁTICAS INDIVIDUALES PONDERADAS
-// ============================================
-function calcularVED(datosTotales) {
-    const datos = datosTotales.slice(-12);
-    let v = 0, e = 0, d = 0; const total = datos.length;
-    if(total === 0) return { v:0, e:0, d:0, pctRendimiento:0 };
-    datos.forEach(p => { if(p.resultado === 'ganado') v++; else if(p.resultado === 'empate') e++; else d++; });
-    const pctRendimiento = ((v + (e * 0.5)) / total) * 100;
-    return { v, e, d, pctRendimiento };
+function reconstruirBaseDesdeRaw() {
+    if (RAW_CSV_ROWS.length === 0) return;
+
+    const filtro = document.getElementById('filtroTemporada').value;
+    const filasFiltradas = RAW_CSV_ROWS.filter(r => {
+        if (filtro === 'actual') return r.season === '2026/2027';
+        if (filtro === 'recientes') return r.season === '2025/2026' || r.season === '2026/2027';
+        if (filtro === 'ultimas3') return r.season === '2024/2025' || r.season === '2025/2026' || r.season === '2026/2027';
+        return true;
+    });
+
+    BD_EQUIPOS = {};
+    let sumHG = 0, sumAG = 0, winH = 0, draw = 0, winA = 0, btts = 0, o25 = 0;
+
+    filasFiltradas.forEach(r => {
+        sumHG += r.hg;
+        sumAG += r.ag;
+        if (r.hg > r.ag) winH++;
+        else if (r.hg === r.ag) draw++;
+        else winA++;
+        if (r.hg > 0 && r.ag > 0) btts++;
+        if ((r.hg + r.ag) > 2.5) o25++;
+
+        if (!BD_EQUIPOS[r.home]) BD_EQUIPOS[r.home] = [];
+        if (!BD_EQUIPOS[r.away]) BD_EQUIPOS[r.away] = [];
+
+        BD_EQUIPOS[r.home].push({
+            fecha: r.date,
+            temporada: r.season,
+            oponente: r.away,
+            condicion: 'local',
+            golesFavor: r.hg,
+            golesContra: r.ag,
+            resultado: r.hg > r.ag ? 'G' : (r.hg < r.ag ? 'P' : 'E'),
+            momioEquipo: r.oddH,
+            momioRival: r.oddA
+        });
+
+        BD_EQUIPOS[r.away].push({
+            fecha: r.date,
+            temporada: r.season,
+            oponente: r.home,
+            condicion: 'visita',
+            golesFavor: r.ag,
+            golesContra: r.hg,
+            resultado: r.ag > r.hg ? 'G' : (r.ag < r.hg ? 'P' : 'E'),
+            momioEquipo: r.oddA,
+            momioRival: r.oddH
+        });
+    });
+
+    const totalP = filasFiltradas.length || 1;
+    STATS_LIGA = {
+        partidos: filasFiltradas.length,
+        mediaHG: sumHG / totalP,
+        mediaAG: sumAG / totalP
+    };
+
+    // Actualizar UI de estadísticas de Liga
+    document.getElementById('statusBD').innerText = `✅ CSV Activo (${RAW_CSV_ROWS.length} partidos en total)`;
+    document.getElementById('ligaTotalPartidos').innerText = filasFiltradas.length;
+    document.getElementById('ligaMediaLocal').innerText = STATS_LIGA.mediaHG.toFixed(2);
+    document.getElementById('ligaMediaVisita').innerText = STATS_LIGA.mediaAG.toFixed(2);
+    document.getElementById('ligaMediaTotal').innerText = (STATS_LIGA.mediaHG + STATS_LIGA.mediaAG).toFixed(2);
+    document.getElementById('ligaPct1X2').innerText = `${((winH/totalP)*100).toFixed(1)}% / ${((draw/totalP)*100).toFixed(1)}% / ${((winA/totalP)*100).toFixed(1)}%`;
+    document.getElementById('ligaPctBTTS').innerText = `${((btts/totalP)*100).toFixed(1)}%`;
+    document.getElementById('ligaPctO25').innerText = `${((o25/totalP)*100).toFixed(1)}%`;
+
+    poblarSelectoresEquipos();
 }
 
-function calcularRegresionIndividual(datosTotales, metrica) {
-    const datos = datosTotales.slice(-12);
-    const n = datos.length;
+function poblarSelectoresEquipos() {
+    const equipos = Object.keys(BD_EQUIPOS).sort();
+    ['predEq1', 'predEq2', 'histEqSelect'].forEach((id, idx) => {
+        const sel = document.getElementById(id);
+        const prev = sel.value;
+        sel.innerHTML = '';
+        equipos.forEach(eq => {
+            const opt = document.createElement('option');
+            opt.value = eq;
+            opt.textContent = `${eq} (${BD_EQUIPOS[eq].length} PJ)`;
+            sel.appendChild(opt);
+        });
+        if (prev && equipos.includes(prev)) sel.value = prev;
+        else if (equipos.length > idx) sel.value = equipos[idx];
+    });
+    renderHistorialEquipo();
+    siHaySeleccionRecalcular();
+}
 
-    if (n === 0) return { m: 0, b: 0, proj: 0, promedio: 0, datosRecortados: [] };
+function siHaySeleccionRecalcular() {
+    const eq1 = document.getElementById('predEq1').value;
+    const eq2 = document.getElementById('predEq2').value;
+    if (eq1 && eq2 && eq1 !== eq2 && Object.keys(BD_EQUIPOS).length > 0) {
+        ejecutarModelo();
+    }
+}
+
+// ==========================================================
+// 2. MATEMÁTICA: REGRESIÓN PONDERADA + POISSON
+// ==========================================================
+function regresionPonderada(partidos, campo) {
+    const n = partidos.length;
+    if (n === 0) return { proj: 1.2, promedio: 1.2, m: 0, b: 1.2, serie: [] };
     if (n === 1) {
-        let val = Number(datos[0][metrica]);
-        if(isNaN(val)) val = 1.2; 
-        return { m: 0, b: val, proj: val, promedio: val, datosRecortados: datos };
+        const val = partidos[0][campo];
+        return { proj: val, promedio: val, m: 0, b: val, serie: [val] };
     }
 
-    let sx = 0, sy = 0, sxy = 0, sx2 = 0, sumW = 0;
-    let sumaValores = 0;
+    let sx = 0, sy = 0, sxy = 0, sx2 = 0, sumW = 0, sumaSimple = 0;
+    const serie = [];
 
     for (let i = 0; i < n; i++) {
         const x = i + 1;
-        
-        let y = Number(datos[i][metrica]);
-        if(isNaN(y) || y === undefined) y = 1.2; 
-        
-        const w = 1 + (i * 0.25); 
-
-        sx  += w * x;
-        sy  += w * y;
+        const y = Number(partidos[i][campo]) || 0;
+        serie.push(y);
+        // Mayor peso a los partidos más recientes
+        const w = 1 + (i * 0.25);
+        sx += w * x;
+        sy += w * y;
         sxy += w * x * y;
         sx2 += w * x * x;
         sumW += w;
-        sumaValores += y;
+        sumaSimple += y;
     }
 
     const den = (sumW * sx2) - (sx * sx);
-    const m = (den === 0) ? 0 : ((sumW * sxy) - (sx * sy)) / den;
+    const m = den === 0 ? 0 : ((sumW * sxy) - (sx * sy)) / den;
     const b = (sy - (m * sx)) / sumW;
 
-    let proj = m * (n + 1) + b;
+    let proj = (m * (n + 1)) + b;
+    const promedio = sumaSimple / n;
+    // Suavizado para evitar extremos irreales
+    proj = Math.max(0.2, Math.min(proj, promedio * 1.75));
+    proj = (proj * 0.65) + (promedio * 0.35);
 
-    const promedio = sumaValores / n;
-    proj = Math.max(0, Math.min(proj, promedio * 1.8)); 
-    proj = (proj * 0.7) + (promedio * 0.3); 
-
-    return { m, b, proj, promedio, n, datosRecortados: datos };
+    return { proj, promedio, m, b, serie };
 }
 
-// ============================================
-// MODELO PREDICTIVO Y LÓGICA DE INTERPRETACIÓN
-// ============================================
-function ejecutarModeloPredictivo() {
+function resumenVED(partidos) {
+    let g = 0, e = 0, p = 0, superoCasino = 0, conMomio = 0;
+    partidos.forEach(m => {
+        if (m.resultado === 'G') g++;
+        else if (m.resultado === 'E') e++;
+        else p++;
+
+        if (m.momioEquipo > 1) {
+            conMomio++;
+            const ptsReales = m.resultado === 'G' ? 3 : (m.resultado === 'E' ? 1 : 0);
+            const ptsEsperados = (1 / m.momioEquipo) * 3;
+            if (ptsReales > ptsEsperados) superoCasino++;
+        }
+    });
+    const total = partidos.length || 1;
+    const pct = ((g + (e * 0.5)) / total) * 100;
+    const pctCasino = conMomio > 0 ? (superoCasino / conMomio) * 100 : 50;
+    return { g, e, p, pct, pctCasino };
+}
+
+function factorial(k) {
+    if (k <= 1) return 1;
+    let r = 1;
+    for (let i = 2; i <= k; i++) r *= i;
+    return r;
+}
+
+function poissonP(k, lambda) {
+    return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
+}
+
+function probOverLinea(linea, lambda) {
+    const maxK = Math.floor(linea);
+    let sumaUnder = 0;
+    for (let k = 0; k <= maxK; k++) sumaUnder += poissonP(k, lambda);
+    return (1 - sumaUnder) * 100;
+}
+
+// ==========================================================
+// 3. EJECUCIÓN DEL MODELO PREDICTIVO DE EQUIPOS
+// ==========================================================
+function ejecutarModelo() {
     const eq1 = document.getElementById('predEq1').value;
     const eq2 = document.getElementById('predEq2').value;
-    
-    if(!eq1 || !eq2) { alert("Selecciona ambos equipos para el modelo."); return; }
-    if(eq1 === eq2) { alert("Deben ser equipos diferentes."); return; }
-    
-    const datos1 = BD_EQUIPOS[eq1] || []; const datos2 = BD_EQUIPOS[eq2] || [];
-    if(datos1.length === 0 || datos2.length === 0) { alert("Ambos equipos necesitan historial guardado para calcular."); return; }
+    if (!eq1 || !eq2 || eq1 === eq2) { alert("Selecciona dos equipos distintos."); return; }
 
-    const ved1 = calcularVED(datos1);
-    const ataque1 = calcularRegresionIndividual(datos1, 'goles');
-    const defensa1 = calcularRegresionIndividual(datos1, 'golesRecibidos');
-    const regCor1 = calcularRegresionIndividual(datos1, 'corners');
-    const regAma1 = calcularRegresionIndividual(datos1, 'amarillas');
-    const regRoj1 = calcularRegresionIndividual(datos1, 'rojas');
-    
-    const ved2 = calcularVED(datos2);
-    const ataque2 = calcularRegresionIndividual(datos2, 'goles');
-    const defensa2 = calcularRegresionIndividual(datos2, 'golesRecibidos');
-    const regCor2 = calcularRegresionIndividual(datos2, 'corners');
-    const regAma2 = calcularRegresionIndividual(datos2, 'amarillas');
-    const regRoj2 = calcularRegresionIndividual(datos2, 'rojas');
-    
-    document.getElementById('titEq1').innerText = eq1;
-    document.getElementById('rendEq1').innerText = ved1.pctRendimiento.toFixed(1) + "%";
-    document.getElementById('vedEq1').innerText = `${ved1.v} / ${ved1.e} / ${ved1.d}`;
-    document.getElementById('regGolEq1').innerText = ataque1.proj.toFixed(2);
-    document.getElementById('regDefEq1').innerText = defensa1.proj.toFixed(2);
-    document.getElementById('regCorEq1').innerText = regCor1.proj.toFixed(2);
-    document.getElementById('regAmaEq1').innerText = regAma1.proj.toFixed(2);
-    document.getElementById('regRojEq1').innerText = regRoj1.proj.toFixed(2);
-    
-    document.getElementById('titEq2').innerText = eq2;
-    document.getElementById('rendEq2').innerText = ved2.pctRendimiento.toFixed(1) + "%";
-    document.getElementById('vedEq2').innerText = `${ved2.v} / ${ved2.e} / ${ved2.d}`;
-    document.getElementById('regGolEq2').innerText = ataque2.proj.toFixed(2);
-    document.getElementById('regDefEq2').innerText = defensa2.proj.toFixed(2);
-    document.getElementById('regCorEq2').innerText = regCor2.proj.toFixed(2);
-    document.getElementById('regAmaEq2').innerText = regAma2.proj.toFixed(2);
-    document.getElementById('regRojEq2').innerText = regRoj2.proj.toFixed(2);
-    
-    document.getElementById('analisisIndividual').style.display = 'grid';
+    const ventana = parseInt(document.getElementById('ventanaN').value, 10);
+    const pesoCondicion = parseFloat(document.getElementById('pesoLocalia').value);
 
-    // Cálculo con Ataque vs Defensa
-    const ventajaLocal = 0.25;
+    const hist1 = (BD_EQUIPOS[eq1] || []).slice(-ventana);
+    const hist2 = (BD_EQUIPOS[eq2] || []).slice(-ventana);
 
-    let golLocal = (ataque1.proj * 0.60) + (defensa2.proj * 0.40) + ventajaLocal;
-    let golVisita = (ataque2.proj * 0.60) + (defensa1.proj * 0.40);
+    // Filtrar partidos específicos de Local para eq1 y de Visita para eq2
+    const hist1Local = (BD_EQUIPOS[eq1] || []).filter(m => m.condicion === 'local').slice(-Math.max(5, Math.floor(ventana * 0.7)));
+    const hist2Visita = (BD_EQUIPOS[eq2] || []).filter(m => m.condicion === 'visita').slice(-Math.max(5, Math.floor(ventana * 0.7)));
 
-    golLocal  = Math.max(0.3, Math.min(golLocal, 3.8));
-    golVisita = Math.max(0.3, Math.min(golVisita, 3.5));
+    // Regresiones Generales y por Condición
+    const atqGen1 = regresionPonderada(hist1, 'golesFavor');
+    const defGen1 = regresionPonderada(hist1, 'golesContra');
+    const atqLoc1 = regresionPonderada(hist1Local, 'golesFavor');
+    const defLoc1 = regresionPonderada(hist1Local, 'golesContra');
 
-    const totalGoles = golLocal + golVisita || 1;
-    let fuerza1 = golLocal / totalGoles;
-    let fuerza2 = golVisita / totalGoles;
+    const atqGen2 = regresionPonderada(hist2, 'golesFavor');
+    const defGen2 = regresionPonderada(hist2, 'golesContra');
+    const atqVis2 = regresionPonderada(hist2Visita, 'golesFavor');
+    const defVis2 = regresionPonderada(hist2Visita, 'golesContra');
 
-    const hist1 = ved1.pctRendimiento / 100;
-    const hist2 = ved2.pctRendimiento / 100;
-    const totalHist = hist1 + hist2 || 1;
+    // Combinar General + Condición Local/Visita
+    const atq1 = (atqLoc1.proj * pesoCondicion) + (atqGen1.proj * (1 - pesoCondicion));
+    const def1 = (defLoc1.proj * pesoCondicion) + (defGen1.proj * (1 - pesoCondicion));
 
-    fuerza1 = (fuerza1 * 0.75) + ((hist1 / totalHist) * 0.25);
-    fuerza2 = (fuerza2 * 0.75) + ((hist2 / totalHist) * 0.25);
+    const atq2 = (atqVis2.proj * pesoCondicion) + (atqGen2.proj * (1 - pesoCondicion));
+    const def2 = (defVis2.proj * pesoCondicion) + (defGen2.proj * (1 - pesoCondicion));
 
-    const sumaF = fuerza1 + fuerza2;
-    fuerza1 /= sumaF;
-    fuerza2 /= sumaF;
+    // Cálculo de Goles Esperados (xG / Lambda) cruzando Ataque vs Defensa y Media de Liga
+    const mediaL = STATS_LIGA.mediaHG || 1.55;
+    const mediaV = STATS_LIGA.mediaAG || 1.25;
 
-    const diferencia = Math.abs(fuerza1 - fuerza2);
-    let pEmpate = 0.28 - (diferencia * 0.55); 
-    pEmpate = Math.max(0.16, Math.min(0.34, pEmpate)); 
+    let lambda1 = ((atq1 / mediaL) * (def2 / mediaL) * mediaL * 0.55) + (((atq1 * 0.6) + (def2 * 0.4)) * 0.45);
+    let lambda2 = ((atq2 / mediaV) * (def1 / mediaV) * mediaV * 0.55) + (((atq2 * 0.6) + (def1 * 0.4)) * 0.45);
 
-    let final1 = fuerza1 * (1 - pEmpate) * 100;
-    let final2 = fuerza2 * (1 - pEmpate) * 100;
-    let finalEmpate = pEmpate * 100;
-    
-    document.getElementById('barEq1').style.width = final1 + "%"; document.getElementById('barEq1').innerText = final1.toFixed(1) + "%";
-    document.getElementById('barEmp').style.width = finalEmpate + "%"; document.getElementById('barEmp').innerText = finalEmpate.toFixed(1) + "%";
-    document.getElementById('barEq2').style.width = final2 + "%"; document.getElementById('barEq2').innerText = final2.toFixed(1) + "%";
-    
-    document.getElementById('lblEq1').innerText = eq1;
-    document.getElementById('lblEq2').innerText = eq2;
-    document.getElementById('resultadoEnfrentamiento').style.display = 'block';
+    lambda1 = Math.max(0.35, Math.min(lambda1, 3.6));
+    lambda2 = Math.max(0.30, Math.min(lambda2, 3.3));
+    const lambdaTotal = lambda1 + lambda2;
 
-    // ========== GENERACIÓN DE LA TABLA Y TEXTO DE INTERPRETACIÓN ==========
-    const atq1Val = ataque1.proj; const atq2Val = ataque2.proj;
-    const def1Val = defensa1.proj; const def2Val = defensa2.proj;
-    const ved1Val = ved1.pctRendimiento; const ved2Val = ved2.pctRendimiento;
-    const cor1Val = regCor1.proj; const cor2Val = regCor2.proj;
+    // Matriz de Poisson Bivariada (0 a 7 goles por equipo) para obtener 1X2, BTTS y Marcadores Exactos
+    let probLocal = 0, probEmpate = 0, probVisita = 0, probBTTS = 0;
+    const marcadores = [];
 
-    document.getElementById('thEqInt1').innerText = eq1;
-    document.getElementById('thEqInt2').innerText = eq2;
-    
-    document.getElementById('tdAtq1').innerText = atq1Val.toFixed(2);
-    document.getElementById('tdAtq2').innerText = atq2Val.toFixed(2);
-    document.getElementById('tdDef1').innerText = def1Val.toFixed(2);
-    document.getElementById('tdDef2').innerText = def2Val.toFixed(2);
-    document.getElementById('tdVed1').innerText = ved1Val.toFixed(1) + "%";
-    document.getElementById('tdVed2').innerText = ved2Val.toFixed(1) + "%";
-    document.getElementById('tdCor1').innerText = cor1Val.toFixed(2);
-    document.getElementById('tdCor2').innerText = cor2Val.toFixed(2);
+    for (let g1 = 0; g1 <= 7; g1++) {
+        for (let g2 = 0; g2 <= 7; g2++) {
+            const p = poissonP(g1, lambda1) * poissonP(g2, lambda2);
+            if (g1 > g2) probLocal += p;
+            else if (g1 === g2) probEmpate += p;
+            else probVisita += p;
 
-    // Función para sacar al ganador de cada métrica (con un pequeño umbral para empate)
-    const getVentaja = (val1, val2, invertido = false) => {
-        const diff = Math.abs(val1 - val2);
-        if (diff < 0.12) return "Empate"; // Si la diferencia es menor a 0.12 goles, se considera parejo
-        if (invertido) return val1 < val2 ? eq1 : eq2; // En defensa, el menor número gana
-        return val1 > val2 ? eq1 : eq2; // En ataque y corners, el mayor gana
-    };
-
-    const venAtq = getVentaja(atq1Val, atq2Val);
-    const venDef = getVentaja(def1Val, def2Val, true);
-    const venCor = getVentaja(cor1Val, cor2Val);
-    
-    let venVed = "Empate";
-    if (Math.abs(ved1Val - ved2Val) > 3.0) { // Margen de 3% para histórico
-        venVed = ved1Val > ved2Val ? eq1 : eq2;
-    }
-
-    const aplicarColor = (elemId, ventaja) => {
-        const elem = document.getElementById(elemId);
-        elem.innerText = ventaja;
-        elem.style.color = ventaja === eq1 ? '#16a34a' : (ventaja === eq2 ? '#dc2626' : '#64748b');
-    };
-
-    aplicarColor('tdVenAtq', venAtq);
-    aplicarColor('tdVenDef', venDef);
-    aplicarColor('tdVenVed', venVed);
-    aplicarColor('tdVenCor', venCor);
-
-    // Lógica para redactar la interpretación automática
-    let textoInt = "";
-    const favFinal = final1 > final2 ? eq1 : eq2;
-    const diffFinal = Math.abs(final1 - final2);
-
-    if (diffFinal <= 8) {
-        textoInt += `Partido muy parejo y de pronóstico reservado. `;
-    } else if (diffFinal <= 18) {
-        textoInt += `Ligera ventaja matemática para ${favFinal}. `;
-    } else {
-        textoInt += `Claro favoritismo en las estadísticas para ${favFinal}. `;
-    }
-
-    if (venAtq === venDef && venAtq !== "Empate") {
-        textoInt += `${venAtq} domina el cruce teniendo mejor proyección tanto en ataque como en defensa. `;
-    } else {
-        if (venAtq !== "Empate" && venDef !== "Empate") {
-             textoInt += `${venAtq} tiene mejor pegada ofensiva, pero ${venDef} muestra mucha más solidez atrás. `;
-        } else if (venAtq !== "Empate") {
-             textoInt += `${venAtq} tiene ventaja por su volumen de ataque. `;
-        } else if (venDef !== "Empate") {
-             textoInt += `${venDef} tiene ventaja gracias a su muralla defensiva. `;
+            if (g1 > 0 && g2 > 0) probBTTS += p;
+            marcadores.push({ score: `${g1} - ${g2}`, prob: p * 100 });
         }
     }
 
-    if (favFinal === eq1 && diffFinal <= 12) {
-        textoInt += `La condición de local termina siendo el factor clave para inclinar la balanza a favor de ${eq1}.`;
-    } else if (favFinal === eq2 && final2 > final1) {
-        textoInt += `A pesar de jugar de visitante, el peso de los números respalda a ${eq2}.`;
-    }
+    // Normalizar 1X2 al 100%
+    const suma1X2 = probLocal + probEmpate + probVisita || 1;
+    const p1 = (probLocal / suma1X2) * 100;
+    const pX = (probEmpate / suma1X2) * 100;
+    const p2 = (probVisita / suma1X2) * 100;
+    const bttsSi = probBTTS * 100;
 
-    document.getElementById('textoInterpretacion').innerText = textoInt;
-    document.getElementById('interpretacionContenedor').style.display = 'block';
+    // Mostrar Panel y Barra 1X2
+    document.getElementById('panelResultados').style.display = 'block';
+    document.getElementById('xgLocalTxt').innerText = `${eq1}: ${lambda1.toFixed(2)}`;
+    document.getElementById('xgVisitaTxt').innerText = `${eq2}: ${lambda2.toFixed(2)}`;
+    document.getElementById('xgTotalTxt').innerText = lambdaTotal.toFixed(2);
 
-    dibujarGraficaComparativa(ataque1, eq1, ataque2, eq2);
+    document.getElementById('bar1').style.width = `${p1}%`;
+    document.getElementById('bar1').innerText = `${p1.toFixed(1)}%`;
+    document.getElementById('barX').style.width = `${pX}%`;
+    document.getElementById('barX').innerText = `${pX.toFixed(1)}%`;
+    document.getElementById('bar2').style.width = `${p2}%`;
+    document.getElementById('bar2').innerText = `${p2.toFixed(1)}%`;
+
+    document.getElementById('lbl1').innerText = `${eq1} (Cuota justa: ${(100/p1).toFixed(2)})`;
+    document.getElementById('lblX').innerText = `Empate (${(100/pX).toFixed(2)})`;
+    document.getElementById('lbl2').innerText = `${eq2} (Cuota justa: ${(100/p2).toFixed(2)})`;
+
+    // Evaluar Valor (+EV) si el usuario ingresó cuotas de su casino
+    evaluarValorCasino(eq1, eq2, p1, pX, p2);
+
+    // Llenar Tarjetas Comparativas
+    const ved1 = resumenVED(hist1);
+    const vedLoc1 = resumenVED(hist1Local);
+    const ved2 = resumenVED(hist2);
+    const vedVis2 = resumenVED(hist2Visita);
+
+    document.getElementById('cardTit1').innerText = `🏠 ${eq1}`;
+    document.getElementById('vedGen1').innerText = `${ved1.g}G - ${ved1.e}E - ${ved1.p}P (${ved1.pct.toFixed(0)}%)`;
+    document.getElementById('vedLoc1').innerText = `${vedLoc1.g}G - ${vedLoc1.e}E - ${vedLoc1.p}P (${vedLoc1.pct.toFixed(0)}%)`;
+    document.getElementById('atqDef1').innerText = `${atq1.toFixed(2)} GF / ${def1.toFixed(2)} GC`;
+    document.getElementById('vsCasino1').innerText = `${ved1.pctCasino.toFixed(0)}% de partidos`;
+
+    document.getElementById('cardTit2').innerText = `✈️ ${eq2}`;
+    document.getElementById('vedGen2').innerText = `${ved2.g}G - ${ved2.e}E - ${ved2.p}P (${ved2.pct.toFixed(0)}%)`;
+    document.getElementById('vedVis2').innerText = `${vedVis2.g}G - ${vedVis2.e}E - ${vedVis2.p}P (${vedVis2.pct.toFixed(0)}%)`;
+    document.getElementById('atqDef2').innerText = `${atq2.toFixed(2)} GF / ${def2.toFixed(2)} GC`;
+    document.getElementById('vsCasino2').innerText = `${ved2.pctCasino.toFixed(0)}% de partidos`;
+
+    // Construir Tabla de Mercados enfocada en Equipos y Totales
+    const mercados = [
+        { nombre: `Doble Oportunidad: ${eq1} o Empate (1X)`, prob: p1 + pX },
+        { nombre: `Doble Oportunidad: ${eq2} o Empate (X2)`, prob: p2 + pX },
+        { nombre: `⚽ ${eq1} Anota Más de 0.5 Goles (Over 0.5 Local)`, prob: probOverLinea(0.5, lambda1) },
+        { nombre: `⚽ ${eq1} Anota Más de 1.5 Goles (Over 1.5 Local)`, prob: probOverLinea(1.5, lambda1) },
+        { nombre: `⚽ ${eq2} Anota Más de 0.5 Goles (Over 0.5 Visita)`, prob: probOverLinea(0.5, lambda2) },
+        { nombre: `⚽ ${eq2} Anota Más de 1.5 Goles (Over 1.5 Visita)`, prob: probOverLinea(1.5, lambda2) },
+        { nombre: `🛡️ Portería a Cero de ${eq1} (${eq2} NO anota)`, prob: poissonP(0, lambda2) * 100 },
+        { nombre: `🛡️ Portería a Cero de ${eq2} (${eq1} NO anota)`, prob: poissonP(0, lambda1) * 100 },
+        { nombre: `🔥 Partido: Más de 1.5 Goles Totales (Over 1.5)`, prob: probOverLinea(1.5, lambdaTotal) },
+        { nombre: `🔥 Partido: Más de 2.5 Goles Totales (Over 2.5)`, prob: probOverLinea(2.5, lambdaTotal) },
+        { nombre: `❄️ Partido: Menos de 2.5 Goles Totales (Under 2.5)`, prob: 100 - probOverLinea(2.5, lambdaTotal) },
+        { nombre: `🤝 Ambos Equipos Anotan: SÍ (BTTS Sí)`, prob: bttsSi },
+        { nombre: `🚫 Ambos Equipos Anotan: NO (BTTS No)`, prob: 100 - bttsSi }
+    ];
+
+    const tbodyM = document.getElementById('tablaMercadosBody');
+    tbodyM.innerHTML = '';
+    mercados.forEach(m => {
+        const cuotaMin = m.prob > 0 ? (100 / m.prob).toFixed(2) : '-';
+        let badge = `<span class="pill-pick pick-low">Baja (<55%)</span>`;
+        if (m.prob >= 68) badge = `<span class="pill-pick pick-high">🔥 Alta Ideal Parlay (${m.prob.toFixed(0)}%)</span>`;
+        else if (m.prob >= 55) badge = `<span class="pill-pick pick-med">⚡ Media Valor (${m.prob.toFixed(0)}%)</span>`;
+
+        tbodyM.innerHTML += `
+            <tr>
+                <td class="td-left">${m.nombre}</td>
+                <td style="font-weight:bold;">${m.prob.toFixed(1)}%</td>
+                <td style="font-weight:bold; color:#2563eb;">@${cuotaMin}</td>
+                <td>${badge}</td>
+            </tr>
+        `;
+    });
+
+    // Top 5 Marcadores Exactos
+    marcadores.sort((a, b) => b.prob - a.prob);
+    const contScores = document.getElementById('topMarcadores');
+    contScores.innerHTML = '';
+    marcadores.slice(0, 5).forEach(s => {
+        contScores.innerHTML += `
+            <div style="background:white; border:1px solid #cbd5e1; border-radius:8px; padding:8px 14px; font-weight:bold; font-size:0.9rem;">
+                ${s.score} <span style="color:#16a34a; margin-left:5px;">(${s.prob.toFixed(1)}%)</span>
+            </div>
+        `;
+    });
+
+    // Actualizar H2H y Gráfica
+    renderH2H(eq1, eq2);
+    dibujarGrafica(eq1, atqGen1, eq2, atqGen2);
 }
 
-function dibujarGraficaComparativa(r1, n1, r2, n2) {
-    const ctx = document.getElementById('grafica').getContext('2d');
-    if (chartInstance) { chartInstance.destroy(); }
-    
-    const d1 = r1.datosRecortados || [];
-    const d2 = r2.datosRecortados || [];
+function evaluarValorCasino(eq1, eq2, p1, pX, p2) {
+    const o1 = parseFloat(document.getElementById('oddCasa1').value);
+    const oX = parseFloat(document.getElementById('oddCasaX').value);
+    const o2 = parseFloat(document.getElementById('oddCasa2').value);
+    const div = document.getElementById('evAlerta');
 
-    const maxLength = Math.max(d1.length, d2.length);
-    const labels = []; for(let i=1; i<=maxLength+1; i++) labels.push(i <= maxLength ? `P${i}` : `Próximo`);
-    
-    const linea1 = []; 
-    for (let i = 1; i <= maxLength; i++) linea1.push(Math.max(0, r1.m * i + r1.b));
-    linea1.push(r1.proj); 
-    
-    const linea2 = []; 
-    for (let i = 1; i <= maxLength; i++) linea2.push(Math.max(0, r2.m * i + r2.b));
-    linea2.push(r2.proj); 
+    const hallazgos = [];
+    if (o1 > 1) {
+        const ev1 = ((p1 / 100) * o1 - 1) * 100;
+        if (ev1 > 2) hallazgos.push(`✅ VALOR en ${eq1} (+${ev1.toFixed(1)}% EV a cuota @${o1})`);
+    }
+    if (oX > 1) {
+        const evX = ((pX / 100) * oX - 1) * 100;
+        if (evX > 2) hallazgos.push(`✅ VALOR en Empate (+${evX.toFixed(1)}% EV a cuota @${oX})`);
+    }
+    if (o2 > 1) {
+        const ev2 = ((p2 / 100) * o2 - 1) * 100;
+        if (ev2 > 2) hallazgos.push(`✅ VALOR en ${eq2} (+${ev2.toFixed(1)}% EV a cuota @${o2})`);
+    }
+
+    if (hallazgos.length > 0) {
+        div.style.color = '#15803d';
+        div.innerText = hallazgos.join("  |  ");
+    } else if (o1 > 1 || oX > 1 || o2 > 1) {
+        div.style.color = '#b91c1c';
+        div.innerText = "⚠️ Las cuotas ingresadas del casino no tienen margen de valor positivo (+EV) frente al modelo.";
+    } else {
+        div.innerText = "";
+    }
+}
+
+// ==========================================================
+// 4. H2H DIRECTO, HISTORIAL Y GRÁFICA
+// ==========================================================
+function renderH2H(eq1, eq2) {
+    const cruces = RAW_CSV_ROWS.filter(r => (r.home === eq1 && r.away === eq2) || (r.home === eq2 && r.away === eq1)).reverse();
+    const tbody = document.getElementById('tablaH2H');
+    tbody.innerHTML = '';
+
+    if (cruces.length === 0) {
+        document.getElementById('h2hResumen').innerText = "Sin enfrentamientos registrados en el CSV.";
+        tbody.innerHTML = '<tr><td colspan="4">Sin datos</td></tr>';
+        return;
+    }
+
+    let v1 = 0, emp = 0, v2 = 0;
+    cruces.forEach(c => {
+        if (c.hg === c.ag) emp++;
+        else if ((c.home === eq1 && c.hg > c.ag) || (c.away === eq1 && c.ag > c.hg)) v1++;
+        else v2++;
+    });
+
+    document.getElementById('h2hResumen').innerText = `En ${cruces.length} juegos históricos: ${eq1} ganó ${v1} | Empates ${emp} | ${eq2} ganó ${v2}`;
+
+    cruces.slice(0, 12).forEach(c => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${c.date}</td>
+                <td style="font-weight:${c.home === eq1 ? 'bold' : 'normal'};">${c.home}</td>
+                <td style="font-weight:bold; background:#f1f5f9;">${c.hg} - ${c.ag}</td>
+                <td style="font-weight:${c.away === eq1 ? 'bold' : 'normal'};">${c.away}</td>
+            </tr>
+        `;
+    });
+}
+
+function renderHistorialEquipo() {
+    const eq = document.getElementById('histEqSelect').value;
+    const tbody = document.getElementById('tablaHistorialEquipo');
+    tbody.innerHTML = '';
+    if (!eq || !BD_EQUIPOS[eq]) return;
+
+    const lista = [...BD_EQUIPOS[eq]].reverse();
+    lista.forEach(m => {
+        const bg = m.resultado === 'G' ? '#16a34a' : (m.resultado === 'P' ? '#dc2626' : '#d97706');
+        tbody.innerHTML += `
+            <tr>
+                <td>${m.fecha}</td>
+                <td>${m.condicion === 'local' ? '🏠 Loc' : '✈️ Vis'}</td>
+                <td style="font-weight:600;">${m.oponente}</td>
+                <td style="background:${bg}; color:white; font-weight:bold; border-radius:4px;">${m.resultado} (${m.golesFavor}-${m.golesContra})</td>
+                <td>${m.momioEquipo ? '@' + m.momioEquipo.toFixed(2) : '-'}</td>
+            </tr>
+        `;
+    });
+}
+
+function dibujarGrafica(eq1, r1, eq2, r2) {
+    const ctx = document.getElementById('graficaTendencia').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+
+    const maxLen = Math.max(r1.serie.length, r2.serie.length);
+    const labels = [];
+    for (let i = 1; i <= maxLen; i++) labels.push(`J${i}`);
+    labels.push('Proyección');
+
+    const d1 = [...r1.serie, r1.proj];
+    const d2 = [...r2.serie, r2.proj];
 
     chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [
-                { label: `Tendencia Ataque: ${n1}`, data: linea1, borderColor: '#16a34a', backgroundColor: '#16a34a', borderWidth: 3, tension: 0.1 },
-                { label: `Tendencia Ataque: ${n2}`, data: linea2, borderColor: '#dc2626', backgroundColor: '#dc2626', borderWidth: 3, tension: 0.1 }
+                { label: `Goles Anotados: ${eq1}`, data: d1, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.25, borderWidth: 2.5 },
+                { label: `Goles Anotados: ${eq2}`, data: d2, borderColor: '#dc2626', backgroundColor: '#dc2626', tension: 0.25, borderWidth: 2.5 }
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-    });
-    document.getElementById('graficaContenedor').style.display = 'block';
-}
-
-// ============================================
-// TABLA, EDICIÓN Y BOTONES DE REORDENAR
-// ============================================
-function renderTablaPartidos() {
-    const equipo = document.getElementById('histEq').value;
-    const tbody = document.getElementById('tablaPartidosList'); tbody.innerHTML = '';
-    if (!equipo || !BD_EQUIPOS[equipo] || BD_EQUIPOS[equipo].length === 0) { tbody.innerHTML = '<tr><td colspan="5">Sin partidos.</td></tr>'; return; }
-    
-    const datosList = [...BD_EQUIPOS[equipo]].reverse();
-    
-    datosList.forEach((p, reverseIdx) => {
-        const realIdx = BD_EQUIPOS[equipo].length - 1 - reverseIdx; 
-        let colorRes = p.resultado === 'ganado' ? '#16a34a' : (p.resultado === 'perdido' ? '#dc2626' : '#d97706');
-        let txtRes = p.resultado === 'ganado' ? 'G' : (p.resultado === 'perdido' ? 'P' : 'E');
-        
-        let btnUp = realIdx < BD_EQUIPOS[equipo].length - 1 ? `<button onclick="moverPartido('${equipo}', ${realIdx}, 1)" style="background:#475569; padding:4px 6px; margin:0 1px; font-size:0.8rem;" title="Mover hacia el presente (Más reciente)">⬆️</button>` : `<button disabled style="background:#cbd5e1; padding:4px 6px; margin:0 1px; cursor:not-allowed; font-size:0.8rem;">⬆️</button>`;
-        let btnDown = realIdx > 0 ? `<button onclick="moverPartido('${equipo}', ${realIdx}, -1)" style="background:#475569; padding:4px 6px; margin:0 1px; font-size:0.8rem;" title="Mover hacia el pasado (Más antiguo)">⬇️</button>` : `<button disabled style="background:#cbd5e1; padding:4px 6px; margin:0 1px; cursor:not-allowed; font-size:0.8rem;">⬇️</button>`;
-
-        tbody.innerHTML += `
-            <tr>
-                <td>${p.año}</td>
-                <td style="font-weight:bold; font-size:0.9rem;">${p.oponente}</td>
-                <td style="color:white; background:${colorRes}; border-radius:4px; font-weight:bold;">${txtRes}</td>
-                <td style="font-weight:bold;">${p.goles}</td>
-                <td style="white-space:nowrap;">
-                    ${btnDown}
-                    ${btnUp}
-                    <button onclick="abrirModalEdicion('${equipo}', ${realIdx})" style="background:#3b82f6; padding:4px 8px; margin:0 2px; font-size:0.85rem;" title="Editar Todo">✏️</button>
-                    <button onclick="borrarPartidoTotal('${equipo}', ${realIdx})" style="background:#ef4444; padding:4px 8px; margin:0 2px; font-size:0.85rem;" title="Borrar Todo">🗑️</button>
-                </td>
-            </tr>
-        `;
-    });
-}
-
-function moverPartido(equipo, index, direccion) {
-    const arr = BD_EQUIPOS[equipo];
-    const nuevoIndex = index + direccion;
-
-    if (nuevoIndex < 0 || nuevoIndex >= arr.length) return;
-
-    const temp = arr[index];
-    arr[index] = arr[nuevoIndex];
-    arr[nuevoIndex] = temp;
-
-    guardarBD();
-    renderTablaPartidos();
-    
-    const eq1 = document.getElementById('predEq1').value;
-    const eq2 = document.getElementById('predEq2').value;
-    if(eq1 === equipo || eq2 === equipo) {
-        ejecutarModeloPredictivo();
-    }
-}
-
-function abrirModalEdicion(equipo, index) {
-    const p1 = BD_EQUIPOS[equipo][index];
-    const oldOpponent = p1.oponente;
-    let p2 = null;
-    
-    if (BD_EQUIPOS[oldOpponent]) {
-        const resEsperado = p1.resultado === 'ganado' ? 'perdido' : (p1.resultado === 'perdido' ? 'ganado' : 'empate');
-        p2 = BD_EQUIPOS[oldOpponent].find(m => m.oponente === equipo && m.año === p1.año && m.resultado === resEsperado);
-    }
-
-    document.getElementById('editIndex').value = index;
-    document.getElementById('editOldOpponent').value = oldOpponent;
-    document.getElementById('editEqIzq').value = equipo;
-    document.getElementById('editEqDer').value = oldOpponent;
-    document.getElementById('editAño').value = p1.año;
-    
-    document.getElementById('e_golI').value = p1.goles; document.getElementById('e_golD').value = p2 ? p2.goles : '';
-    document.getElementById('e_corI').value = p1.corners; document.getElementById('e_corD').value = p2 ? p2.corners : '';
-    document.getElementById('e_amaI').value = p1.amarillas; document.getElementById('e_amaD').value = p2 ? p2.amarillas : '';
-    document.getElementById('e_rojI').value = p1.rojas; document.getElementById('e_rojD').value = p2 ? p2.rojas : '';
-    
-    document.getElementById('editModal').style.display = 'flex';
-}
-
-function cerrarModal() { document.getElementById('editModal').style.display = 'none'; }
-
-function guardarEdicionTotal() {
-    const equipo = document.getElementById('editEqIzq').value;
-    const index = parseInt(document.getElementById('editIndex').value, 10);
-    const oldOpponent = document.getElementById('editOldOpponent').value;
-    const newOpponent = document.getElementById('editEqDer').value;
-    
-    if (!newOpponent || equipo === newOpponent) { alert('Rival inválido.'); return; }
-    const p1_old = BD_EQUIPOS[equipo][index];
-    
-    const año = parseInt(document.getElementById('editAño').value, 10);
-    const gI = +document.getElementById('e_golI').value; const gD = +document.getElementById('e_golD').value;
-    let resIzq = gI > gD ? 'ganado' : (gI < gD ? 'perdido' : 'empate');
-    let resDer = resIzq === 'ganado' ? 'perdido' : (resIzq === 'perdido' ? 'ganado' : 'empate');
-
-    const pIzq = { 
-        oponente: newOpponent, año: año, resultado: resIzq, 
-        goles: gI, golesRecibidos: gD, 
-        corners: +document.getElementById('e_corI').value, amarillas: +document.getElementById('e_amaI').value, rojas: +document.getElementById('e_rojI').value 
-    };
-    const pDer = { 
-        oponente: equipo, año: año, resultado: resDer, 
-        goles: gD, golesRecibidos: gI, 
-        corners: +document.getElementById('e_corD').value, amarillas: +document.getElementById('e_amaD').value, rojas: +document.getElementById('e_rojD').value 
-    };
-
-    BD_EQUIPOS[equipo][index] = pIzq; 
-    
-    if (oldOpponent === newOpponent) {
-        const resEsperado = p1_old.resultado === 'ganado' ? 'perdido' : (p1_old.resultado === 'perdido' ? 'ganado' : 'empate');
-        const mirrorIndex = BD_EQUIPOS[oldOpponent].findIndex(m => m.oponente === equipo && m.año === p1_old.año && m.resultado === resEsperado);
-        if(mirrorIndex !== -1) BD_EQUIPOS[oldOpponent][mirrorIndex] = pDer;
-        else BD_EQUIPOS[oldOpponent].push(pDer);
-    } else {
-        if (BD_EQUIPOS[oldOpponent]) {
-            const resEsperado = p1_old.resultado === 'ganado' ? 'perdido' : (p1_old.resultado === 'perdido' ? 'ganado' : 'empate');
-            const mirrorIndex = BD_EQUIPOS[oldOpponent].findIndex(m => m.oponente === equipo && m.año === p1_old.año && m.resultado === resEsperado);
-            if(mirrorIndex !== -1) BD_EQUIPOS[oldOpponent].splice(mirrorIndex, 1);
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Goles' } } }
         }
-        if (!BD_EQUIPOS[newOpponent]) BD_EQUIPOS[newOpponent] = [];
-        BD_EQUIPOS[newOpponent].push(pDer);
-    }
-    
-    guardarBD(); cerrarModal(); renderTablaPartidos(); actualizarSelectoresGlobales();
-    const eq1 = document.getElementById('predEq1').value;
-    const eq2 = document.getElementById('predEq2').value;
-    if(eq1 === equipo || eq2 === equipo) ejecutarModeloPredictivo();
-}
-
-function borrarPartidoTotal(equipo, index) {
-    if(confirm(`¿ELIMINAR el partido de la base de datos global?`)) {
-        const p1 = BD_EQUIPOS[equipo][index]; const opponent = p1.oponente;
-        if (BD_EQUIPOS[opponent]) {
-            const resEsperado = p1.resultado === 'ganado' ? 'perdido' : (p1.resultado === 'perdido' ? 'ganado' : 'empate');
-            const mirrorIndex = BD_EQUIPOS[opponent].findIndex(m => m.oponente === equipo && m.año === p1.año && m.resultado === resEsperado);
-            if(mirrorIndex !== -1) BD_EQUIPOS[opponent].splice(mirrorIndex, 1);
-        }
-        BD_EQUIPOS[equipo].splice(index, 1); guardarBD(); renderTablaPartidos();
-        
-        const eq1 = document.getElementById('predEq1').value;
-        const eq2 = document.getElementById('predEq2').value;
-        if(eq1 === equipo || eq2 === equipo) ejecutarModeloPredictivo();
-    }
+    });
 }
 </script>
 </body>
