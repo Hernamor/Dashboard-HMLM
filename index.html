@@ -166,7 +166,7 @@
                 <div style="background: #eff6ff; border: 2px solid #3b82f6; padding: 15px; border-radius: 10px;">
                     <div style="text-align:center; font-size:1.02rem; font-weight:bold; color:#0f172a; margin-bottom:6px;">
                         Goles Esperados (xG): <span id="xgLocalTxt" style="color:#16a34a;">0.00</span> vs <span id="xgVisitaTxt" style="color:#dc2626;">0.00</span> 
-                        &nbsp;|&nbsp; Total: <span id="xgTotalTxt" style="color:#2563eb;">0.00</span> goles
+                         |  Total: <span id="xgTotalTxt" style="color:#2563eb;">0.00</span> goles
                     </div>
                     <div class="prob-bar">
                         <div id="bar1" class="prob-segment" style="background:#16a34a; width:33%;">33%</div>
@@ -354,7 +354,7 @@
                 <div>
                     <div style="font-size:0.85rem; color:#94a3b8; font-weight:bold;">RESUMEN DE TU PARLAY SELECCIONADO EN LA TABLA</div>
                     <div style="font-size:1.25rem; font-weight:800; margin-top:4px;">
-                        <span id="customCount">0</span> Selecciones Activas &nbsp;|&nbsp; 
+                        <span id="customCount">0</span> Selecciones Activas  |  
                         Probabilidad Real: <span id="customProb" style="color:#4ade80;">0.0%</span>
                     </div>
                 </div>
@@ -470,7 +470,7 @@ function procesarArchivoCSV(input) {
         RAW_CSV_ROWS = filasExtraidas;
         try { localStorage.setItem('ligamx_raw_csv_v2', JSON.stringify(RAW_CSV_ROWS)); } catch(err) {}
         reconstruirBaseDesdeRaw();
-        alert(¡Éxito! Se cargaron ${filasExtraidas.length} partidos históricos del archivo MEX.csv.);
+        alert(`¡Éxito! Se cargaron ${filasExtraidas.length} partidos históricos del archivo MEX.csv.`);
     };
     reader.readAsText(file);
     input.value = '';
@@ -532,14 +532,14 @@ function reconstruirBaseDesdeRaw() {
         mediaAG: sumAG / totalP
     };
 
-    document.getElementById('statusBD').innerText = ✅ CSV Activo (${RAW_CSV_ROWS.length} partidos);
+    document.getElementById('statusBD').innerText = `✅ CSV Activo (${RAW_CSV_ROWS.length} partidos)`;
     document.getElementById('ligaTotalPartidos').innerText = filasFiltradas.length;
     document.getElementById('ligaMediaLocal').innerText = STATS_LIGA.mediaHG.toFixed(2);
     document.getElementById('ligaMediaVisita').innerText = STATS_LIGA.mediaAG.toFixed(2);
     document.getElementById('ligaMediaTotal').innerText = (STATS_LIGA.mediaHG + STATS_LIGA.mediaAG).toFixed(2);
-    document.getElementById('ligaPct1X2').innerText = ${((winH/totalP)*100).toFixed(1)}% / ${((draw/totalP)*100).toFixed(1)}% / ${((winA/totalP)*100).toFixed(1)}%;
-    document.getElementById('ligaPctBTTS').innerText = ${((btts/totalP)*100).toFixed(1)}%;
-    document.getElementById('ligaPctO25').innerText = ${((o25/totalP)*100).toFixed(1)}%;
+    document.getElementById('ligaPct1X2').innerText = `${((winH/totalP)*100).toFixed(1)}% / ${((draw/totalP)*100).toFixed(1)}% / ${((winA/totalP)*100).toFixed(1)}%`;
+    document.getElementById('ligaPctBTTS').innerText = `${((btts/totalP)*100).toFixed(1)}%`;
+    document.getElementById('ligaPctO25').innerText = `${((o25/totalP)*100).toFixed(1)}%`;
 
     poblarSelectoresEquipos();
 }
@@ -553,7 +553,7 @@ function poblarSelectoresEquipos() {
         equipos.forEach(eq => {
             const opt = document.createElement('option');
             opt.value = eq;
-            opt.textContent = ${eq} (${BD_EQUIPOS[eq].length} PJ);
+            opt.textContent = `${eq} (${BD_EQUIPOS[eq].length} PJ)`;
             sel.appendChild(opt);
         });
         if (prev && equipos.includes(prev)) sel.value = prev;
@@ -565,7 +565,7 @@ function poblarSelectoresEquipos() {
         ['jorLoc_', 'jorVis_'].forEach(prefix => {
             const sel = document.getElementById(prefix + i);
             const prev = sel.value;
-            sel.innerHTML = <option value="">-- ${prefix === 'jorLoc_' ? 'Local' : 'Visita'} --</option>;
+            sel.innerHTML = `<option value="">-- ${prefix === 'jorLoc_' ? 'Local' : 'Visita'} --</option>`;
             equipos.forEach(eq => {
                 const opt = document.createElement('option');
                 opt.value = eq;
@@ -653,7 +653,6 @@ function probOverLinea(linea, lambda) {
     return (1 - sumaUnder) * 100;
 }
 
-// Función central que calcula todo para cualquier par (eq1, eq2)
 function calcularDatosEnfrentamiento(eq1, eq2) {
     const ventana = parseInt(document.getElementById('ventanaN').value, 10);
     const pesoCondicion = parseFloat(document.getElementById('pesoLocalia').value);
@@ -706,18 +705,18 @@ function calcularDatosEnfrentamiento(eq1, eq2) {
     const bttsSi = probBTTS * 100;
 
     const listaMercados = [
-        { id: '1X', cat: 'equipos', nombre: Doble Oportunidad: ${eq1} o Empate (1X), prob: p1 + pX },
-        { id: 'X2', cat: 'equipos', nombre: Doble Oportunidad: ${eq2} o Empate (X2), prob: p2 + pX },
-        { id: '12', cat: 'equipos', nombre: Doble Oportunidad: Ganador Local o Visita (12), prob: p1 + p2 },
-        { id: 'ML1', cat: 'ganador', nombre: Ganador Directo: ${eq1} (Local), prob: p1 },
-        { id: 'ML2', cat: 'ganador', nombre: Ganador Directo: ${eq2} (Visita), prob: p2 },
-        { id: 'O05_L', cat: 'equipos', nombre: ${eq1} Anota > 0.5 Goles (Over 0.5 Local), prob: probOverLinea(0.5, lambda1) },
-        { id: 'O05_V', cat: 'equipos', nombre: ${eq2} Anota > 0.5 Goles (Over 0.5 Visita), prob: probOverLinea(0.5, lambda2) },
-        { id: 'O15_L', cat: 'equipos', nombre: ${eq1} Anota > 1.5 Goles (Over 1.5 Local), prob: probOverLinea(1.5, lambda1) },
-        { id: 'O15_T', cat: 'goles', nombre: Partido > 1.5 Goles Totales (Over 1.5), prob: probOverLinea(1.5, lambdaTotal) },
-        { id: 'O25_T', cat: 'goles', nombre: Partido > 2.5 Goles Totales (Over 2.5), prob: probOverLinea(2.5, lambdaTotal) },
-        { id: 'U35_T', cat: 'goles', nombre: Partido < 3.5 Goles Totales (Under 3.5), prob: 100 - probOverLinea(3.5, lambdaTotal) },
-        { id: 'BTTS_Y', cat: 'goles', nombre: Ambos Equipos Anotan: SÍ (BTTS), prob: bttsSi }
+        { id: '1X', cat: 'equipos', nombre: `Doble Oportunidad: ${eq1} o Empate (1X)`, prob: p1 + pX },
+        { id: 'X2', cat: 'equipos', nombre: `Doble Oportunidad: ${eq2} o Empate (X2)`, prob: p2 + pX },
+        { id: '12', cat: 'equipos', nombre: `Doble Oportunidad: Ganador Local o Visita (12)`, prob: p1 + p2 },
+        { id: 'ML1', cat: 'ganador', nombre: `Ganador Directo: ${eq1} (Local)`, prob: p1 },
+        { id: 'ML2', cat: 'ganador', nombre: `Ganador Directo: ${eq2} (Visita)`, prob: p2 },
+        { id: 'O05_L', cat: 'equipos', nombre: `${eq1} Anota > 0.5 Goles (Over 0.5 Local)`, prob: probOverLinea(0.5, lambda1) },
+        { id: 'O05_V', cat: 'equipos', nombre: `${eq2} Anota > 0.5 Goles (Over 0.5 Visita)`, prob: probOverLinea(0.5, lambda2) },
+        { id: 'O15_L', cat: 'equipos', nombre: `${eq1} Anota > 1.5 Goles (Over 1.5 Local)`, prob: probOverLinea(1.5, lambda1) },
+        { id: 'O15_T', cat: 'goles', nombre: `Partido > 1.5 Goles Totales (Over 1.5)`, prob: probOverLinea(1.5, lambdaTotal) },
+        { id: 'O25_T', cat: 'goles', nombre: `Partido > 2.5 Goles Totales (Over 2.5)`, prob: probOverLinea(2.5, lambdaTotal) },
+        { id: 'U35_T', cat: 'goles', nombre: `Partido < 3.5 Goles Totales (Under 3.5)`, prob: 100 - probOverLinea(3.5, lambdaTotal) },
+        { id: 'BTTS_Y', cat: 'goles', nombre: `Ambos Equipos Anotan: SÍ (BTTS)`, prob: bttsSi }
     ];
 
     return {
@@ -740,40 +739,40 @@ function ejecutarModeloIndividual() {
     const res = calcularDatosEnfrentamiento(eq1, eq2);
 
     document.getElementById('panelResultados').style.display = 'block';
-    document.getElementById('xgLocalTxt').innerText = ${eq1}: ${res.lambda1.toFixed(2)};
-    document.getElementById('xgVisitaTxt').innerText = ${eq2}: ${res.lambda2.toFixed(2)};
-    document.getElementById('xgTotalTxt').innerText = res.lambdaTotal.toFixed(2);
+    document.getElementById('xgLocalTxt').innerText = `${eq1}: ${res.lambda1.toFixed(2)}`;
+    document.getElementById('xgVisitaTxt').innerText = `${eq2}: ${res.lambda2.toFixed(2)}`;
+    document.getElementById('xgTotalTxt').innerText = `${res.lambdaTotal.toFixed(2)}`;
 
-    document.getElementById('bar1').style.width = ${res.p1}%;
-    document.getElementById('bar1').innerText = ${res.p1.toFixed(1)}%;
-    document.getElementById('barX').style.width = ${res.pX}%;
-    document.getElementById('barX').innerText = ${res.pX.toFixed(1)}%;
-    document.getElementById('bar2').style.width = ${res.p2}%;
-    document.getElementById('bar2').innerText = ${res.p2.toFixed(1)}%;
+    document.getElementById('bar1').style.width = `${res.p1}%`;
+    document.getElementById('bar1').innerText = `${res.p1.toFixed(1)}%`;
+    document.getElementById('barX').style.width = `${res.pX}%`;
+    document.getElementById('barX').innerText = `${res.pX.toFixed(1)}%`;
+    document.getElementById('bar2').style.width = `${res.p2}%`;
+    document.getElementById('bar2').innerText = `${res.p2.toFixed(1)}%`;
 
-    document.getElementById('lbl1').innerText = ${eq1} (@${(100/res.p1).toFixed(2)});
-    document.getElementById('lblX').innerText = Empate (@${(100/res.pX).toFixed(2)});
-    document.getElementById('lbl2').innerText = ${eq2} (@${(100/res.p2).toFixed(2)});
+    document.getElementById('lbl1').innerText = `${eq1} (@${(100/res.p1).toFixed(2)})`;
+    document.getElementById('lblX').innerText = `Empate (@${(100/res.pX).toFixed(2)})`;
+    document.getElementById('lbl2').innerText = `${eq2} (@${(100/res.p2).toFixed(2)})`;
 
     evaluarValorCasino(eq1, eq2, res.p1, res.pX, res.p2);
 
-    document.getElementById('cardTit1').innerText = 🏠 ${eq1};
-    document.getElementById('vedGen1').innerText = ${res.ved1.g}G-${res.ved1.e}E-${res.ved1.p}P (${res.ved1.pct.toFixed(0)}%);
-    document.getElementById('vedLoc1').innerText = ${res.vedLoc1.g}G-${res.vedLoc1.e}E-${res.vedLoc1.p}P (${res.vedLoc1.pct.toFixed(0)}%);
-    document.getElementById('atqDef1').innerText = ${res.atq1.toFixed(2)} GF / ${res.def1.toFixed(2)} GC;
+    document.getElementById('cardTit1').innerText = `🏠 ${eq1}`;
+    document.getElementById('vedGen1').innerText = `${res.ved1.g}G-${res.ved1.e}E-${res.ved1.p}P (${res.ved1.pct.toFixed(0)}%)`;
+    document.getElementById('vedLoc1').innerText = `${res.vedLoc1.g}G-${res.vedLoc1.e}E-${res.vedLoc1.p}P (${res.vedLoc1.pct.toFixed(0)}%)`;
+    document.getElementById('atqDef1').innerText = `${res.atq1.toFixed(2)} GF / ${res.def1.toFixed(2)} GC`;
 
-    document.getElementById('cardTit2').innerText = ✈️ ${eq2};
-    document.getElementById('vedGen2').innerText = ${res.ved2.g}G-${res.ved2.e}E-${res.ved2.p}P (${res.ved2.pct.toFixed(0)}%);
-    document.getElementById('vedVis2').innerText = ${res.vedVis2.g}G-${res.vedVis2.e}E-${res.vedVis2.p}P (${res.vedVis2.pct.toFixed(0)}%);
-    document.getElementById('atqDef2').innerText = ${res.atq2.toFixed(2)} GF / ${res.def2.toFixed(2)} GC;
+    document.getElementById('cardTit2').innerText = `✈️ ${eq2}`;
+    document.getElementById('vedGen2').innerText = `${res.ved2.g}G-${res.ved2.e}E-${res.ved2.p}P (${res.ved2.pct.toFixed(0)}%)`;
+    document.getElementById('vedVis2').innerText = `${res.vedVis2.g}G-${res.vedVis2.e}E-${res.vedVis2.p}P (${res.vedVis2.pct.toFixed(0)}%)`;
+    document.getElementById('atqDef2').innerText = `${res.atq2.toFixed(2)} GF / ${res.def2.toFixed(2)} GC`;
 
     const tbodyM = document.getElementById('tablaMercadosBody');
     tbodyM.innerHTML = '';
     res.mercados.forEach(m => {
         const cuotaMin = m.prob > 0 ? (100 / m.prob).toFixed(2) : '-';
-        let badge = <span class="pill-pick pick-low">Baja</span>;
-        if (m.prob >= 68) badge = <span class="pill-pick pick-high">🔥 Alta (${m.prob.toFixed(0)}%)</span>;
-        else if (m.prob >= 56) badge = <span class="pill-pick pick-med">⚡ Media (${m.prob.toFixed(0)}%)</span>;
+        let badge = `<span class="pill-pick pick-low">Baja</span>`;
+        if (m.prob >= 68) badge = `<span class="pill-pick pick-high">🔥 Alta (${m.prob.toFixed(0)}%)</span>`;
+        else if (m.prob >= 56) badge = `<span class="pill-pick pick-med">⚡ Media (${m.prob.toFixed(0)}%)</span>`;
 
         tbodyM.innerHTML += `
             <tr>
@@ -795,9 +794,9 @@ function evaluarValorCasino(eq1, eq2, p1, pX, p2) {
     const o2 = parseFloat(document.getElementById('oddCasa2').value);
     const div = document.getElementById('evAlerta');
     const hallazgos = [];
-    if (o1 > 1 && ((p1/100)*o1 - 1)*100 > 2) hallazgos.push(✅ VALOR en ${eq1} (+${(((p1/100)*o1 - 1)*100).toFixed(1)}% EV));
-    if (oX > 1 && ((pX/100)*oX - 1)*100 > 2) hallazgos.push(✅ VALOR en Empate (+${(((pX/100)*oX - 1)*100).toFixed(1)}% EV));
-    if (o2 > 1 && ((p2/100)*o2 - 1)*100 > 2) hallazgos.push(✅ VALOR en ${eq2} (+${(((p2/100)*o2 - 1)*100).toFixed(1)}% EV));
+    if (o1 > 1 && ((p1/100)*o1 - 1)*100 > 2) hallazgos.push(`✅ VALOR en ${eq1} (+${(((p1/100)*o1 - 1)*100).toFixed(1)}% EV)`);
+    if (oX > 1 && ((pX/100)*oX - 1)*100 > 2) hallazgos.push(`✅ VALOR en Empate (+${(((pX/100)*oX - 1)*100).toFixed(1)}% EV)`);
+    if (o2 > 1 && ((p2/100)*o2 - 1)*100 > 2) hallazgos.push(`✅ VALOR en ${eq2} (+${(((p2/100)*o2 - 1)*100).toFixed(1)}% EV)`);
 
     div.style.color = hallazgos.length > 0 ? '#15803d' : '#b91c1c';
     div.innerText = hallazgos.length > 0 ? hallazgos.join(" | ") : ((o1>1||oX>1||o2>1) ? "⚠️ Sin valor +EV frente al modelo." : "");
@@ -810,7 +809,6 @@ function autollenarJornada() {
     const equipos = Object.keys(BD_EQUIPOS).sort();
     if (equipos.length < 2) { alert("Primero sube tu archivo MEX.csv en el Paso 1."); return; }
 
-    // Mezclar aleatoriamente los primeros 18 equipos activos para llenar los 9 juegos sin repetir
     const disponibles = [...equipos].slice(0, 18);
     for (let i = disponibles.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -820,16 +818,16 @@ function autollenarJornada() {
     for (let i = 1; i <= 9; i++) {
         const eqL = disponibles[(i - 1) * 2] || equipos[0];
         const eqV = disponibles[(i - 1) * 2 + 1] || equipos[1];
-        document.getElementById(jorLoc_${i}).value = eqL;
-        document.getElementById(jorVis_${i}).value = eqV;
+        document.getElementById(`jorLoc_${i}`).value = eqL;
+        document.getElementById(`jorVis_${i}`).value = eqV;
     }
     generarParlayJornada();
 }
 
 function limpiarJornada() {
     for (let i = 1; i <= 9; i++) {
-        document.getElementById(jorLoc_${i}).value = "";
-        document.getElementById(jorVis_${i}).value = "";
+        document.getElementById(`jorLoc_${i}`).value = "";
+        document.getElementById(`jorVis_${i}`).value = "";
     }
     document.getElementById('resultadosParlayJornada').style.display = 'none';
 }
@@ -845,13 +843,12 @@ function generarParlayJornada() {
     DATOS_JORNADA_CALCULADOS = [];
 
     for (let i = 1; i <= 9; i++) {
-        const eqL = document.getElementById(jorLoc_${i}).value;
-        const eqV = document.getElementById(jorVis_${i}).value;
+        const eqL = document.getElementById(`jorLoc_${i}`).value;
+        const eqV = document.getElementById(`jorVis_${i}`).value;
         if (!eqL || !eqV || eqL === eqV) continue;
 
         const info = calcularDatosEnfrentamiento(eqL, eqV);
 
-        // Filtrar mercados según la preferencia del usuario
         let candidatos = info.mercados.filter(m => {
             if (filtroCat === 'equipos') return m.cat === 'equipos' || m.cat === 'ganador';
             if (filtroCat === 'goles') return m.cat === 'goles';
@@ -859,10 +856,7 @@ function generarParlayJornada() {
             return true;
         });
 
-        // Ordenar candidatos de mayor a menor probabilidad (evitando cuotas ultrabajas >92% si hay buenas opciones cerca del umbral)
         candidatos.sort((a, b) => b.prob - a.prob);
-
-        // Elegir el mejor pick que cumpla el umbral pero que tenga cuota atractiva (<= 89% idealmente, o el más alto disponible)
         let mejorPick = candidatos.find(c => c.prob <= 89 && c.prob >= minProb) || candidatos[0];
 
         DATOS_JORNADA_CALCULADOS.push({
@@ -894,7 +888,6 @@ function renderTicketsRecomendados() {
     const monto = parseFloat(document.getElementById('montoApuestaParlay').value) || 100;
     document.querySelectorAll('.lblMonto').forEach(el => el.innerText = monto);
 
-    // Ordenar todos los partidos calculados por la probabilidad de su mejor pick
     const ordenados = [...DATOS_JORNADA_CALCULADOS].sort((a, b) => b.pickSeleccionado.prob - a.pickSeleccionado.prob);
 
     armarResumenTicket(ordenados.slice(0, 3), 't3', monto);
@@ -905,7 +898,7 @@ function renderTicketsRecomendados() {
 function armarResumenTicket(listaPartidos, prefix, monto) {
     let probConjunta = 1;
     let momioConjunto = 1;
-    const ul = document.getElementById(${prefix}Lista);
+    const ul = document.getElementById(`${prefix}Lista`);
     ul.innerHTML = '';
 
     listaPartidos.forEach(item => {
@@ -923,9 +916,9 @@ function armarResumenTicket(listaPartidos, prefix, monto) {
     });
 
     const pctFinal = probConjunta * 100;
-    document.getElementById(${prefix}Prob).innerText = ${pctFinal.toFixed(1)}%;
-    document.getElementById(${prefix}Odd).innerText = @${momioConjunto.toFixed(2)};
-    document.getElementById(${prefix}Pago).innerText = $${(monto * momioConjunto).toFixed(2)};
+    document.getElementById(`${prefix}Prob`).innerText = `${pctFinal.toFixed(1)}%`;
+    document.getElementById(`${prefix}Odd`).innerText = `@${momioConjunto.toFixed(2)}`;
+    document.getElementById(`${prefix}Pago`).innerText = `$${(monto * momioConjunto).toFixed(2)}`;
 }
 
 function renderTablaInteractivaJornada() {
@@ -936,7 +929,7 @@ function renderTablaInteractivaJornada() {
         let opcionesSelect = '';
         item.candidatos.forEach((c, cIdx) => {
             const sel = c.id === item.pickSeleccionado.id ? 'selected' : '';
-            opcionesSelect += <option value="${cIdx}" ${sel}>${c.nombre} (${c.prob.toFixed(1)}% | @${(100/c.prob).toFixed(2)})</option>;
+            opcionesSelect += `<option value="${cIdx}" ${sel}>${c.nombre} (${c.prob.toFixed(1)}% | @${(100/c.prob).toFixed(2)})</option>`;
         });
 
         const odd = (100 / item.pickSeleccionado.prob).toFixed(2);
@@ -970,8 +963,8 @@ function togglePartidoParlay(idx, estado) {
 function cambiarPickPartido(idx, candidatoIdx) {
     const nuevoPick = DATOS_JORNADA_CALCULADOS[idx].candidatos[candidatoIdx];
     DATOS_JORNADA_CALCULADOS[idx].pickSeleccionado = nuevoPick;
-    document.getElementById(probCell_${idx}).innerText = ${nuevoPick.prob.toFixed(1)}%;
-    document.getElementById(oddCell_${idx}).innerText = @${(100 / nuevoPick.prob).toFixed(2)};
+    document.getElementById(`probCell_${idx}`).innerText = `${nuevoPick.prob.toFixed(1)}%`;
+    document.getElementById(`oddCell_${idx}`).innerText = `@${(100 / nuevoPick.prob).toFixed(2)}`;
     renderTicketsRecomendados();
     recalcularTicketPersonalizado();
 }
@@ -990,8 +983,8 @@ function recalcularTicketPersonalizado() {
     });
 
     document.getElementById('customCount').innerText = activos.length;
-    document.getElementById('customProb').innerText = ${(probConjunta * 100).toFixed(1)}%;
-    document.getElementById('customOdd').innerText = @${momioConjunto.toFixed(2)};
+    document.getElementById('customProb').innerText = `${(probConjunta * 100).toFixed(1)}%`;
+    document.getElementById('customOdd').innerText = `@${momioConjunto.toFixed(2)}`;
     document.getElementById('customPayout').innerText = (monto * momioConjunto).toFixed(2);
     renderTicketsRecomendados();
 }
@@ -1016,9 +1009,9 @@ function renderH2H(eq1, eq2) {
         else v2++;
     });
 
-    document.getElementById('h2hResumen').innerText = En ${cruces.length} juegos: ${eq1} (${v1}G) | Empates (${emp}) | ${eq2} (${v2}G);
+    document.getElementById('h2hResumen').innerText = `En ${cruces.length} juegos: ${eq1} (${v1}G) | Empates (${emp}) | ${eq2} (${v2}G)`;
     cruces.slice(0, 10).forEach(c => {
-        tbody.innerHTML += <tr><td>${c.date}</td><td>${c.home}</td><td style="font-weight:bold;">${c.hg} - ${c.ag}</td><td>${c.away}</td></tr>;
+        tbody.innerHTML += `<tr><td>${c.date}</td><td>${c.home}</td><td style="font-weight:bold;">${c.hg} - ${c.ag}</td><td>${c.away}</td></tr>`;
     });
 }
 
@@ -1048,7 +1041,7 @@ function dibujarGrafica(eq1, r1, eq2, r2) {
 
     const maxLen = Math.max(r1.serie.length, r2.serie.length);
     const labels = [];
-    for (let i = 1; i <= maxLen; i++) labels.push(J${i});
+    for (let i = 1; i <= maxLen; i++) labels.push(`J${i}`);
     labels.push('Proyección');
 
     chartInstance = new Chart(ctx, {
@@ -1056,8 +1049,8 @@ function dibujarGrafica(eq1, r1, eq2, r2) {
         data: {
             labels: labels,
             datasets: [
-                { label: Goles: ${eq1}, data: [...r1.serie, r1.proj], borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.25 },
-                { label: Goles: ${eq2}, data: [...r2.serie, r2.proj], borderColor: '#dc2626', backgroundColor: '#dc2626', tension: 0.25 }
+                { label: `Goles: ${eq1}`, data: [...r1.serie, r1.proj], borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.25 },
+                { label: `Goles: ${eq2}`, data: [...r2.serie, r2.proj], borderColor: '#dc2626', backgroundColor: '#dc2626', tension: 0.25 }
             ]
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
