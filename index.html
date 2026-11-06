@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predictor Pro Liga MX - Motor CSV & Poisson</title>
+    <title>Predictor Pro Liga MX - Motor CSV & Armador de Parlay 9 Partidos</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; margin: 0; padding: 20px; color: #1e293b; }
@@ -11,7 +11,7 @@
         .header h1 { margin: 0; font-size: 2rem; letter-spacing: 0.5px; }
         .header p { margin: 6px 0 0 0; color: #94a3b8; font-size: 0.95rem; }
 
-        .grid { display: grid; grid-template-columns: 360px 1fr 420px; gap: 22px; max-width: 100%; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: 350px 1fr 400px; gap: 20px; max-width: 100%; margin: 0 auto; }
         @media (max-width: 1450px) { .grid { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 950px) { .grid { grid-template-columns: 1fr; } }
 
@@ -19,7 +19,7 @@
         h2 { color: #0f172a; border-bottom: 3px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; font-size: 1.35rem; }
         h3 { color: #0f172a; margin-top: 0; font-size: 1.15rem; }
         label { font-weight: 600; color: #475569; display: block; margin-bottom: 6px; font-size: 0.9rem; }
-        select, input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; background: #f8fafc; font-size: 1rem; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; background: #f8fafc; font-size: 0.95rem; }
         button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; font-size: 1rem; margin-top: 6px; }
         button:hover { opacity: 0.92; transform: translateY(-1px); }
 
@@ -27,6 +27,7 @@
         .btn-success { background: #16a34a; }
         .btn-danger { background: #dc2626; }
         .btn-dark { background: #0f172a; }
+        .btn-purple { background: #7c3aed; }
 
         .badge-status { display: inline-block; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; background: #dcfce7; color: #166534; margin-bottom: 12px; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
@@ -47,15 +48,33 @@
         .pick-med { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
         .pick-low { background: #f1f5f9; color: #64748b; }
 
-        .chart-container { height: 250px; margin-top: 18px; }
+        .chart-container { height: 240px; margin-top: 18px; }
         .info-note { font-size: 0.83rem; color: #64748b; margin-top: 6px; font-style: italic; }
+
+        /* ESTILOS SECCIÓN PARLAY 9 PARTIDOS */
+        .jornada-section { max-width: 100%; margin: 10px auto 30px auto; }
+        .jornada-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
+        @media (max-width: 1100px) { .jornada-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 700px) { .jornada-grid { grid-template-columns: 1fr; } }
+
+        .match-box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; }
+        .match-box-title { font-weight: 800; font-size: 0.85rem; color: #334155; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .match-selects { display: flex; gap: 8px; align-items: center; }
+        .match-selects select { margin-bottom: 0; padding: 8px; font-weight: 600; font-size: 0.88rem; }
+
+        .parlay-tickets-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 20px; }
+        @media (max-width: 1100px) { .parlay-tickets-grid { grid-template-columns: 1fr; } }
+        .ticket-card { background: #0f172a; color: white; border-radius: 12px; padding: 18px; border: 2px solid #334155; }
+        .ticket-card h4 { margin: 0 0 8px 0; font-size: 1.15rem; color: #38bdf8; }
+        .ticket-stat { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 5px 0; border-bottom: 1px dashed #334155; }
+        .ticket-list { margin: 10px 0 0 0; padding-left: 18px; font-size: 0.86rem; color: #e2e8f0; line-height: 1.5; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>📊 PREDICTOR LIGA MX — MOTOR CSV & POISSON</h1>
-    <p>Análisis automatizado de Ganador, Goles por Equipo, Líneas Over/Under, Ambos Anotan y Valor de Cuotas (+EV)</p>
+    <h1>📊 PREDICTOR LIGA MX — MOTOR CSV & ARMADOR DE PARLAYS</h1>
+    <p>Análisis individual y generador automático de Parlays para los 9 partidos de la Jornada</p>
 </div>
 
 <div class="grid">
@@ -64,7 +83,7 @@
         <div class="card" style="border-top: 5px solid #16a34a;">
             <h2>📂 1. Fuente de Datos (CSV)</h2>
             <div id="statusBD" class="badge-status">Esperando archivo MEX.csv...</div>
-            <p class="info-note" style="margin-top:0;">Sube tu archivo <b>MEX.csv</b> descargado de Football-Data. Los datos quedan guardados en tu navegador.</p>
+            <p class="info-note" style="margin-top:0;">Sube tu archivo <b>MEX.csv</b> de Football-Data. Se guarda automáticamente en el navegador.</p>
             
             <button onclick="document.getElementById('csvFileInput').click()" class="btn-success" style="font-size: 1.05rem; padding: 14px;">
                 ⬆️ Cargar / Actualizar MEX.csv
@@ -96,118 +115,100 @@
                 <option value="0.0">Desactivado (Usar solo racha general)</option>
             </select>
 
-            <button onclick="borrarMemoria()" class="btn-danger" style="margin-top: 15px; background:#64748b; font-size:0.9rem; padding:9px;">
+            <button onclick="borrarMemoria()" class="btn-danger" style="margin-top: 10px; background:#64748b; font-size:0.88rem; padding:9px;">
                 🗑️ Limpiar Memoria del Navegador
             </button>
         </div>
 
-        <!-- RESUMEN DE LA LIGA EN EL PERIODO SELECCIONADO -->
         <div class="card">
             <h2>📈 Promedios de Liga MX</h2>
-            <p class="info-note" style="margin-top:-5px;">Base de referencia para el modelo Poisson:</p>
             <div class="stat-row"><span>Partidos Analizados:</span> <strong id="ligaTotalPartidos">0</strong></div>
             <div class="stat-row"><span>Media Goles Local (HG):</span> <strong id="ligaMediaLocal" style="color:#16a34a;">0.00</strong></div>
             <div class="stat-row"><span>Media Goles Visita (AG):</span> <strong id="ligaMediaVisita" style="color:#dc2626;">0.00</strong></div>
             <div class="stat-row"><span>Media Goles Totales:</span> <strong id="ligaMediaTotal" style="color:#2563eb;">0.00</strong></div>
             <hr style="border: 0.5px solid #e2e8f0; margin: 10px 0;">
-            <div class="stat-row"><span>% Victorias Local / Empate / Visita:</span> <strong id="ligaPct1X2">0% / 0% / 0%</strong></div>
+            <div class="stat-row"><span>% Local / Empate / Visita:</span> <strong id="ligaPct1X2">0% / 0% / 0%</strong></div>
             <div class="stat-row"><span>% Ambos Anotan (BTTS):</span> <strong id="ligaPctBTTS">0%</strong></div>
             <div class="stat-row"><span>% Over 2.5 Goles:</span> <strong id="ligaPctO25">0%</strong></div>
         </div>
     </div>
 
-    <!-- COLUMNA 2: MODELO PREDICTIVO Y MERCADOS DE EQUIPO -->
+    <!-- COLUMNA 2: ANALIZADOR PROFUNDO DE 1 PARTIDO -->
     <div>
         <div class="card">
-            <h2 style="text-align: center; font-size: 1.6rem;">⚡ 2. Simulador de Enfrentamiento y Apuestas</h2>
+            <h2 style="text-align: center; font-size: 1.5rem;">⚡ 2. Analizador Profundo Individual (1 vs 1)</h2>
             
-            <div style="display: flex; gap: 15px; margin-top: 15px;">
+            <div style="display: flex; gap: 15px; margin-top: 12px;">
                 <div style="flex:1;">
                     <label style="text-align:center; color:#15803d;">🏠 EQUIPO LOCAL</label>
-                    <select id="predEq1" style="font-size: 1.15rem; font-weight: bold; height: 48px; border: 2px solid #16a34a; color: #14532d; text-align:center;"></select>
+                    <select id="predEq1" style="font-size: 1.1rem; font-weight: bold; height: 45px; border: 2px solid #16a34a; color: #14532d; text-align:center;"></select>
                 </div>
                 <div style="flex:1;">
                     <label style="text-align:center; color:#b91c1c;">✈️ EQUIPO VISITANTE</label>
-                    <select id="predEq2" style="font-size: 1.15rem; font-weight: bold; height: 48px; border: 2px solid #dc2626; color: #7f1d1d; text-align:center;"></select>
+                    <select id="predEq2" style="font-size: 1.1rem; font-weight: bold; height: 45px; border: 2px solid #dc2626; color: #7f1d1d; text-align:center;"></select>
                 </div>
             </div>
 
-            <!-- CUOTAS OPCIONALES DEL CASINO PARA DETECTAR VALOR (+EV) -->
-            <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:12px;">
-                <label style="text-align:center; margin-bottom:8px; font-size:0.85rem;">💰 Cuotas actuales de tu Casa de Apuestas (Opcional, para calcular Valor +EV):</label>
+            <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:10px;">
+                <label style="text-align:center; margin-bottom:6px; font-size:0.82rem;">💰 Cuotas de tu Casino (Opcional, para detectar Valor +EV):</label>
                 <div style="display:flex; gap:10px;">
-                    <input type="number" step="0.01" id="oddCasa1" placeholder="Momio Local (ej. 1.95)" style="margin:0; text-align:center;">
-                    <input type="number" step="0.01" id="oddCasaX" placeholder="Momio Empate (ej. 3.50)" style="margin:0; text-align:center;">
-                    <input type="number" step="0.01" id="oddCasa2" placeholder="Momio Visita (ej. 3.80)" style="margin:0; text-align:center;">
+                    <input type="number" step="0.01" id="oddCasa1" placeholder="Momio Local" style="margin:0; text-align:center;">
+                    <input type="number" step="0.01" id="oddCasaX" placeholder="Momio Empate" style="margin:0; text-align:center;">
+                    <input type="number" step="0.01" id="oddCasa2" placeholder="Momio Visita" style="margin:0; text-align:center;">
                 </div>
             </div>
 
-            <button onclick="ejecutarModelo()" class="btn-dark" style="font-size: 1.2rem; padding: 14px;">
-                🔮 Calcular Pronóstico de Equipos y Líneas de Goles
+            <button onclick="ejecutarModeloIndividual()" class="btn-dark" style="font-size: 1.1rem; padding: 13px;">
+                🔮 Analizar Partido a Fondo
             </button>
 
-            <div id="panelResultados" style="display:none; margin-top: 20px;">
-                
-                <!-- BARRA 1X2 -->
-                <div style="background: #eff6ff; border: 2px solid #3b82f6; padding: 16px; border-radius: 10px;">
-                    <h3 style="text-align:center; color:#1d4ed8; margin-bottom:6px;">Probabilidad de Ganador (1X2) y Doble Oportunidad</h3>
-                    <div style="text-align:center; font-size:1.05rem; font-weight:bold; color:#0f172a; margin-bottom:8px;">
+            <div id="panelResultados" style="display:none; margin-top: 18px;">
+                <div style="background: #eff6ff; border: 2px solid #3b82f6; padding: 15px; border-radius: 10px;">
+                    <div style="text-align:center; font-size:1.02rem; font-weight:bold; color:#0f172a; margin-bottom:6px;">
                         Goles Esperados (xG): <span id="xgLocalTxt" style="color:#16a34a;">0.00</span> vs <span id="xgVisitaTxt" style="color:#dc2626;">0.00</span> 
-                        &nbsp;|&nbsp; Total Esperado: <span id="xgTotalTxt" style="color:#2563eb;">0.00</span> goles
+                        &nbsp;|&nbsp; Total: <span id="xgTotalTxt" style="color:#2563eb;">0.00</span> goles
                     </div>
-
                     <div class="prob-bar">
                         <div id="bar1" class="prob-segment" style="background:#16a34a; width:33%;">33%</div>
                         <div id="barX" class="prob-segment" style="background:#64748b; width:34%;">34%</div>
                         <div id="bar2" class="prob-segment" style="background:#dc2626; width:33%;">33%</div>
                     </div>
-                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9rem;">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.88rem;">
                         <span id="lbl1" style="color:#16a34a;">Local</span>
                         <span id="lblX" style="color:#475569;">Empate</span>
                         <span id="lbl2" style="color:#dc2626;">Visita</span>
                     </div>
-                    <div id="evAlerta" style="margin-top:10px; text-align:center; font-size:0.9rem; font-weight:700;"></div>
+                    <div id="evAlerta" style="margin-top:8px; text-align:center; font-size:0.88rem; font-weight:700;"></div>
                 </div>
 
-                <!-- TARJETAS COMPARATIVAS POR EQUIPO -->
                 <div class="stat-grid">
                     <div class="stat-card" style="border-top: 4px solid #16a34a;">
-                        <h4 id="cardTit1" style="color:#15803d;">Equipo Local</h4>
-                        <div class="stat-row"><span>Rendimiento General (V/E/D):</span> <strong id="vedGen1">-</strong></div>
-                        <div class="stat-row"><span>Rendimiento en Casa (Local):</span> <strong id="vedLoc1">-</strong></div>
-                        <div class="stat-row"><span>Tendencia Ataque / Defensa:</span> <strong id="atqDef1">-</strong></div>
-                        <div class="stat-row"><span>Superó expectativas del Casino:</span> <strong id="vsCasino1">-</strong></div>
+                        <h4 id="cardTit1" style="color:#15803d;">Local</h4>
+                        <div class="stat-row"><span>General (V/E/D):</span> <strong id="vedGen1">-</strong></div>
+                        <div class="stat-row"><span>En Casa (Local):</span> <strong id="vedLoc1">-</strong></div>
+                        <div class="stat-row"><span>Ataque / Defensa:</span> <strong id="atqDef1">-</strong></div>
                     </div>
                     <div class="stat-card" style="border-top: 4px solid #dc2626;">
-                        <h4 id="cardTit2" style="color:#b91c1c;">Equipo Visitante</h4>
-                        <div class="stat-row"><span>Rendimiento General (V/E/D):</span> <strong id="vedGen2">-</strong></div>
-                        <div class="stat-row"><span>Rendimiento Fuera (Visita):</span> <strong id="vedVis2">-</strong></div>
-                        <div class="stat-row"><span>Tendencia Ataque / Defensa:</span> <strong id="atqDef2">-</strong></div>
-                        <div class="stat-row"><span>Superó expectativas del Casino:</span> <strong id="vsCasino2">-</strong></div>
+                        <h4 id="cardTit2" style="color:#b91c1c;">Visitante</h4>
+                        <div class="stat-row"><span>General (V/E/D):</span> <strong id="vedGen2">-</strong></div>
+                        <div class="stat-row"><span>Fuera (Visita):</span> <strong id="vedVis2">-</strong></div>
+                        <div class="stat-row"><span>Ataque / Defensa:</span> <strong id="atqDef2">-</strong></div>
                     </div>
                 </div>
 
-                <!-- TABLA DE MERCADOS POR EQUIPO Y TOTALES -->
-                <h3 style="margin-top: 22px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;">🎯 Tabla de Mercados Recomendados (Goles por Equipo y Partido)</h3>
+                <h3 style="margin-top: 18px; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px;">🎯 Probabilidades por Mercado</h3>
                 <table>
                     <thead>
                         <tr>
                             <th class="td-left">Mercado de Apuesta</th>
                             <th>Probabilidad</th>
-                            <th>Momio Justo (Mínimo)</th>
-                            <th>Nivel de Confianza</th>
+                            <th>Momio Justo</th>
+                            <th>Confianza</th>
                         </tr>
                     </thead>
                     <tbody id="tablaMercadosBody"></tbody>
                 </table>
 
-                <!-- MARCADORES EXACTOS MÁS PROBABLES -->
-                <div style="margin-top: 18px; background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid #cbd5e1;">
-                    <h4 style="margin:0 0 8px 0; font-size:0.95rem; color:#334155;">🔢 Top 5 Marcadores Exactos Más Probables (Poisson Bivariado):</h4>
-                    <div id="topMarcadores" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
-                </div>
-
-                <!-- GRÁFICA DE TENDENCIA GOLEADORA -->
                 <div class="chart-container">
                     <canvas id="graficaTendencia"></canvas>
                 </div>
@@ -215,30 +216,23 @@
         </div>
     </div>
 
-    <!-- COLUMNA 3: H2H DIRECTO Y BITÁCORA DEL EQUIPO -->
+    <!-- COLUMNA 3: H2H E HISTORIAL -->
     <div>
-        <!-- H2H DIRECTO -->
         <div class="card" style="border-top: 5px solid #2563eb;">
-            <h2>⚔️ Enfrentamientos Directos (H2H)</h2>
-            <p class="info-note" style="margin-top:-5px;">Historial directo entre ambos clubes en el archivo CSV:</p>
-            <div id="h2hResumen" style="font-weight:bold; font-size:0.95rem; margin-bottom:10px; color:#1e293b;">Selecciona dos equipos para ver su H2H.</div>
-            <div style="max-height: 220px; overflow-y: auto;">
+            <h2>⚔️ Historial Directo (H2H)</h2>
+            <div id="h2hResumen" style="font-weight:bold; font-size:0.9rem; margin-bottom:8px; color:#1e293b;">Selecciona dos equipos para ver su H2H.</div>
+            <div style="max-height: 200px; overflow-y: auto;">
                 <table>
-                    <thead>
-                        <tr><th>Fecha</th><th>Local</th><th>Marcador</th><th>Visita</th></tr>
-                    </thead>
-                    <tbody id="tablaH2H">
-                        <tr><td colspan="4">Sin selección</td></tr>
-                    </tbody>
+                    <thead><tr><th>Fecha</th><th>Local</th><th>Marcador</th><th>Visita</th></tr></thead>
+                    <tbody id="tablaH2H"><tr><td colspan="4">Sin selección</td></tr></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- HISTORIAL DE PARTIDOS POR EQUIPO -->
         <div class="card">
-            <h2>📝 Historial por Equipo</h2>
+            <h2>📝 Bitácora por Equipo</h2>
             <select id="histEqSelect" onchange="renderHistorialEquipo()" style="font-weight:bold;"></select>
-            <div style="max-height: 430px; overflow-y: auto;">
+            <div style="max-height: 390px; overflow-y: auto;">
                 <table>
                     <thead style="position: sticky; top: 0; background: #f1f5f9;">
                         <tr><th>Fecha</th><th>Cond</th><th>Rival</th><th>Res</th><th>Momio</th></tr>
@@ -250,13 +244,141 @@
     </div>
 </div>
 
+<!-- ========================================================================= -->
+<!-- SECCIÓN COMPLETA ABAJO: ARMADOR DE PARLAY DE JORNADA COMPLETA (9 PARTIDOS) -->
+<!-- ========================================================================= -->
+<div class="jornada-section">
+    <div class="card" style="border-top: 6px solid #7c3aed;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; border-bottom:3px solid #e2e8f0; padding-bottom:12px;">
+            <div>
+                <h2 style="border:none; margin:0; padding:0; font-size:1.6rem; color:#0f172a;">🎟️ 3. Armador Automático de Parlay — Jornada Completa (9 Partidos)</h2>
+                <p class="info-note" style="margin:4px 0 0 0;">Selecciona los 9 enfrentamientos de la jornada de Liga MX. El motor evaluará 12 mercados por partido y armará el mejor Parlay.</p>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button onclick="autollenarJornada()" class="btn-primary" style="width:auto; padding:10px 16px; margin:0; font-size:0.92rem;">
+                    🎲 Autollenar 9 Partidos (18 Equipos)
+                </button>
+                <button onclick="limpiarJornada()" class="btn-danger" style="width:auto; padding:10px 16px; margin:0; font-size:0.92rem; background:#64748b;">
+                    🧹 Limpiar Jornada
+                </button>
+            </div>
+        </div>
+
+        <!-- FILTROS DE CRITERIO DEL PARLAY -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:15px; margin-top:15px; background:#f1f5f9; padding:14px; border-radius:10px;">
+            <div>
+                <label>Tipo de Mercados Permitidos en el Parlay:</label>
+                <select id="parlayFiltroMercado" style="margin:0;">
+                    <option value="todos" selected>Todos (Doble Oportunidad, Goles por Equipo, Over/Under, BTTS)</option>
+                    <option value="equipos">Solo Mercados de Equipo (1X, X2, 12, Local/Visita Anota > 0.5)</option>
+                    <option value="goles">Solo Mercados de Goles (Over 1.5, Over 2.5, Under 3.5, BTTS)</option>
+                    <option value="ganador">Solo Resultado y Doble Oportunidad (1, 2, 1X, X2, 12)</option>
+                </select>
+            </div>
+            <div>
+                <label>Probabilidad Mínima Buscada por Pick:</label>
+                <select id="parlayMinProb" style="margin:0;">
+                    <option value="72">Ultra Conservador (Priorizar Picks > 72%)</option>
+                    <option value="65" selected>Conservador / Ideal Parlay (Priorizar Picks > 65%)</option>
+                    <option value="58">Moderado / Mayor Cuota (Priorizar Picks > 58%)</option>
+                </select>
+            </div>
+            <div>
+                <label>💵 Monto a Apostar en tu Parlay ($ MXN):</label>
+                <input type="number" id="montoApuestaParlay" value="100" min="10" step="10" style="margin:0; font-weight:bold;" oninput="recalcularTicketPersonalizado()">
+            </div>
+        </div>
+
+        <!-- 9 CAJAS DE PARTIDOS -->
+        <div id="contenedor9Partidos" class="jornada-grid"></div>
+
+        <button onclick="generarParlayJornada()" class="btn-purple" style="font-size:1.25rem; padding:16px; margin-top:18px;">
+            🚀 Calcular los 9 Partidos y Armar el Mejor Parlay Automático
+        </button>
+
+        <!-- RESULTADOS DEL PARLAY DE JORNADA -->
+        <div id="resultadosParlayJornada" style="display:none; margin-top:25px;">
+            
+            <!-- 3 TICKETS AUTOMÁTICOS RECOMENDADOS -->
+            <h3 style="margin-bottom:10px; font-size:1.25rem;">🏆 Tickets Recomendados Automáticamente por el Modelo</h3>
+            <div class="parlay-tickets-grid">
+                <div class="ticket-card" style="border-color:#22c55e;">
+                    <h4 style="color:#4ade80;">🛡️ Parlay Blindado (Top 3 Más Seguros)</h4>
+                    <div class="ticket-stat"><span>Probabilidad Combinada:</span> <strong id="t3Prob" style="color:#4ade80;">0%</strong></div>
+                    <div class="ticket-stat"><span>Momio Justo Combinado:</span> <strong id="t3Odd">@1.00</strong></div>
+                    <div class="ticket-stat"><span>Pago Estimado ($<span class="lblMonto">100</span>):</span> <strong id="t3Pago" style="color:#fde047;">$0.00</strong></div>
+                    <ol id="t3Lista" class="ticket-list"></ol>
+                </div>
+
+                <div class="ticket-card" style="border-color:#3b82f6;">
+                    <h4 style="color:#60a5fa;">⚖️ Parlay Equilibrado (Top 5 de la Jornada)</h4>
+                    <div class="ticket-stat"><span>Probabilidad Combinada:</span> <strong id="t5Prob" style="color:#60a5fa;">0%</strong></div>
+                    <div class="ticket-stat"><span>Momio Justo Combinado:</span> <strong id="t5Odd">@1.00</strong></div>
+                    <div class="ticket-stat"><span>Pago Estimado ($<span class="lblMonto">100</span>):</span> <strong id="t5Pago" style="color:#fde047;">$0.00</strong></div>
+                    <ol id="t5Lista" class="ticket-list"></ol>
+                </div>
+
+                <div class="ticket-card" style="border-color:#a855f7;">
+                    <h4 style="color:#c084fc;">🔥 Parlay Jornada Completa (Todos los Partidos)</h4>
+                    <div class="ticket-stat"><span>Probabilidad Combinada:</span> <strong id="t9Prob" style="color:#c084fc;">0%</strong></div>
+                    <div class="ticket-stat"><span>Momio Justo Combinado:</span> <strong id="t9Odd">@1.00</strong></div>
+                    <div class="ticket-stat"><span>Pago Estimado ($<span class="lblMonto">100</span>):</span> <strong id="t9Pago" style="color:#fde047;">$0.00</strong></div>
+                    <ol id="t9Lista" class="ticket-list"></ol>
+                </div>
+            </div>
+
+            <!-- TABLA INTERACTIVA DE LOS 9 PARTIDOS PARA ARMAR TICKET A MEDIDA -->
+            <h3 style="margin-top:28px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;">
+                🎛️ Tabla Interactiva de la Jornada (Activa/Desactiva partidos o cambia el Pick de cada juego)
+            </h3>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Incluir</th>
+                            <th>#</th>
+                            <th class="td-left">Partido (Local vs Visita)</th>
+                            <th>xG Proyectado</th>
+                            <th>1X2 Prob (%)</th>
+                            <th class="td-left">Mejor Pick Seleccionado (Editable)</th>
+                            <th>Probabilidad Pick</th>
+                            <th>Cuota Mínima</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaJornadaInteractiva"></tbody>
+                </table>
+            </div>
+
+            <!-- BARRA RESUMEN DE TU TICKET PERSONALIZADO -->
+            <div style="margin-top:18px; background:#1e293b; color:white; padding:18px 24px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+                <div>
+                    <div style="font-size:0.85rem; color:#94a3b8; font-weight:bold;">RESUMEN DE TU PARLAY SELECCIONADO EN LA TABLA</div>
+                    <div style="font-size:1.25rem; font-weight:800; margin-top:4px;">
+                        <span id="customCount">0</span> Selecciones Activas &nbsp;|&nbsp; 
+                        Probabilidad Real: <span id="customProb" style="color:#4ade80;">0.0%</span>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:1rem; color:#cbd5e1;">Momio Combinado Justo: <strong id="customOdd" style="color:#38bdf8; font-size:1.3rem;">@1.00</strong></div>
+                    <div style="font-size:1.15rem; font-weight:bold; color:#fde047; margin-top:4px;">
+                        Ganancia Potencial: $<span id="customPayout">0.00</span> MXN
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script>
 let RAW_CSV_ROWS = [];
 let BD_EQUIPOS = {};
 let STATS_LIGA = { partidos: 0, mediaHG: 1.55, mediaAG: 1.25 };
 let chartInstance = null;
+let DATOS_JORNADA_CALCULADOS = [];
 
 window.onload = function() {
+    generarInputs9Partidos();
     try {
         const guardado = localStorage.getItem('ligamx_raw_csv_v2');
         if (guardado) {
@@ -265,6 +387,26 @@ window.onload = function() {
         }
     } catch (e) { console.error(e); }
 };
+
+function generarInputs9Partidos() {
+    const cont = document.getElementById('contenedor9Partidos');
+    cont.innerHTML = '';
+    for (let i = 1; i <= 9; i++) {
+        cont.innerHTML += `
+            <div class="match-box">
+                <div class="match-box-title">
+                    <span>⚽ PARTIDO ${i}</span>
+                    <span style="color:#64748b; font-weight:600; font-size:0.78rem;">Local vs Visita</span>
+                </div>
+                <div class="match-selects">
+                    <select id="jorLoc_${i}" class="sel-jornada"><option value="">-- Local --</option></select>
+                    <span style="font-weight:bold; color:#64748b;">vs</span>
+                    <select id="jorVis_${i}" class="sel-jornada"><option value="">-- Visita --</option></select>
+                </div>
+            </div>
+        `;
+    }
+}
 
 function borrarMemoria() {
     if (confirm("¿Seguro que deseas borrar los datos cargados del navegador?")) {
@@ -328,7 +470,7 @@ function procesarArchivoCSV(input) {
         RAW_CSV_ROWS = filasExtraidas;
         try { localStorage.setItem('ligamx_raw_csv_v2', JSON.stringify(RAW_CSV_ROWS)); } catch(err) {}
         reconstruirBaseDesdeRaw();
-        alert(`¡Éxito! Se leyeron ${filasExtraidas.length} partidos históricos del archivo MEX.csv.`);
+        alert(¡Éxito! Se cargaron ${filasExtraidas.length} partidos históricos del archivo MEX.csv.);
     };
     reader.readAsText(file);
     input.value = '';
@@ -368,8 +510,7 @@ function reconstruirBaseDesdeRaw() {
             golesFavor: r.hg,
             golesContra: r.ag,
             resultado: r.hg > r.ag ? 'G' : (r.hg < r.ag ? 'P' : 'E'),
-            momioEquipo: r.oddH,
-            momioRival: r.oddA
+            momioEquipo: r.oddH
         });
 
         BD_EQUIPOS[r.away].push({
@@ -380,8 +521,7 @@ function reconstruirBaseDesdeRaw() {
             golesFavor: r.ag,
             golesContra: r.hg,
             resultado: r.ag > r.hg ? 'G' : (r.ag < r.hg ? 'P' : 'E'),
-            momioEquipo: r.oddA,
-            momioRival: r.oddH
+            momioEquipo: r.oddA
         });
     });
 
@@ -392,15 +532,14 @@ function reconstruirBaseDesdeRaw() {
         mediaAG: sumAG / totalP
     };
 
-    // Actualizar UI de estadísticas de Liga
-    document.getElementById('statusBD').innerText = `✅ CSV Activo (${RAW_CSV_ROWS.length} partidos en total)`;
+    document.getElementById('statusBD').innerText = ✅ CSV Activo (${RAW_CSV_ROWS.length} partidos);
     document.getElementById('ligaTotalPartidos').innerText = filasFiltradas.length;
     document.getElementById('ligaMediaLocal').innerText = STATS_LIGA.mediaHG.toFixed(2);
     document.getElementById('ligaMediaVisita').innerText = STATS_LIGA.mediaAG.toFixed(2);
     document.getElementById('ligaMediaTotal').innerText = (STATS_LIGA.mediaHG + STATS_LIGA.mediaAG).toFixed(2);
-    document.getElementById('ligaPct1X2').innerText = `${((winH/totalP)*100).toFixed(1)}% / ${((draw/totalP)*100).toFixed(1)}% / ${((winA/totalP)*100).toFixed(1)}%`;
-    document.getElementById('ligaPctBTTS').innerText = `${((btts/totalP)*100).toFixed(1)}%`;
-    document.getElementById('ligaPctO25').innerText = `${((o25/totalP)*100).toFixed(1)}%`;
+    document.getElementById('ligaPct1X2').innerText = ${((winH/totalP)*100).toFixed(1)}% / ${((draw/totalP)*100).toFixed(1)}% / ${((winA/totalP)*100).toFixed(1)}%;
+    document.getElementById('ligaPctBTTS').innerText = ${((btts/totalP)*100).toFixed(1)}%;
+    document.getElementById('ligaPctO25').innerText = ${((o25/totalP)*100).toFixed(1)}%;
 
     poblarSelectoresEquipos();
 }
@@ -414,12 +553,29 @@ function poblarSelectoresEquipos() {
         equipos.forEach(eq => {
             const opt = document.createElement('option');
             opt.value = eq;
-            opt.textContent = `${eq} (${BD_EQUIPOS[eq].length} PJ)`;
+            opt.textContent = ${eq} (${BD_EQUIPOS[eq].length} PJ);
             sel.appendChild(opt);
         });
         if (prev && equipos.includes(prev)) sel.value = prev;
         else if (equipos.length > idx) sel.value = equipos[idx];
     });
+
+    // Poblar los 18 selectores de la Jornada de 9 partidos
+    for (let i = 1; i <= 9; i++) {
+        ['jorLoc_', 'jorVis_'].forEach(prefix => {
+            const sel = document.getElementById(prefix + i);
+            const prev = sel.value;
+            sel.innerHTML = <option value="">-- ${prefix === 'jorLoc_' ? 'Local' : 'Visita'} --</option>;
+            equipos.forEach(eq => {
+                const opt = document.createElement('option');
+                opt.value = eq;
+                opt.textContent = eq;
+                sel.appendChild(opt);
+            });
+            if (prev && equipos.includes(prev)) sel.value = prev;
+        });
+    }
+
     renderHistorialEquipo();
     siHaySeleccionRecalcular();
 }
@@ -428,19 +584,19 @@ function siHaySeleccionRecalcular() {
     const eq1 = document.getElementById('predEq1').value;
     const eq2 = document.getElementById('predEq2').value;
     if (eq1 && eq2 && eq1 !== eq2 && Object.keys(BD_EQUIPOS).length > 0) {
-        ejecutarModelo();
+        ejecutarModeloIndividual();
     }
 }
 
 // ==========================================================
-// 2. MATEMÁTICA: REGRESIÓN PONDERADA + POISSON
+// 2. MOTOR MATEMÁTICO REUTILIZABLE (PARA 1 O 9 PARTIDOS)
 // ==========================================================
 function regresionPonderada(partidos, campo) {
     const n = partidos.length;
-    if (n === 0) return { proj: 1.2, promedio: 1.2, m: 0, b: 1.2, serie: [] };
+    if (n === 0) return { proj: 1.2, promedio: 1.2, serie: [] };
     if (n === 1) {
         const val = partidos[0][campo];
-        return { proj: val, promedio: val, m: 0, b: val, serie: [val] };
+        return { proj: val, promedio: val, serie: [val] };
     }
 
     let sx = 0, sy = 0, sxy = 0, sx2 = 0, sumW = 0, sumaSimple = 0;
@@ -450,14 +606,9 @@ function regresionPonderada(partidos, campo) {
         const x = i + 1;
         const y = Number(partidos[i][campo]) || 0;
         serie.push(y);
-        // Mayor peso a los partidos más recientes
         const w = 1 + (i * 0.25);
-        sx += w * x;
-        sy += w * y;
-        sxy += w * x * y;
-        sx2 += w * x * x;
-        sumW += w;
-        sumaSimple += y;
+        sx += w * x; sy += w * y; sxy += w * x * y; sx2 += w * x * x;
+        sumW += w; sumaSimple += y;
     }
 
     const den = (sumW * sx2) - (sx * sx);
@@ -466,31 +617,22 @@ function regresionPonderada(partidos, campo) {
 
     let proj = (m * (n + 1)) + b;
     const promedio = sumaSimple / n;
-    // Suavizado para evitar extremos irreales
     proj = Math.max(0.2, Math.min(proj, promedio * 1.75));
     proj = (proj * 0.65) + (promedio * 0.35);
 
-    return { proj, promedio, m, b, serie };
+    return { proj, promedio, serie };
 }
 
 function resumenVED(partidos) {
-    let g = 0, e = 0, p = 0, superoCasino = 0, conMomio = 0;
+    let g = 0, e = 0, p = 0;
     partidos.forEach(m => {
         if (m.resultado === 'G') g++;
         else if (m.resultado === 'E') e++;
         else p++;
-
-        if (m.momioEquipo > 1) {
-            conMomio++;
-            const ptsReales = m.resultado === 'G' ? 3 : (m.resultado === 'E' ? 1 : 0);
-            const ptsEsperados = (1 / m.momioEquipo) * 3;
-            if (ptsReales > ptsEsperados) superoCasino++;
-        }
     });
     const total = partidos.length || 1;
     const pct = ((g + (e * 0.5)) / total) * 100;
-    const pctCasino = conMomio > 0 ? (superoCasino / conMomio) * 100 : 50;
-    return { g, e, p, pct, pctCasino };
+    return { g, e, p, pct };
 }
 
 function factorial(k) {
@@ -511,25 +653,16 @@ function probOverLinea(linea, lambda) {
     return (1 - sumaUnder) * 100;
 }
 
-// ==========================================================
-// 3. EJECUCIÓN DEL MODELO PREDICTIVO DE EQUIPOS
-// ==========================================================
-function ejecutarModelo() {
-    const eq1 = document.getElementById('predEq1').value;
-    const eq2 = document.getElementById('predEq2').value;
-    if (!eq1 || !eq2 || eq1 === eq2) { alert("Selecciona dos equipos distintos."); return; }
-
+// Función central que calcula todo para cualquier par (eq1, eq2)
+function calcularDatosEnfrentamiento(eq1, eq2) {
     const ventana = parseInt(document.getElementById('ventanaN').value, 10);
     const pesoCondicion = parseFloat(document.getElementById('pesoLocalia').value);
 
     const hist1 = (BD_EQUIPOS[eq1] || []).slice(-ventana);
     const hist2 = (BD_EQUIPOS[eq2] || []).slice(-ventana);
-
-    // Filtrar partidos específicos de Local para eq1 y de Visita para eq2
     const hist1Local = (BD_EQUIPOS[eq1] || []).filter(m => m.condicion === 'local').slice(-Math.max(5, Math.floor(ventana * 0.7)));
     const hist2Visita = (BD_EQUIPOS[eq2] || []).filter(m => m.condicion === 'visita').slice(-Math.max(5, Math.floor(ventana * 0.7)));
 
-    // Regresiones Generales y por Condición
     const atqGen1 = regresionPonderada(hist1, 'golesFavor');
     const defGen1 = regresionPonderada(hist1, 'golesContra');
     const atqLoc1 = regresionPonderada(hist1Local, 'golesFavor');
@@ -540,14 +673,11 @@ function ejecutarModelo() {
     const atqVis2 = regresionPonderada(hist2Visita, 'golesFavor');
     const defVis2 = regresionPonderada(hist2Visita, 'golesContra');
 
-    // Combinar General + Condición Local/Visita
     const atq1 = (atqLoc1.proj * pesoCondicion) + (atqGen1.proj * (1 - pesoCondicion));
     const def1 = (defLoc1.proj * pesoCondicion) + (defGen1.proj * (1 - pesoCondicion));
-
     const atq2 = (atqVis2.proj * pesoCondicion) + (atqGen2.proj * (1 - pesoCondicion));
     const def2 = (defVis2.proj * pesoCondicion) + (defGen2.proj * (1 - pesoCondicion));
 
-    // Cálculo de Goles Esperados (xG / Lambda) cruzando Ataque vs Defensa y Media de Liga
     const mediaL = STATS_LIGA.mediaHG || 1.55;
     const mediaV = STATS_LIGA.mediaAG || 1.25;
 
@@ -558,91 +688,92 @@ function ejecutarModelo() {
     lambda2 = Math.max(0.30, Math.min(lambda2, 3.3));
     const lambdaTotal = lambda1 + lambda2;
 
-    // Matriz de Poisson Bivariada (0 a 7 goles por equipo) para obtener 1X2, BTTS y Marcadores Exactos
     let probLocal = 0, probEmpate = 0, probVisita = 0, probBTTS = 0;
-    const marcadores = [];
-
     for (let g1 = 0; g1 <= 7; g1++) {
         for (let g2 = 0; g2 <= 7; g2++) {
             const p = poissonP(g1, lambda1) * poissonP(g2, lambda2);
             if (g1 > g2) probLocal += p;
             else if (g1 === g2) probEmpate += p;
             else probVisita += p;
-
             if (g1 > 0 && g2 > 0) probBTTS += p;
-            marcadores.push({ score: `${g1} - ${g2}`, prob: p * 100 });
         }
     }
 
-    // Normalizar 1X2 al 100%
     const suma1X2 = probLocal + probEmpate + probVisita || 1;
     const p1 = (probLocal / suma1X2) * 100;
     const pX = (probEmpate / suma1X2) * 100;
     const p2 = (probVisita / suma1X2) * 100;
     const bttsSi = probBTTS * 100;
 
-    // Mostrar Panel y Barra 1X2
-    document.getElementById('panelResultados').style.display = 'block';
-    document.getElementById('xgLocalTxt').innerText = `${eq1}: ${lambda1.toFixed(2)}`;
-    document.getElementById('xgVisitaTxt').innerText = `${eq2}: ${lambda2.toFixed(2)}`;
-    document.getElementById('xgTotalTxt').innerText = lambdaTotal.toFixed(2);
-
-    document.getElementById('bar1').style.width = `${p1}%`;
-    document.getElementById('bar1').innerText = `${p1.toFixed(1)}%`;
-    document.getElementById('barX').style.width = `${pX}%`;
-    document.getElementById('barX').innerText = `${pX.toFixed(1)}%`;
-    document.getElementById('bar2').style.width = `${p2}%`;
-    document.getElementById('bar2').innerText = `${p2.toFixed(1)}%`;
-
-    document.getElementById('lbl1').innerText = `${eq1} (Cuota justa: ${(100/p1).toFixed(2)})`;
-    document.getElementById('lblX').innerText = `Empate (${(100/pX).toFixed(2)})`;
-    document.getElementById('lbl2').innerText = `${eq2} (Cuota justa: ${(100/p2).toFixed(2)})`;
-
-    // Evaluar Valor (+EV) si el usuario ingresó cuotas de su casino
-    evaluarValorCasino(eq1, eq2, p1, pX, p2);
-
-    // Llenar Tarjetas Comparativas
-    const ved1 = resumenVED(hist1);
-    const vedLoc1 = resumenVED(hist1Local);
-    const ved2 = resumenVED(hist2);
-    const vedVis2 = resumenVED(hist2Visita);
-
-    document.getElementById('cardTit1').innerText = `🏠 ${eq1}`;
-    document.getElementById('vedGen1').innerText = `${ved1.g}G - ${ved1.e}E - ${ved1.p}P (${ved1.pct.toFixed(0)}%)`;
-    document.getElementById('vedLoc1').innerText = `${vedLoc1.g}G - ${vedLoc1.e}E - ${vedLoc1.p}P (${vedLoc1.pct.toFixed(0)}%)`;
-    document.getElementById('atqDef1').innerText = `${atq1.toFixed(2)} GF / ${def1.toFixed(2)} GC`;
-    document.getElementById('vsCasino1').innerText = `${ved1.pctCasino.toFixed(0)}% de partidos`;
-
-    document.getElementById('cardTit2').innerText = `✈️ ${eq2}`;
-    document.getElementById('vedGen2').innerText = `${ved2.g}G - ${ved2.e}E - ${ved2.p}P (${ved2.pct.toFixed(0)}%)`;
-    document.getElementById('vedVis2').innerText = `${vedVis2.g}G - ${vedVis2.e}E - ${vedVis2.p}P (${vedVis2.pct.toFixed(0)}%)`;
-    document.getElementById('atqDef2').innerText = `${atq2.toFixed(2)} GF / ${def2.toFixed(2)} GC`;
-    document.getElementById('vsCasino2').innerText = `${ved2.pctCasino.toFixed(0)}% de partidos`;
-
-    // Construir Tabla de Mercados enfocada en Equipos y Totales
-    const mercados = [
-        { nombre: `Doble Oportunidad: ${eq1} o Empate (1X)`, prob: p1 + pX },
-        { nombre: `Doble Oportunidad: ${eq2} o Empate (X2)`, prob: p2 + pX },
-        { nombre: `⚽ ${eq1} Anota Más de 0.5 Goles (Over 0.5 Local)`, prob: probOverLinea(0.5, lambda1) },
-        { nombre: `⚽ ${eq1} Anota Más de 1.5 Goles (Over 1.5 Local)`, prob: probOverLinea(1.5, lambda1) },
-        { nombre: `⚽ ${eq2} Anota Más de 0.5 Goles (Over 0.5 Visita)`, prob: probOverLinea(0.5, lambda2) },
-        { nombre: `⚽ ${eq2} Anota Más de 1.5 Goles (Over 1.5 Visita)`, prob: probOverLinea(1.5, lambda2) },
-        { nombre: `🛡️ Portería a Cero de ${eq1} (${eq2} NO anota)`, prob: poissonP(0, lambda2) * 100 },
-        { nombre: `🛡️ Portería a Cero de ${eq2} (${eq1} NO anota)`, prob: poissonP(0, lambda1) * 100 },
-        { nombre: `🔥 Partido: Más de 1.5 Goles Totales (Over 1.5)`, prob: probOverLinea(1.5, lambdaTotal) },
-        { nombre: `🔥 Partido: Más de 2.5 Goles Totales (Over 2.5)`, prob: probOverLinea(2.5, lambdaTotal) },
-        { nombre: `❄️ Partido: Menos de 2.5 Goles Totales (Under 2.5)`, prob: 100 - probOverLinea(2.5, lambdaTotal) },
-        { nombre: `🤝 Ambos Equipos Anotan: SÍ (BTTS Sí)`, prob: bttsSi },
-        { nombre: `🚫 Ambos Equipos Anotan: NO (BTTS No)`, prob: 100 - bttsSi }
+    const listaMercados = [
+        { id: '1X', cat: 'equipos', nombre: Doble Oportunidad: ${eq1} o Empate (1X), prob: p1 + pX },
+        { id: 'X2', cat: 'equipos', nombre: Doble Oportunidad: ${eq2} o Empate (X2), prob: p2 + pX },
+        { id: '12', cat: 'equipos', nombre: Doble Oportunidad: Ganador Local o Visita (12), prob: p1 + p2 },
+        { id: 'ML1', cat: 'ganador', nombre: Ganador Directo: ${eq1} (Local), prob: p1 },
+        { id: 'ML2', cat: 'ganador', nombre: Ganador Directo: ${eq2} (Visita), prob: p2 },
+        { id: 'O05_L', cat: 'equipos', nombre: ${eq1} Anota > 0.5 Goles (Over 0.5 Local), prob: probOverLinea(0.5, lambda1) },
+        { id: 'O05_V', cat: 'equipos', nombre: ${eq2} Anota > 0.5 Goles (Over 0.5 Visita), prob: probOverLinea(0.5, lambda2) },
+        { id: 'O15_L', cat: 'equipos', nombre: ${eq1} Anota > 1.5 Goles (Over 1.5 Local), prob: probOverLinea(1.5, lambda1) },
+        { id: 'O15_T', cat: 'goles', nombre: Partido > 1.5 Goles Totales (Over 1.5), prob: probOverLinea(1.5, lambdaTotal) },
+        { id: 'O25_T', cat: 'goles', nombre: Partido > 2.5 Goles Totales (Over 2.5), prob: probOverLinea(2.5, lambdaTotal) },
+        { id: 'U35_T', cat: 'goles', nombre: Partido < 3.5 Goles Totales (Under 3.5), prob: 100 - probOverLinea(3.5, lambdaTotal) },
+        { id: 'BTTS_Y', cat: 'goles', nombre: Ambos Equipos Anotan: SÍ (BTTS), prob: bttsSi }
     ];
+
+    return {
+        eq1, eq2, lambda1, lambda2, lambdaTotal, p1, pX, p2, bttsSi,
+        atq1, def1, atq2, def2, atqGen1, atqGen2,
+        ved1: resumenVED(hist1), vedLoc1: resumenVED(hist1Local),
+        ved2: resumenVED(hist2), vedVis2: resumenVED(hist2Visita),
+        mercados: listaMercados
+    };
+}
+
+// ==========================================================
+// 3. INTERFAZ DEL ANALIZADOR INDIVIDUAL (COLUMNA 2)
+// ==========================================================
+function ejecutarModeloIndividual() {
+    const eq1 = document.getElementById('predEq1').value;
+    const eq2 = document.getElementById('predEq2').value;
+    if (!eq1 || !eq2 || eq1 === eq2) { alert("Selecciona dos equipos distintos."); return; }
+
+    const res = calcularDatosEnfrentamiento(eq1, eq2);
+
+    document.getElementById('panelResultados').style.display = 'block';
+    document.getElementById('xgLocalTxt').innerText = ${eq1}: ${res.lambda1.toFixed(2)};
+    document.getElementById('xgVisitaTxt').innerText = ${eq2}: ${res.lambda2.toFixed(2)};
+    document.getElementById('xgTotalTxt').innerText = res.lambdaTotal.toFixed(2);
+
+    document.getElementById('bar1').style.width = ${res.p1}%;
+    document.getElementById('bar1').innerText = ${res.p1.toFixed(1)}%;
+    document.getElementById('barX').style.width = ${res.pX}%;
+    document.getElementById('barX').innerText = ${res.pX.toFixed(1)}%;
+    document.getElementById('bar2').style.width = ${res.p2}%;
+    document.getElementById('bar2').innerText = ${res.p2.toFixed(1)}%;
+
+    document.getElementById('lbl1').innerText = ${eq1} (@${(100/res.p1).toFixed(2)});
+    document.getElementById('lblX').innerText = Empate (@${(100/res.pX).toFixed(2)});
+    document.getElementById('lbl2').innerText = ${eq2} (@${(100/res.p2).toFixed(2)});
+
+    evaluarValorCasino(eq1, eq2, res.p1, res.pX, res.p2);
+
+    document.getElementById('cardTit1').innerText = 🏠 ${eq1};
+    document.getElementById('vedGen1').innerText = ${res.ved1.g}G-${res.ved1.e}E-${res.ved1.p}P (${res.ved1.pct.toFixed(0)}%);
+    document.getElementById('vedLoc1').innerText = ${res.vedLoc1.g}G-${res.vedLoc1.e}E-${res.vedLoc1.p}P (${res.vedLoc1.pct.toFixed(0)}%);
+    document.getElementById('atqDef1').innerText = ${res.atq1.toFixed(2)} GF / ${res.def1.toFixed(2)} GC;
+
+    document.getElementById('cardTit2').innerText = ✈️ ${eq2};
+    document.getElementById('vedGen2').innerText = ${res.ved2.g}G-${res.ved2.e}E-${res.ved2.p}P (${res.ved2.pct.toFixed(0)}%);
+    document.getElementById('vedVis2').innerText = ${res.vedVis2.g}G-${res.vedVis2.e}E-${res.vedVis2.p}P (${res.vedVis2.pct.toFixed(0)}%);
+    document.getElementById('atqDef2').innerText = ${res.atq2.toFixed(2)} GF / ${res.def2.toFixed(2)} GC;
 
     const tbodyM = document.getElementById('tablaMercadosBody');
     tbodyM.innerHTML = '';
-    mercados.forEach(m => {
+    res.mercados.forEach(m => {
         const cuotaMin = m.prob > 0 ? (100 / m.prob).toFixed(2) : '-';
-        let badge = `<span class="pill-pick pick-low">Baja (<55%)</span>`;
-        if (m.prob >= 68) badge = `<span class="pill-pick pick-high">🔥 Alta Ideal Parlay (${m.prob.toFixed(0)}%)</span>`;
-        else if (m.prob >= 55) badge = `<span class="pill-pick pick-med">⚡ Media Valor (${m.prob.toFixed(0)}%)</span>`;
+        let badge = <span class="pill-pick pick-low">Baja</span>;
+        if (m.prob >= 68) badge = <span class="pill-pick pick-high">🔥 Alta (${m.prob.toFixed(0)}%)</span>;
+        else if (m.prob >= 56) badge = <span class="pill-pick pick-med">⚡ Media (${m.prob.toFixed(0)}%)</span>;
 
         tbodyM.innerHTML += `
             <tr>
@@ -654,21 +785,8 @@ function ejecutarModelo() {
         `;
     });
 
-    // Top 5 Marcadores Exactos
-    marcadores.sort((a, b) => b.prob - a.prob);
-    const contScores = document.getElementById('topMarcadores');
-    contScores.innerHTML = '';
-    marcadores.slice(0, 5).forEach(s => {
-        contScores.innerHTML += `
-            <div style="background:white; border:1px solid #cbd5e1; border-radius:8px; padding:8px 14px; font-weight:bold; font-size:0.9rem;">
-                ${s.score} <span style="color:#16a34a; margin-left:5px;">(${s.prob.toFixed(1)}%)</span>
-            </div>
-        `;
-    });
-
-    // Actualizar H2H y Gráfica
     renderH2H(eq1, eq2);
-    dibujarGrafica(eq1, atqGen1, eq2, atqGen2);
+    dibujarGrafica(eq1, res.atqGen1, eq2, res.atqGen2);
 }
 
 function evaluarValorCasino(eq1, eq2, p1, pX, p2) {
@@ -676,34 +794,210 @@ function evaluarValorCasino(eq1, eq2, p1, pX, p2) {
     const oX = parseFloat(document.getElementById('oddCasaX').value);
     const o2 = parseFloat(document.getElementById('oddCasa2').value);
     const div = document.getElementById('evAlerta');
-
     const hallazgos = [];
-    if (o1 > 1) {
-        const ev1 = ((p1 / 100) * o1 - 1) * 100;
-        if (ev1 > 2) hallazgos.push(`✅ VALOR en ${eq1} (+${ev1.toFixed(1)}% EV a cuota @${o1})`);
-    }
-    if (oX > 1) {
-        const evX = ((pX / 100) * oX - 1) * 100;
-        if (evX > 2) hallazgos.push(`✅ VALOR en Empate (+${evX.toFixed(1)}% EV a cuota @${oX})`);
-    }
-    if (o2 > 1) {
-        const ev2 = ((p2 / 100) * o2 - 1) * 100;
-        if (ev2 > 2) hallazgos.push(`✅ VALOR en ${eq2} (+${ev2.toFixed(1)}% EV a cuota @${o2})`);
-    }
+    if (o1 > 1 && ((p1/100)*o1 - 1)*100 > 2) hallazgos.push(✅ VALOR en ${eq1} (+${(((p1/100)*o1 - 1)*100).toFixed(1)}% EV));
+    if (oX > 1 && ((pX/100)*oX - 1)*100 > 2) hallazgos.push(✅ VALOR en Empate (+${(((pX/100)*oX - 1)*100).toFixed(1)}% EV));
+    if (o2 > 1 && ((p2/100)*o2 - 1)*100 > 2) hallazgos.push(✅ VALOR en ${eq2} (+${(((p2/100)*o2 - 1)*100).toFixed(1)}% EV));
 
-    if (hallazgos.length > 0) {
-        div.style.color = '#15803d';
-        div.innerText = hallazgos.join("  |  ");
-    } else if (o1 > 1 || oX > 1 || o2 > 1) {
-        div.style.color = '#b91c1c';
-        div.innerText = "⚠️ Las cuotas ingresadas del casino no tienen margen de valor positivo (+EV) frente al modelo.";
-    } else {
-        div.innerText = "";
-    }
+    div.style.color = hallazgos.length > 0 ? '#15803d' : '#b91c1c';
+    div.innerText = hallazgos.length > 0 ? hallazgos.join(" | ") : ((o1>1||oX>1||o2>1) ? "⚠️ Sin valor +EV frente al modelo." : "");
 }
 
 // ==========================================================
-// 4. H2H DIRECTO, HISTORIAL Y GRÁFICA
+// 4. LÓGICA DEL ARMADOR DE PARLAY DE JORNADA (9 PARTIDOS)
+// ==========================================================
+function autollenarJornada() {
+    const equipos = Object.keys(BD_EQUIPOS).sort();
+    if (equipos.length < 2) { alert("Primero sube tu archivo MEX.csv en el Paso 1."); return; }
+
+    // Mezclar aleatoriamente los primeros 18 equipos activos para llenar los 9 juegos sin repetir
+    const disponibles = [...equipos].slice(0, 18);
+    for (let i = disponibles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [disponibles[i], disponibles[j]] = [disponibles[j], disponibles[i]];
+    }
+
+    for (let i = 1; i <= 9; i++) {
+        const eqL = disponibles[(i - 1) * 2] || equipos[0];
+        const eqV = disponibles[(i - 1) * 2 + 1] || equipos[1];
+        document.getElementById(jorLoc_${i}).value = eqL;
+        document.getElementById(jorVis_${i}).value = eqV;
+    }
+    generarParlayJornada();
+}
+
+function limpiarJornada() {
+    for (let i = 1; i <= 9; i++) {
+        document.getElementById(jorLoc_${i}).value = "";
+        document.getElementById(jorVis_${i}).value = "";
+    }
+    document.getElementById('resultadosParlayJornada').style.display = 'none';
+}
+
+function generarParlayJornada() {
+    if (Object.keys(BD_EQUIPOS).length === 0) {
+        alert("Primero carga tu archivo MEX.csv en el Paso 1.");
+        return;
+    }
+
+    const filtroCat = document.getElementById('parlayFiltroMercado').value;
+    const minProb = parseFloat(document.getElementById('parlayMinProb').value);
+    DATOS_JORNADA_CALCULADOS = [];
+
+    for (let i = 1; i <= 9; i++) {
+        const eqL = document.getElementById(jorLoc_${i}).value;
+        const eqV = document.getElementById(jorVis_${i}).value;
+        if (!eqL || !eqV || eqL === eqV) continue;
+
+        const info = calcularDatosEnfrentamiento(eqL, eqV);
+
+        // Filtrar mercados según la preferencia del usuario
+        let candidatos = info.mercados.filter(m => {
+            if (filtroCat === 'equipos') return m.cat === 'equipos' || m.cat === 'ganador';
+            if (filtroCat === 'goles') return m.cat === 'goles';
+            if (filtroCat === 'ganador') return m.id === '1X' || m.id === 'X2' || m.id === '12' || m.cat === 'ganador';
+            return true;
+        });
+
+        // Ordenar candidatos de mayor a menor probabilidad (evitando cuotas ultrabajas >92% si hay buenas opciones cerca del umbral)
+        candidatos.sort((a, b) => b.prob - a.prob);
+
+        // Elegir el mejor pick que cumpla el umbral pero que tenga cuota atractiva (<= 89% idealmente, o el más alto disponible)
+        let mejorPick = candidatos.find(c => c.prob <= 89 && c.prob >= minProb) || candidatos[0];
+
+        DATOS_JORNADA_CALCULADOS.push({
+            numPartido: i,
+            eq1: eqL,
+            eq2: eqV,
+            lambda1: info.lambda1,
+            lambda2: info.lambda2,
+            p1: info.p1,
+            pX: info.pX,
+            p2: info.p2,
+            candidatos: candidatos,
+            pickSeleccionado: mejorPick,
+            incluido: true
+        });
+    }
+
+    if (DATOS_JORNADA_CALCULADOS.length === 0) {
+        alert("Selecciona al menos un partido válido (Local vs Visita) en las casillas de la jornada.");
+        return;
+    }
+
+    document.getElementById('resultadosParlayJornada').style.display = 'block';
+    renderTicketsRecomendados();
+    renderTablaInteractivaJornada();
+}
+
+function renderTicketsRecomendados() {
+    const monto = parseFloat(document.getElementById('montoApuestaParlay').value) || 100;
+    document.querySelectorAll('.lblMonto').forEach(el => el.innerText = monto);
+
+    // Ordenar todos los partidos calculados por la probabilidad de su mejor pick
+    const ordenados = [...DATOS_JORNADA_CALCULADOS].sort((a, b) => b.pickSeleccionado.prob - a.pickSeleccionado.prob);
+
+    armarResumenTicket(ordenados.slice(0, 3), 't3', monto);
+    armarResumenTicket(ordenados.slice(0, 5), 't5', monto);
+    armarResumenTicket(ordenados, 't9', monto);
+}
+
+function armarResumenTicket(listaPartidos, prefix, monto) {
+    let probConjunta = 1;
+    let momioConjunto = 1;
+    const ul = document.getElementById(${prefix}Lista);
+    ul.innerHTML = '';
+
+    listaPartidos.forEach(item => {
+        const pDec = item.pickSeleccionado.prob / 100;
+        const odd = pDec > 0 ? (1 / pDec) : 1;
+        probConjunta *= pDec;
+        momioConjunto *= odd;
+
+        ul.innerHTML += `
+            <li>
+                <strong>${item.eq1} vs ${item.eq2}:</strong> ${item.pickSeleccionado.nombre} 
+                <span style="color:#4ade80; font-weight:bold;">(${item.pickSeleccionado.prob.toFixed(1)}% | @${odd.toFixed(2)})</span>
+            </li>
+        `;
+    });
+
+    const pctFinal = probConjunta * 100;
+    document.getElementById(${prefix}Prob).innerText = ${pctFinal.toFixed(1)}%;
+    document.getElementById(${prefix}Odd).innerText = @${momioConjunto.toFixed(2)};
+    document.getElementById(${prefix}Pago).innerText = $${(monto * momioConjunto).toFixed(2)};
+}
+
+function renderTablaInteractivaJornada() {
+    const tbody = document.getElementById('tablaJornadaInteractiva');
+    tbody.innerHTML = '';
+
+    DATOS_JORNADA_CALCULADOS.forEach((item, idx) => {
+        let opcionesSelect = '';
+        item.candidatos.forEach((c, cIdx) => {
+            const sel = c.id === item.pickSeleccionado.id ? 'selected' : '';
+            opcionesSelect += <option value="${cIdx}" ${sel}>${c.nombre} (${c.prob.toFixed(1)}% | @${(100/c.prob).toFixed(2)})</option>;
+        });
+
+        const odd = (100 / item.pickSeleccionado.prob).toFixed(2);
+
+        tbody.innerHTML += `
+            <tr>
+                <td><input type="checkbox" ${item.incluido ? 'checked' : ''} onchange="togglePartidoParlay(${idx}, this.checked)" style="width:20px; height:20px; margin:0; cursor:pointer;"></td>
+                <td style="font-weight:bold;">J${item.numPartido}</td>
+                <td class="td-left">${item.eq1} vs ${item.eq2}</td>
+                <td style="font-weight:bold; color:#2563eb;">${item.lambda1.toFixed(2)} - ${item.lambda2.toFixed(2)}</td>
+                <td style="font-size:0.82rem;">${item.p1.toFixed(0)}% / ${item.pX.toFixed(0)}% / ${item.p2.toFixed(0)}%</td>
+                <td class="td-left">
+                    <select onchange="cambiarPickPartido(${idx}, this.value)" style="margin:0; padding:6px; font-weight:bold; font-size:0.86rem;">
+                        ${opcionesSelect}
+                    </select>
+                </td>
+                <td><span class="pill-pick ${item.pickSeleccionado.prob >= 68 ? 'pick-high' : 'pick-med'}" id="probCell_${idx}">${item.pickSeleccionado.prob.toFixed(1)}%</span></td>
+                <td style="font-weight:bold; color:#1d4ed8;" id="oddCell_${idx}">@${odd}</td>
+            </tr>
+        `;
+    });
+
+    recalcularTicketPersonalizado();
+}
+
+function togglePartidoParlay(idx, estado) {
+    DATOS_JORNADA_CALCULADOS[idx].incluido = estado;
+    recalcularTicketPersonalizado();
+}
+
+function cambiarPickPartido(idx, candidatoIdx) {
+    const nuevoPick = DATOS_JORNADA_CALCULADOS[idx].candidatos[candidatoIdx];
+    DATOS_JORNADA_CALCULADOS[idx].pickSeleccionado = nuevoPick;
+    document.getElementById(probCell_${idx}).innerText = ${nuevoPick.prob.toFixed(1)}%;
+    document.getElementById(oddCell_${idx}).innerText = @${(100 / nuevoPick.prob).toFixed(2)};
+    renderTicketsRecomendados();
+    recalcularTicketPersonalizado();
+}
+
+function recalcularTicketPersonalizado() {
+    const monto = parseFloat(document.getElementById('montoApuestaParlay').value) || 100;
+    const activos = DATOS_JORNADA_CALCULADOS.filter(d => d.incluido);
+
+    let probConjunta = activos.length > 0 ? 1 : 0;
+    let momioConjunto = activos.length > 0 ? 1 : 0;
+
+    activos.forEach(item => {
+        const pDec = item.pickSeleccionado.prob / 100;
+        probConjunta *= pDec;
+        momioConjunto *= (1 / pDec);
+    });
+
+    document.getElementById('customCount').innerText = activos.length;
+    document.getElementById('customProb').innerText = ${(probConjunta * 100).toFixed(1)}%;
+    document.getElementById('customOdd').innerText = @${momioConjunto.toFixed(2)};
+    document.getElementById('customPayout').innerText = (monto * momioConjunto).toFixed(2);
+    renderTicketsRecomendados();
+}
+
+// ==========================================================
+// 5. H2H, HISTORIAL Y GRÁFICA
 // ==========================================================
 function renderH2H(eq1, eq2) {
     const cruces = RAW_CSV_ROWS.filter(r => (r.home === eq1 && r.away === eq2) || (r.home === eq2 && r.away === eq1)).reverse();
@@ -711,8 +1005,7 @@ function renderH2H(eq1, eq2) {
     tbody.innerHTML = '';
 
     if (cruces.length === 0) {
-        document.getElementById('h2hResumen').innerText = "Sin enfrentamientos registrados en el CSV.";
-        tbody.innerHTML = '<tr><td colspan="4">Sin datos</td></tr>';
+        document.getElementById('h2hResumen').innerText = "Sin enfrentamientos registrados.";
         return;
     }
 
@@ -723,17 +1016,9 @@ function renderH2H(eq1, eq2) {
         else v2++;
     });
 
-    document.getElementById('h2hResumen').innerText = `En ${cruces.length} juegos históricos: ${eq1} ganó ${v1} | Empates ${emp} | ${eq2} ganó ${v2}`;
-
-    cruces.slice(0, 12).forEach(c => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${c.date}</td>
-                <td style="font-weight:${c.home === eq1 ? 'bold' : 'normal'};">${c.home}</td>
-                <td style="font-weight:bold; background:#f1f5f9;">${c.hg} - ${c.ag}</td>
-                <td style="font-weight:${c.away === eq1 ? 'bold' : 'normal'};">${c.away}</td>
-            </tr>
-        `;
+    document.getElementById('h2hResumen').innerText = En ${cruces.length} juegos: ${eq1} (${v1}G) | Empates (${emp}) | ${eq2} (${v2}G);
+    cruces.slice(0, 10).forEach(c => {
+        tbody.innerHTML += <tr><td>${c.date}</td><td>${c.home}</td><td style="font-weight:bold;">${c.hg} - ${c.ag}</td><td>${c.away}</td></tr>;
     });
 }
 
@@ -743,8 +1028,7 @@ function renderHistorialEquipo() {
     tbody.innerHTML = '';
     if (!eq || !BD_EQUIPOS[eq]) return;
 
-    const lista = [...BD_EQUIPOS[eq]].reverse();
-    lista.forEach(m => {
+    [...BD_EQUIPOS[eq]].reverse().forEach(m => {
         const bg = m.resultado === 'G' ? '#16a34a' : (m.resultado === 'P' ? '#dc2626' : '#d97706');
         tbody.innerHTML += `
             <tr>
@@ -764,26 +1048,19 @@ function dibujarGrafica(eq1, r1, eq2, r2) {
 
     const maxLen = Math.max(r1.serie.length, r2.serie.length);
     const labels = [];
-    for (let i = 1; i <= maxLen; i++) labels.push(`J${i}`);
+    for (let i = 1; i <= maxLen; i++) labels.push(J${i});
     labels.push('Proyección');
-
-    const d1 = [...r1.serie, r1.proj];
-    const d2 = [...r2.serie, r2.proj];
 
     chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [
-                { label: `Goles Anotados: ${eq1}`, data: d1, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.25, borderWidth: 2.5 },
-                { label: `Goles Anotados: ${eq2}`, data: d2, borderColor: '#dc2626', backgroundColor: '#dc2626', tension: 0.25, borderWidth: 2.5 }
+                { label: Goles: ${eq1}, data: [...r1.serie, r1.proj], borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.25 },
+                { label: Goles: ${eq2}, data: [...r2.serie, r2.proj], borderColor: '#dc2626', backgroundColor: '#dc2626', tension: 0.25 }
             ]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true, title: { display: true, text: 'Goles' } } }
-        }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
     });
 }
 </script>
